@@ -5,19 +5,30 @@ import {
   Typography,
   Button,
   IconButton,
-  Card,
 } from "@material-tailwind/react";
- 
+import { useNavigate } from "react-router-dom";
+
 export function StickyNavbar() {
   const [openNav, setOpenNav] = React.useState(false);
- 
+
   React.useEffect(() => {
     window.addEventListener(
       "resize",
       () => window.innerWidth >= 960 && setOpenNav(false),
     );
   }, []);
- 
+
+  const navigate = useNavigate();
+  const handleLogin = () => {
+    navigate('/login');
+  }
+
+  const handleRegister = () => {
+    navigate('/register');
+  }
+
+
+  {/* navbar list */}
   const navList = (
     <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6 ">
       <Typography
@@ -58,7 +69,7 @@ export function StickyNavbar() {
       </Typography>
     </ul>
   );
- 
+
   return (
     <div className="-m-6 max-h-[768px] w-[calc(100%+48px)] overflow-scroll">
       <Navbar className="sticky top-0 z-10 h-max max-w-full rounded-none px-4 py-2 lg:px-8 lg:py-4" >
@@ -75,13 +86,15 @@ export function StickyNavbar() {
               <Button
                 variant="text"
                 size="sm"
-                className="hidden lg:inline-block">
+                className="hidden lg:inline-block"
+                onClick={handleLogin}>
                 <span>Log In</span>
               </Button>
               <Button
                 variant="gradient"
                 size="sm"
-                className="hidden lg:inline-block">
+                className="hidden lg:inline-block"
+                onClick={handleRegister}>
                 <span>Sign in</span>
               </Button>
             </div>
@@ -101,7 +114,7 @@ export function StickyNavbar() {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"/>
+                    d="M6 18L18 6M6 6l12 12" />
                 </svg>
               ) : (
                 <svg
@@ -113,7 +126,7 @@ export function StickyNavbar() {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M4 6h16M4 12h16M4 18h16"/>
+                    d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               )}
             </IconButton>

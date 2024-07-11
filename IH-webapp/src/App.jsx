@@ -1,11 +1,21 @@
-import './App.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import Login from './components/Login'
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <div>Hello world!</div>,
+  },
+]);
+
 
 function App() {
-
   return (
-    <><Login /></>
+    <div>
+      <RouterProvider router={router}/>
+    </div>
   )
 }
 

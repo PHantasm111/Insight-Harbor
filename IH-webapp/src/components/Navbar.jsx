@@ -30,35 +30,35 @@ export function StickyNavbar() {
 
   {/* navbar list */}
   const navList = (
-    <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6 ">
+    <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-10 ">
       <Typography
         as="li"
         variant="small"
         color="blue-gray"
-        className="p-1 font-normal">
+        className="p-1 font-normal uppercase">
         <a href="#" className="flex items-center">
-          Pages
+          Build your Data Lake
         </a>
       </Typography>
       <Typography
         as="li"
         variant="small"
         color="blue-gray"
-        className="p-1 font-normal">
+        className="p-1 font-normal uppercase">
         <a href="#" className="flex items-center">
-          Account
+          Exhibition
         </a>
       </Typography>
       <Typography
         as="li"
         variant="small"
         color="blue-gray"
-        className="p-1 font-normal">
+        className="p-1 font-normal uppercase">
         <a href="#" className="flex items-center">
-          Blocks
+          History
         </a>
       </Typography>
-      <Typography
+      {/* <Typography
         as="li"
         variant="small"
         color="blue-gray"
@@ -66,7 +66,7 @@ export function StickyNavbar() {
         <a href="#" className="flex items-center">
           Docs
         </a>
-      </Typography>
+      </Typography> */}
     </ul>
   );
 
@@ -95,7 +95,7 @@ export function StickyNavbar() {
                 size="sm"
                 className="hidden lg:inline-block"
                 onClick={handleRegister}>
-                <span>Sign in</span>
+                <span>Sign up</span>
               </Button>
             </div>
             <IconButton

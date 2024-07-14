@@ -1,5 +1,6 @@
 import React from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 import {
     Card,
     Input,
@@ -13,14 +14,22 @@ import { useState } from 'react';
 import axios from 'axios';
 
 const Register = () => {
-    
+
+    // Navigate to sign in page
+    const navigate = useNavigate();
+
+    // Save err
+    const [err, setError] = useState(null);
+
+    // Save data
     const [formData, setFormData] = useState({
-        name: '',
+        username: '',
         email: '',
         password: '',
-        type: 'No'
+        identity: ''
     });
 
+    // When input changed, we save the data 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -29,18 +38,22 @@ const Register = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    // Where to submit (use axios)
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        axios.post('http://localhost:3000/register', formData)
-            .then(response => {
-                console.log(response.data);
-                alert('User registered successfully');
-            })
-            .catch(error => {
-                console.error('There was an error!', error);
-                alert('Error registering user');
-            });
+        try {
+            // Transfer data to api
+            await axios.post('http://localhost:3000/auth/register', formData, {
+                withCredentials: true,
+              })
+            // if sucess -> To page login
+            navigate("/login");
+        } catch (err) {
+            setError(err.response.data)
+        }
     };
+
+
 
     return (
         <div className='flex items-center justify-center min-h-screen bg-gray-100'>
@@ -70,8 +83,8 @@ const Register = () => {
                                 size="lg"
                                 placeholder="name"
                                 className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
-                                name="name"
-                                value={formData.name}
+                                name="username"
+                                value={formData.username}
                                 onChange={handleChange}
                                 labelProps={{
                                     className: "before:content-none after:content-none",
@@ -110,8 +123,8 @@ const Register = () => {
                                 Are you a data lake practitioner?
                             </Typography>
                             <div className="flex gap-20 pl-20">
-                                <Radio name="type" label="Yes" value="Yes" checked={formData.type === 'Yes'} onChange={handleChange}/>
-                                <Radio name="type" label="No" value="No" checked={formData.type === 'No'} onChange={handleChange}/>
+                                <Radio name="identity" label="Yes" value="Pro" checked={formData.identity === 'Pro'} onChange={handleChange} />
+                                <Radio name="identity" label="No" value="No" checked={formData.identity === 'No'} onChange={handleChange} />
                             </div>
                         </div>
                         <Checkbox required
@@ -132,6 +145,15 @@ const Register = () => {
                             }
                             containerProps={{ className: "-ml-2.5" }}
                         />
+
+                        {/* if there is an err -> show message */}
+                        {err && <Typography
+                            variant="small"
+                            color="red"
+                        >
+                            {err}
+                        </Typography>}
+
                         <Button type="submit" className="mt-6" fullWidth>
                             sign up
                         </Button>

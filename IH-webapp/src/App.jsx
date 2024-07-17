@@ -10,6 +10,9 @@ import Footer from './components/Footer'
 import Register from './pages/Register'
 import Login from './pages/Login'
 import './styles/Home.scss'
+import Questions from "./pages/Questions";
+import Tools from "./pages/Tools";
+
 
 const Layout = () => {
   return (
@@ -37,6 +40,14 @@ const router = createBrowserRouter([
       {
         path:"/login",
         element:<Login/>
+      },
+      {
+        path:"/questions",
+        element:<Questions/>
+      },
+      {
+        path:"/tools",
+        element:<Tools/>
       },
     ]
   },

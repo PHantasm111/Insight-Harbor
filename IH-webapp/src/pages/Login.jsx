@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { AuthContext } from "../context/authContext"
 import {
   Card,
   CardHeader,
@@ -23,6 +24,9 @@ const Login = () => {
   // Navigate to sign in page
   const navigate = useNavigate();
 
+  // Recognize current user
+  const { login } = useContext(AuthContext);
+
   // Save err
   const [err, setError] = useState(null);
 
@@ -35,24 +39,23 @@ const Login = () => {
 
   // When input changed, we save the data 
   const handleChange = (e) => {
-    setFormData((prev) => ({...prev, [e.target.name] : e.target.value }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   // Where to submit (use axios)
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      // Transfer data to api
-      const response = await axios.post('http://localhost:3000/auth/login', formData, {
-        withCredentials: true,
-      });
+      await login(formData)
       // if sucess -> To page login
-      console.log('Login successful:', response);
       navigate("/");
+
     } catch (err) {
       console.error('Error:', err);
       setError(err.response?.data || 'An unexpected error occurred');
     }
+
   };
 
 
@@ -69,32 +72,26 @@ const Login = () => {
           </Typography>
         </CardHeader>
         <CardBody className="flex flex-col gap-4">
-          <Input label="Email" size="lg" name='email' onChange={handleChange}/>
-          <Input label="Password" size="lg" name='password' onChange={handleChange} />
+          <Input label="Email" size="lg" name='email' onChange={handleChange} />
+          <Input label="Password" type="Password" size="lg" name='password' onChange={handleChange} />
           <div className="-ml-2.5">
             <Checkbox label="Remember Me" />
           </div>
         </CardBody>
         <CardFooter className="pt-0">
           {/* if there is an err -> show message */}
-          {err && <Typography
-            variant="small"
-            color="red"
-          >
-            {err}
-          </Typography>}
+          {err &&
+            <Typography
+              variant="small"
+              color="red">
+              {err}
+            </Typography>
+          }
           <Button variant="gradient" fullWidth onClick={handleSubmit}>
             Sign In
           </Button>
           <Typography variant="small" className="mt-6 flex justify-center">
-            Don&apos;t have an account?
-            <Typography
-              variant="small"
-              color="blue-gray"
-              className="ml-1 font-bold"
-            >
-              <Link to="/register">Sign up</Link>
-            </Typography>
+            Don&apos;t have an account? <span className='font-bold pl-1 underline'><Link to="/register">Sign up</Link></span>
           </Typography>
         </CardFooter>
       </Card>

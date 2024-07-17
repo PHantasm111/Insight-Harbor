@@ -4,9 +4,7 @@ import bodyParser from 'body-parser';
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
-
-
-
+import toolRoutes from "./routes/toolRoutes.js";
 
 
 const app = express();
@@ -21,8 +19,10 @@ app.use(bodyParser.urlencoded({ extended : true}));
 
 app.use(cookieParser());
 
-// URL
+// Use Routes
 app.use("/auth", authRoutes)
+app.use("/tool", toolRoutes)
+
 
 app.listen(3000, () => {
     console.log("Server is running...")

@@ -54,7 +54,7 @@ export const login = (req, res) => {
         if (err) return res.json(err);
         if (data.length === 0) return res.status(404).json("User not found!");
 
-        console.log("User found:", data[0]);
+        //console.log("User found:", data[0]);
 
         // normal -> check pwd
         const isPasswordCorrect = bcrypt.compareSync(req.body.password, data[0].Pwd_U);
@@ -70,7 +70,7 @@ export const login = (req, res) => {
             httpOnly: true,
         }).status(200).json(other);
 
-        console.log("Cookie sent:", token);
+        //console.log("Cookie sent:", token);
 
 
     });
@@ -78,5 +78,8 @@ export const login = (req, res) => {
 };
 
 export const logout = (req, res) => {
-
+    res.clearCookie("access_token", {
+        sameSite: "none",
+        secure: true,
+    }).status(200).json("User has been logged out.")
 }

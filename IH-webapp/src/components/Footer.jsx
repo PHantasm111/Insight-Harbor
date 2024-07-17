@@ -26,16 +26,6 @@ export function FooterWithLogo() {
               color="blue-gray"
               className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500"
             >
-              License
-            </Typography>
-          </li>
-          <li>
-            <Typography
-              as="a"
-              href="#"
-              color="blue-gray"
-              className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500"
-            >
               Contribute
             </Typography>
           </li>
@@ -51,8 +41,10 @@ export function FooterWithLogo() {
           </li>
         </ul>
       </div>
-      <hr className="my-8 border-blue-gray-50" />
-      <Typography color="blue-gray" className="text-center font-normal">
+
+      <hr className="my-4 border-blue-gray-50" />
+
+      <Typography variant="small" color="blue-gray" className="text-center">
         &copy; 2024 Made by PH
       </Typography>
     </footer>

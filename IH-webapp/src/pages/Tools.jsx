@@ -8,7 +8,6 @@ import {
     ListItem,
     ListItemPrefix,
     ListItemSuffix,
-    Chip,
     Accordion,
     AccordionHeader,
     AccordionBody,
@@ -29,12 +28,22 @@ const Tools = () => {
     const [openIngestion, setOpenIngestion] = useState(false);
     const [openPreparation, setOpenPreparation] = useState(false);
     const [openAnalysis, setOpenAnalysis] = useState(false);
+    const [openIndex, setOpenIndex] = useState(false);
+    const [openDb, setOpenDb] = useState(false);
+    const [openFS, setOpenFS] = useState(false);
+    const [openOS, setOpenOS] = useState(false);
+    const [openRDB, setOpenRDB] = useState(false);
+    const [openNDB, setOpenNDB] = useState(false);
 
     // List to store tools name
     const [ingestionTools, setIngestionTools] = useState([]);
     const [preparationTools, setPreparationTools] = useState([]);
     const [analysisTools, setAnalysis] = useState([]);
-    const [storageTools, setStorageTools] = useState([]);
+    const [storageIBS, setStorageIBS] = useState([]);
+    const [storage_RDB, setStorage_RDB] = useState([]);
+    const [storageNosql, setStorageNosql] = useState([]);
+    const [storageFS, setStorageFS] = useState([]);
+    const [storageOS, setStorageOS] = useState([]);
 
     //console.log(ingestionTools);
 
@@ -48,7 +57,12 @@ const Tools = () => {
                 setIngestionTools(tools.ingestionTools);
                 setPreparationTools(tools.preparationTools);
                 setAnalysis(tools.analysisTools);
-                setStorageTools(tools.storageTools);
+                setStorageIBS(tools.storage_IBS);
+                setStorage_RDB(tools.storage_RDB);
+                setStorageNosql(tools.storageNosql);
+                setStorageFS(tools.storageFS);
+                setStorageOS(tools.storageOS);
+
             } catch (error) {
                 console.error('Error fetching tools:', error);
             }
@@ -81,14 +95,13 @@ const Tools = () => {
                         <Accordion
                             open={open === 1}
                             icon={
-
                                 <ChevronDownIcon
                                     strokeWidth={2.5}
                                     className={`mx-auto h-4 w-4 transition-transform ${open === 1 ? "rotate-180" : ""}`}
                                 />
                             }
                         >
-                            <ListItem className="p-0" selected={open === 1}>
+                            <ListItem className="p-0" selected={open === 1} key="data_lake_tools">
                                 <AccordionHeader onClick={() => handleOpen(1)} className="border-b-0 p-3">
                                     <ListItemPrefix>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -105,7 +118,7 @@ const Tools = () => {
                                 <List className="p-0">
                                     {/* Ingestion tools list */}
                                     <Accordion open={openIngestion === true}>
-                                        <ListItem className="p-0" selected={openIngestion}>
+                                        <ListItem className="p-0" selected={openIngestion} key="Ingestion_tools">
                                             <AccordionHeader onClick={() => handleToggle(setOpenIngestion)} className="border-b-0 p-3 flex items-center">
                                                 <ListItemPrefix>
                                                     <ChevronRightIcon
@@ -128,7 +141,7 @@ const Tools = () => {
                                     </Accordion>
                                     {/* Preparation tools List */}
                                     <Accordion open={openPreparation === true}>
-                                        <ListItem className="p-0" selected={openPreparation === true}>
+                                        <ListItem className="p-0" selected={openPreparation === true} key="preparation_tools">
                                             <AccordionHeader onClick={() => handleToggle(setOpenPreparation)} className="border-b-0 p-3 flex items-center">
                                                 <ListItemPrefix>
                                                     <ChevronRightIcon
@@ -151,7 +164,7 @@ const Tools = () => {
                                     </Accordion>
                                     {/* Analysis tools list */}
                                     <Accordion open={openAnalysis === true}>
-                                        <ListItem className="p-0" selected={openAnalysis === true}>
+                                        <ListItem className="p-0" selected={openAnalysis === true} key="analysis_tools">
                                             <AccordionHeader onClick={() => handleToggle(setOpenAnalysis)} className="border-b-0 p-3 flex items-center">
                                                 <ListItemPrefix>
                                                     <ChevronRightIcon
@@ -185,7 +198,7 @@ const Tools = () => {
                                 />
                             }
                         >
-                            <ListItem className="p-0" selected={open === 2}>
+                            <ListItem className="p-0" selected={open === 2} key="storage">
                                 <AccordionHeader onClick={() => handleOpen(2)} className="border-b-0 p-3">
                                     <ListItemPrefix>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -198,30 +211,159 @@ const Tools = () => {
                                 </AccordionHeader>
                             </ListItem>
                             <AccordionBody className="py-1">
+
                                 <List className="p-0">
-                                    <ListItem>
-                                        <ListItemPrefix>
-                                            <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                                        </ListItemPrefix>
-                                        123
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItemPrefix>
-                                            <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                                        </ListItemPrefix>
-                                        123
-                                    </ListItem>
+                                    {/* Index based system */}
+                                    <Accordion open={openIndex === true}>
+                                        <ListItem className="p-0" selected={openIndex} key="IBS">
+                                            <AccordionHeader onClick={() => handleToggle(setOpenIndex)} className="border-b-0 p-3 flex items-center">
+                                                <ListItemPrefix>
+                                                    <ChevronRightIcon
+                                                        strokeWidth={3}
+                                                        className={`h-3 w-5 transition-transform ${openIndex === true ? "rotate-90" : ""}`}
+                                                    />
+                                                </ListItemPrefix>
+                                                <Typography color="blue-gray" className="mr-auto">
+                                                    Index based system
+                                                </Typography>
+                                            </AccordionHeader>
+                                        </ListItem>
+                                        <AccordionBody className="py-1">
+                                            <List className="p-0 pl-4">
+                                                {storageIBS.map(tool => (
+                                                    <ListItem key={tool.id_sto}>{tool.name_sto}</ListItem>
+                                                ))}
+                                            </List>
+                                        </AccordionBody>
+                                    </Accordion>
+
+                                    {/* Database */}
+                                    <Accordion open={openDb === true}>
+                                        <ListItem className="p-0" selected={openDb} key="DB">
+                                            <AccordionHeader onClick={() => handleToggle(setOpenDb)} className="border-b-0 p-3 flex items-center">
+                                                <ListItemPrefix>
+                                                    <ChevronRightIcon
+                                                        strokeWidth={3}
+                                                        className={`h-3 w-5 transition-transform ${openDb === true ? "rotate-90" : ""}`}
+                                                    />
+                                                </ListItemPrefix>
+                                                <Typography color="blue-gray" className="mr-auto">
+                                                    Database
+                                                </Typography>
+                                            </AccordionHeader>
+                                        </ListItem>
+                                        <AccordionBody className="py-1">
+                                            <List className="p-0 pl-4">
+                                                {/* Relational DB */}
+                                                <Accordion open={openRDB === true}>
+                                                    <ListItem className="p-0" selected={openRDB} key="RDB">
+                                                        <AccordionHeader onClick={() => handleToggle(setOpenRDB)} className="border-b-0 p-3 flex items-center">
+                                                            <ListItemPrefix>
+                                                                <ChevronRightIcon
+                                                                    strokeWidth={3}
+                                                                    className={`h-3 w-5 transition-transform ${openRDB === true ? "rotate-90" : ""}`}
+                                                                />
+                                                            </ListItemPrefix>
+                                                            <Typography color="blue-gray" className="mr-auto">
+                                                                Relational Database
+                                                            </Typography>
+                                                        </AccordionHeader>
+                                                    </ListItem>
+                                                    <AccordionBody className="py-1">
+                                                        <List className="p-0 pl-4">
+                                                            {storage_RDB.map(tool => (
+                                                                <ListItem key={tool.id_sto}>{tool.name_sto}</ListItem>
+                                                            ))}
+                                                        </List>
+                                                    </AccordionBody>
+                                                </Accordion>
+                                                {/* NoSql DB */}
+                                                <Accordion open={openNDB === true}>
+                                                    <ListItem className="p-0" selected={openNDB} key="Nosql">
+                                                        <AccordionHeader onClick={() => handleToggle(setOpenNDB)} className="border-b-0 p-3 flex items-center">
+                                                            <ListItemPrefix>
+                                                                <ChevronRightIcon
+                                                                    strokeWidth={3}
+                                                                    className={`h-3 w-5 transition-transform ${openNDB === true ? "rotate-90" : ""}`}
+                                                                />
+                                                            </ListItemPrefix>
+                                                            <Typography color="blue-gray" className="mr-auto">
+                                                                NoSQL Database
+                                                            </Typography>
+                                                        </AccordionHeader>
+                                                    </ListItem>
+                                                    <AccordionBody className="py-1">
+                                                        <List className="p-0 pl-4">
+                                                            {storageNosql.map(tool => (
+                                                                <ListItem key={tool.id_sto}>{tool.name_sto}</ListItem>
+                                                            ))}
+                                                        </List>
+                                                    </AccordionBody>
+                                                </Accordion>
+                                            </List>
+                                        </AccordionBody>
+                                    </Accordion>
+
+                                    {/* File system */}
+                                    <Accordion open={openFS === true}>
+                                        <ListItem className="p-0" selected={openFS} key="FS">
+                                            <AccordionHeader onClick={() => handleToggle(setOpenFS)} className="border-b-0 p-3 flex items-center">
+                                                <ListItemPrefix>
+                                                    <ChevronRightIcon
+                                                        strokeWidth={3}
+                                                        className={`h-3 w-5 transition-transform ${openFS === true ? "rotate-90" : ""}`}
+                                                    />
+                                                </ListItemPrefix>
+                                                <Typography color="blue-gray" className="mr-auto">
+                                                    File system
+                                                </Typography>
+                                            </AccordionHeader>
+                                        </ListItem>
+                                        <AccordionBody className="py-1">
+                                            <List className="p-0 pl-4">
+                                                {storageFS.map(tool => (
+                                                    <ListItem key={tool.id_sto}>{tool.name_sto}</ListItem>
+                                                ))}
+                                            </List>
+                                        </AccordionBody>
+                                    </Accordion>
+
+                                    {/* Object store */}
+                                    <Accordion open={openOS === true}>
+                                        <ListItem className="p-0" selected={openOS} key="OS">
+                                            <AccordionHeader onClick={() => handleToggle(setOpenOS)} className="border-b-0 p-3 flex items-center">
+                                                <ListItemPrefix>
+                                                    <ChevronRightIcon
+                                                        strokeWidth={3}
+                                                        className={`h-3 w-5 transition-transform ${openOS === true ? "rotate-90" : ""}`}
+                                                    />
+                                                </ListItemPrefix>
+                                                <Typography color="blue-gray" className="mr-auto">
+                                                    Object store
+                                                </Typography>
+                                            </AccordionHeader>
+                                        </ListItem>
+                                        <AccordionBody className="py-1">
+                                            <List className="p-0 pl-4">
+                                                {storageOS.map(tool => (
+                                                    <ListItem key={tool.id_sto}>{tool.name_sto}</ListItem>
+                                                ))}
+                                            </List>
+                                        </AccordionBody>
+                                    </Accordion>
+
                                 </List>
                             </AccordionBody>
                         </Accordion>
+
                         {/* others */}
-                        <ListItem>
+                        <ListItem key="Frameworks">
                             <ListItemPrefix>
                                 <InboxIcon className="h-5 w-5" />
                             </ListItemPrefix>
                             Frameworks
                         </ListItem>
-                        <ListItem>
+                        <ListItem key="xxx">
                             <ListItemPrefix>
                                 <UserCircleIcon className="h-5 w-5" />
                             </ListItemPrefix>

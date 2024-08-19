@@ -5,20 +5,20 @@ export const getTools = (req, res) => {
     const qI = "select id_t,name_t from tools where category_t LIKE '%Ingestion%';"
     const qP = "select id_t,name_t from tools where category_t LIKE '%Preparation%';"
     const qA = "select id_t,name_t from tools where category_t LIKE '%Analysis%';"
-    const query_index_based_system = "select Id_sto,name_sto from storage where Id_sto_class = 1;"
+    const query_index_based_system = "select id_sto,name_sto from storage where Id_sto_class = 1;"
     const query_RDB = `
-        select Id_sto,name_sto,Id_sto_class
+        select id_sto,name_sto,id_sto_class
         from storage
         where Id_sto_class = 10 or Id_sto_class = 12
     `;
     const query_NoSql = `
-        select Id_sto,name_sto,Id_sto_class
+        select id_sto,name_sto,id_sto_class
         from storage
         where Id_sto_class = 11 or Id_sto_class = 13 
     `;
-    const query_FS = "select Id_sto,name_sto,Id_sto_class from storage where Id_sto_class = 6 or Id_sto_class = 7; "
+    const query_FS = "select id_sto,name_sto,id_sto_class from storage where Id_sto_class = 6 or Id_sto_class = 7; "
 
-    const query_OS = "select Id_sto,name_sto,Id_sto_class from storage where Id_sto_class = 8;"
+    const query_OS = "select id_sto,name_sto,id_sto_class from storage where Id_sto_class = 8;"
 
 
 
@@ -63,4 +63,10 @@ export const getTools = (req, res) => {
             res.status(500).json(err);
         });
 
+}
+
+export const searchTool = (req, res) => {
+    const id = req.params.id;
+    const test = "123"
+    res.json({id : id, test: test})
 }

@@ -17,67 +17,77 @@ import { ChevronRightIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import axios from 'axios';
 
 const ToolsSideBar = () => {
-        // Status of each Accordion - Level 1
-        const [open, setOpen] = React.useState(0);
+    // Status of each Accordion - Level 1
+    const [open, setOpen] = React.useState(0);
 
-        // Status of each Accordion - Level 2
-        const [openIngestion, setOpenIngestion] = useState(false);
-        const [openPreparation, setOpenPreparation] = useState(false);
-        const [openAnalysis, setOpenAnalysis] = useState(false);
-        const [openIndex, setOpenIndex] = useState(false);
-        const [openDb, setOpenDb] = useState(false);
-        const [openFS, setOpenFS] = useState(false);
-        const [openOS, setOpenOS] = useState(false);
-        const [openRDB, setOpenRDB] = useState(false);
-        const [openNDB, setOpenNDB] = useState(false);
-    
-        // List to store tools name
-        const [ingestionTools, setIngestionTools] = useState([]);
-        const [preparationTools, setPreparationTools] = useState([]);
-        const [analysisTools, setAnalysis] = useState([]);
-        const [storageIBS, setStorageIBS] = useState([]);
-        const [storage_RDB, setStorage_RDB] = useState([]);
-        const [storageNosql, setStorageNosql] = useState([]);
-        const [storageFS, setStorageFS] = useState([]);
-        const [storageOS, setStorageOS] = useState([]);
-    
-        //console.log(ingestionTools);
-    
-        // Utlize useEffect() to get the list of tools when the page is ready from rendering
-        useEffect(() => {
-            const fetchTools = async () => {
-                try {
-                    const response = await axios.get('http://localhost:3000/tool/getTools');
-                    const tools = response.data;
-    
-                    setIngestionTools(tools.ingestionTools);
-                    setPreparationTools(tools.preparationTools);
-                    setAnalysis(tools.analysisTools);
-                    setStorageIBS(tools.storage_IBS);
-                    setStorage_RDB(tools.storage_RDB);
-                    setStorageNosql(tools.storageNosql);
-                    setStorageFS(tools.storageFS);
-                    setStorageOS(tools.storageOS);
-    
-                } catch (error) {
-                    console.error('Error fetching tools:', error);
-                }
-            };
-    
-            fetchTools();
-        }, []);
-    
-        // Function to handle open and close the accordion
-        const handleOpen = (value) => {
-            setOpen(open === value ? 0 : value);
+    // Status of each Accordion - Level 2
+    const [openIngestion, setOpenIngestion] = useState(false);
+    const [openPreparation, setOpenPreparation] = useState(false);
+    const [openAnalysis, setOpenAnalysis] = useState(false);
+    const [openIndex, setOpenIndex] = useState(false);
+    const [openDb, setOpenDb] = useState(false);
+    const [openFS, setOpenFS] = useState(false);
+    const [openOS, setOpenOS] = useState(false);
+    const [openRDB, setOpenRDB] = useState(false);
+    const [openNDB, setOpenNDB] = useState(false);
+
+    // List to store tools name
+    const [ingestionTools, setIngestionTools] = useState([]);
+    const [preparationTools, setPreparationTools] = useState([]);
+    const [analysisTools, setAnalysis] = useState([]);
+    const [storageIBS, setStorageIBS] = useState([]);
+    const [storage_RDB, setStorage_RDB] = useState([]);
+    const [storageNosql, setStorageNosql] = useState([]);
+    const [storageFS, setStorageFS] = useState([]);
+    const [storageOS, setStorageOS] = useState([]);
+
+    //console.log(ingestionTools);
+
+    const getInfoTool = async (idTool) => {
+        try {
+            console.log('Fetching info for tool ID:', idTool);
+            const infoTool = await axios.get("http://localhost:3000/tool/" + idTool)
+            console.log(infoTool);
+        } catch (err) {
+            console.error("Err fetching :", err);
+        }
+        }
+
+    // Utlize useEffect() to get the list of tools when the page is ready from rendering
+    useEffect(() => {
+        const fetchTools = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/tool/getTools');
+                const tools = response.data;
+
+                setIngestionTools(tools.ingestionTools);
+                setPreparationTools(tools.preparationTools);
+                setAnalysis(tools.analysisTools);
+                setStorageIBS(tools.storage_IBS);
+                setStorage_RDB(tools.storage_RDB);
+                setStorageNosql(tools.storageNosql);
+                setStorageFS(tools.storageFS);
+                setStorageOS(tools.storageOS);
+
+            } catch (error) {
+                console.error('Error fetching tools:', error);
+            }
         };
-    
-        const handleToggle = (setter) => {
-            setter(prev => !prev);
-        };
-  return (
-    <div className="flex bg-gray-100 pt-8">
-        <div className="sidebar">
+
+        fetchTools();
+    }, []);
+
+    // Function to handle open and close the accordion
+    const handleOpen = (value) => {
+        setOpen(open === value ? 0 : value);
+    };
+
+    const handleToggle = (setter) => {
+        setter(prev => !prev);
+    };
+    return (
+        <div className="flex bg-gray-100 pt-8">
+            <div className="sidebar">
                 <Card className="h-auto w-full max-w-[20rem] mb-2 pr-2">
                     <div className="mb-2 p-4">
                         <Typography variant="h5" color="blue-gray" className="uppercase">
@@ -128,7 +138,7 @@ const ToolsSideBar = () => {
                                         <AccordionBody className="py-1">
                                             <List className="p-0 pl-4">
                                                 {ingestionTools.map((tool) => (
-                                                    <ListItem key={tool.id_t}>{tool.name_t}</ListItem>
+                                                    <ListItem key={tool.id_t} onClick={() => getInfoTool(tool.id_t)}>{tool.name_t}</ListItem>
                                                 ))}
                                             </List>
                                         </AccordionBody>
@@ -366,8 +376,8 @@ const ToolsSideBar = () => {
                     </List>
                 </Card>
             </div>
-    </div>
-  )
+        </div>
+    )
 }
 
 export default ToolsSideBar

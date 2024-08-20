@@ -6,7 +6,7 @@ import {
     Typography,
     Button,
 } from "@material-tailwind/react";
-import ToolsSideBar from '../components/ToolsSideBar';
+import ToolsSideBar from "../components/Page-Tools/ToolsSideBar"
 
 const Tools = () => {
 

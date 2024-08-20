@@ -49,7 +49,7 @@ const Home = () => {
         >
 
           <img
-            className="h-screen w-full object-cover object-center mt-6"
+            className="h-screen w-full object-cover object-center"
             src={imgLake}
             alt="nature image"
           />

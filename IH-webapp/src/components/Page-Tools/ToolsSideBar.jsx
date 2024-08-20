@@ -86,7 +86,7 @@ const ToolsSideBar = () => {
         setter(prev => !prev);
     };
     return (
-        <div className="flex bg-gray-100 pt-8">
+        <div className="flex bg-gray-100 pt-8 ml-1">
             <div className="sidebar">
                 <Card className="h-auto w-full max-w-[20rem] mb-2 pr-2">
                     <div className="mb-2 p-4">

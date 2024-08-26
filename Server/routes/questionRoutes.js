@@ -4,7 +4,7 @@ import { getQuestion } from "../controllers/questionController.js";
 
 const router = express.Router();
 
-router.get("/:id", getQuestion);
+router.post("/:id", getQuestion);
 
 
 export default router;

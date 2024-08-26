@@ -1,11 +1,16 @@
 import { Card, Typography } from "@material-tailwind/react"
 import { QuestionStepper } from "./Stepper"
 import { QuestionTable } from "./QuestionTable"
+import { useContext } from "react";
+import { QuestionContext } from "../../context/questionContext";
 
 const QuestionLeftSideBar = () => {
+
+  const { allQuestionsData } = useContext(QuestionContext);  // 获取所有问题数据
+
   return (
     <div className="mx-2">
-      <Card className="flex flex-col w-full bg-blue-500">
+      <Card className="flex flex-col w-full bg-white">
         <Typography
           variant="h2"
           color="blue-gray"
@@ -25,6 +30,7 @@ const QuestionLeftSideBar = () => {
         >
           Answer list
         </Typography>
+
         <div className="px-4 pb-8">
           <QuestionTable />
         </div>

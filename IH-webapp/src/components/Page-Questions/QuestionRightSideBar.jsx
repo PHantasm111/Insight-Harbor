@@ -4,7 +4,7 @@ import { ResultTempTable } from './ResultTempTable'
 
 const QuestionRightSideBar = () => {
   return (
-    <div className='mt-4 mx-2'>
+    <div className='mx-2'>
       <Card className='bg-lime-400 flex flex-col'>
         <Typography variant='h2' className='p-4'>
           Result Temp :

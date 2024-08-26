@@ -4,7 +4,7 @@ import { QuestionTable } from "./QuestionTable"
 
 const QuestionLeftSideBar = () => {
   return (
-    <div className="mt-4 mx-2">
+    <div className="mx-2">
       <Card className="flex flex-col w-full bg-blue-500">
         <Typography
           variant="h2"

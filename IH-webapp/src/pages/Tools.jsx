@@ -13,10 +13,10 @@ const Tools = () => {
 
     // Return the page
     return (
-        <div className="flex bg-gray-100 pt-8 w-screenn">
+        <div className="flex bg-gray-100 pt-8 w-full">
             <ToolsSideBar />
 
-            <Card className="min-h-screen max-w-[98rem] p-4 border-1 ml-2 mr-1 mb-2">
+            <Card className="min-h-screen w-full p-4 border-1 mx-2 mb-2">
                 <div className=''>
                     <Typography variant='h1' color='blue-gray' className='text-2xl mb-4'>
                         DATA LAKE TOOLS

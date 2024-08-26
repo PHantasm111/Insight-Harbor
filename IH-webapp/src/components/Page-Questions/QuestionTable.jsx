@@ -4,23 +4,23 @@ const TABLE_HEAD = ["Question", "Answer", ""];
  
 const TABLE_ROWS = [
   {
-    Question: "ABCDEFG",
+    Question: "ABCDEFG1",
     Answer: "Yes",
   },
   {
-    Question: "ABCDEFG",
+    Question: "ABCDEFG2",
     Answer: "Yes",
   },
   {
-    Question: "ABCDEFG",
+    Question: "ABCDEFG3",
     Answer: "Yes",
   },
   {
-    Question: "ABCDEFG",
+    Question: "ABCDEFG4",
     Answer: "Yes",
   },
   {
-    Question: "ABCDEFG",
+    Question: "ABCDEFG5",
     Answer: "Yes",
   },
   
@@ -57,12 +57,12 @@ export function QuestionTable() {
                     {Question}
                   </Typography>
                 </td>
-                <td className={`${classes} bg-blue-gray-50/50`}>
+                <td className={`${classes} blue-gray`}>
                   <Typography variant="small" color="blue-gray" className="font-normal">
                     {Answer}
                   </Typography>
                 </td>
-                <td className={`${classes} bg-blue-gray-50/50`}>
+                <td className={`${classes} bg-blue-gray-50/30`}>
                   <Typography as="a" href="#" variant="small" color="blue-gray" className="font-medium">
                     Edit
                   </Typography>

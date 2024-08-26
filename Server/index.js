@@ -5,6 +5,7 @@ import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
 import toolRoutes from "./routes/toolRoutes.js";
+import questionRoutes from "./routes/questionRoutes.js"
 
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(cookieParser());
 // Use Routes
 app.use("/auth", authRoutes)
 app.use("/tool", toolRoutes)
+app.use("/question",questionRoutes)
 
 
 app.listen(3000, () => {

@@ -1,50 +1,84 @@
 import { Card, Checkbox, Typography, Radio, Button } from '@material-tailwind/react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 const QuestionMiddleUpContent = () => {
-  const QuestionData = [
-    {
-      id: 1.1,
-      content: "Are you familiar with or have you used any of the following ecosystems or tools? (Select all that apply)",
-      answerList: [
-        "Hadoop ecosystem (e.g. HDFS, Hive, HBase)",
-        "Spark ecosystem",
-        "Kafka ecosystem",
-        "AWS services (e.g. S3, Athena, Redshift)"
-      ],
-      answerType: "multiple",
-    },
-  ]
+
+  // Define states to store current problem data
+  const [questionData, setQuestionData] = useState(null);
+  const [currentQuestionId, setCurrentQuestionId] = useState(1); // first question = 1
+  const [loading, setLoading] = useState(true);
+
+  // Use useEffect to get the first question when loading le page & when the QuestionID change
+  useEffect(() => {
+
+    const fetchQuestion = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`http://localhost:3000/question/${currentQuestionId}`);
+        const data = await response.json();
+        setQuestionData(data);
+      } catch (error) {
+        console.error("Error fetching question data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestion(); // Call function
+
+  }, [currentQuestionId]); // depend on QuestionID, when it's change, fetch new Question with ID
+
+  const handleNextQuestion = () => {
+    // questionData has a attribute -> nextQuestionId to know which question is the next question
+    if (questionData && questionData.nextQuestionId) {
+      setCurrentQuestionId(questionData.nextQuestionId); // => When Id change => call useEffect() => get next questionData
+    } else {
+      console.log("No more questions available.");
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!questionData) {
+    return <div>No question data available.</div>;
+  }
+
+  console.log(questionData.choices)
 
   return (
-    <div className='mt-4 mb-2'>
-      <Card className='bg-red-500'>
+    <div className='mb-2'>
+      <Card className='bg-white shadow-md'>
         <Typography variant='h2' className='p-4'>
           Question :
         </Typography>
 
         <form className='flex flex-col'>
-          {QuestionData.map((q) => (
-            <Typography key={q.id} variant='h5' className='p-4'>
-              <div>
-                {q.id}{" "}{q.content}
-              </div>
-              <div className='flex flex-col justify-center gap-2 mt-4'>
-                {q.answerList.map((answer, index) => (
-                  <div key={index}>
-                    {q.answerType === "multiple" ? (
-                      <Checkbox id={`answer-${index}`} />
-                    ) : (
-                      <Radio name={`question-${q.id}`} id={`answer-${index}`} />
-                    )}
-                    <label htmlFor={`answer-${index}`} className='ml-2'>{answer}</label>
-                  </div>
-                ))}
-              </div>
-            </Typography>
-          ))}
+          <Typography key={questionData.id} variant='h5' className='p-4 ml-4'>
+            <div>
+              {questionData.id}{". "}{questionData.content}
+            </div>
+            <div className='flex flex-col justify-center gap-2 mt-4'>
+              {Object.entries(questionData.choices).map(([key, value]) => (
+                <div key={key}>
+                  
+                  {questionData.answerType === "multiple"
+                    ? (<Checkbox id={`choice-${key}`} />)
+                    : (<Radio name={`choice-${questionData.id}`} id={`choice-${key}`} />)
+                  }
+                  <label htmlFor={`choice-${key}`} className='ml-2'>{value}</label>
 
-          <Button variant="gradient" size='lg' className='self-end m-8'>Next Question</Button>
+                </div>
+              ))}
+            </div>
+          </Typography>
+
+          <div className='flex flex-row-reverse m-8 gap-8'>
+            <Button variant="gradient" size='lg' className=''>Next Question</Button>
+            <Button variant="text" size='lg' className='bg-gray-300/50'>Skip</Button>
+          </div>
+
         </form>
       </Card>
     </div>

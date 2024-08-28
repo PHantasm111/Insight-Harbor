@@ -1,85 +1,158 @@
-import { Card, Typography } from "@material-tailwind/react";
- 
-const TABLE_HEAD = ["Question", "Answer", ""];
- 
-const TABLE_ROWS = [
-  {
-    Question: "ABCDEFG1",
-    Answer: "Yes",
-  },
-  {
-    Question: "ABCDEFG2",
-    Answer: "Yes",
-  },
-  {
-    Question: "ABCDEFG3",
-    Answer: "Yes",
-  },
-  {
-    Question: "ABCDEFG4",
-    Answer: "Yes",
-  },
-  {
-    Question: "ABCDEFG5",
-    Answer: "Yes",
-  },
-  {
-    Question: "ABCDEFG5",
-    Answer: "Yes",
-  },
-  {
-    Question: "ABCDEFG5",
-    Answer: "Yes",
-  },
-  
-];
- 
+import { Button, Card, Typography, Accordion, AccordionHeader, AccordionBody } from "@material-tailwind/react";
+import { useContext, React, useState } from "react";
+import { QuestionContext } from "../../context/questionContext";
+import {
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+} from "@material-tailwind/react";
+
+
+
+
 export function QuestionTable() {
+
+  // Header of the table
+  const TABLE_HEAD = ["QuestionId", "Modif."];
+
+  const { allQuestionsData } = useContext(QuestionContext);
+
+  // Control Dialog - Warning => Open & Close
+  const [open, setOpen] = useState(false);
+  const [questionTableDetailOpen, setQuestionTableDetailOpen] = useState(false);
+
+  // Control Dialog - All Answers => Open & Close
+  const handleOpen = () => setOpen(!open);
+  const handleQuestionTableDetailOpen = () => setQuestionTableDetailOpen(!questionTableDetailOpen);
+
+  // Control Open & Close of the Answer list when change the answer
+  const [openAnswerList, setOpenAnswerList] = useState(1);
+  const handleOpenAnswerList = (value) => setOpenAnswerList(openAnswerList === value ? 0 : value);
+
+  // Exemple 
+  // {
+  //   "questionId": 1,
+  //   "questionContent": "Where do you want to deploy your data lake ?",
+  //   "questionType": "single_choice",
+  //   "choices": {
+  //       "c1": "On-premises",
+  //       "c2": "On cloud",
+  //       "c3": "Hybrid"
+  //   },
+  //   "userSelections": {
+  //       "c1": "On-premises"
+  //   }
+  // }
+
+
   return (
-    <Card className="h-full w-full overflow-scroll">
-      <table className="w-full min-w-max table-auto text-left">
-        <thead>
-          <tr>
-            {TABLE_HEAD.map((head) => (
-              <th key={head} className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal leading-none opacity-70"
-                >
-                  {head}
-                </Typography>
-              </th>
+    <section className="w-full bg-white">
+      <Card className="max-h-800px w-full overflow-scroll border border-gray-300 px-6">
+        <table className="w-full min-w-max table-auto text-left">
+          <thead>
+            <tr>
+              {TABLE_HEAD.map((head) => (
+                <th key={head} className="border-b border-gray-300 pb-4 pt-10">
+                  <Typography
+                    variant="small"
+                    color="blue-gray"
+                    className="font-bold leading-none"
+                  >
+                    {head}
+                  </Typography>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {allQuestionsData.map(({ questionId }, index) => {
+              const isLast = index === allQuestionsData.length - 1;
+              const classes = isLast ? "py-4" : "py-4 border-b border-gray-300";
+
+              return (
+                <tr key={questionId} className="hover:bg-gray-50">
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-bold"
+                    >
+                      {questionId}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      className="font-normal text-gray-600"
+                    >
+                      <Button size="sm" variant="filled" onClick={handleOpen}>EDIT</Button>
+                    </Typography>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </Card>
+      {/* Dialog - Warning */}
+      <>
+        <Dialog open={open} handler={handleOpen}>
+          <DialogHeader className="text-red-500">Warning !</DialogHeader>
+          <DialogBody>
+            If you modify the answer to the question, the follow-up questions you answered before will disappear!
+          </DialogBody>
+          <DialogFooter>
+            <Button
+              variant="text"
+              color="red"
+              onClick={handleOpen}
+              className="mr-1"
+            >
+              <span>Cancel</span>
+            </Button>
+            <Button variant="gradient" color="green" onClick={() => { handleOpen(); handleQuestionTableDetailOpen(); }}>
+              <span>Confirm</span>
+            </Button>
+          </DialogFooter>
+        </Dialog>
+      </>
+
+      {/* Dialog - Answer List */}
+      <>
+        <Dialog open={questionTableDetailOpen} handler={handleQuestionTableDetailOpen}>
+          <DialogHeader className="text-blue-gray-500">All Answers</DialogHeader>
+          <DialogBody>
+            {allQuestionsData.map((question) => (
+              <Accordion open={openAnswerList === question.questionId} key={question.questionId}>
+                <AccordionHeader onClick={() => handleOpenAnswerList(question.questionId)}>{question.questionId}. {question.questionContent}</AccordionHeader>
+                <AccordionBody>
+                  Your answer is :
+                  {Object.entries(question.userSelections).map(([key, value], index) => (
+                    <p key={key}>
+                      {index + 1}. {value}
+                    </p>
+                  ))}
+                </AccordionBody>
+              </Accordion>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {TABLE_ROWS.map(({ Question, Answer }, index) => {
-            const isLast = index === TABLE_ROWS.length - 1;
-            const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
- 
-            return (
-              <tr key={Question}>
-                <td className={classes}>
-                  <Typography variant="small" color="blue-gray" className="font-normal">
-                    {Question}
-                  </Typography>
-                </td>
-                <td className={`${classes} blue-gray`}>
-                  <Typography variant="small" color="blue-gray" className="font-normal">
-                    {Answer}
-                  </Typography>
-                </td>
-                <td className={`${classes} bg-blue-gray-50/30`}>
-                  <Typography as="a" href="#" variant="small" color="blue-gray" className="font-medium">
-                    Edit
-                  </Typography>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </Card>
+          </DialogBody>
+          <DialogFooter>
+            <Button
+              variant="text"
+              color="red"
+              onClick={handleQuestionTableDetailOpen}
+              className="mr-1"
+            >
+              <span>Cancel</span>
+            </Button>
+            <Button variant="gradient" color="green" onClick={handleQuestionTableDetailOpen}>
+              <span>Confirm</span>
+            </Button>
+          </DialogFooter>
+        </Dialog>
+      </>
+
+    </section>
   );
 }

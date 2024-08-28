@@ -6,7 +6,7 @@ import { QuestionContext } from "../../context/questionContext";
 
 const QuestionLeftSideBar = () => {
 
-  const { allQuestionsData } = useContext(QuestionContext);  // 获取所有问题数据
+  const { allQuestionsData } = useContext(QuestionContext);  // get all question data
 
   return (
     <div className="mx-2">

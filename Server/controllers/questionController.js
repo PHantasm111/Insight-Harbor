@@ -19,7 +19,7 @@ function getNextQuestionId(currentQuestionId, selections) {
             if (lastQuesionAnswer === "Not familiar with any of the above ecosystems") {
                 return 3
             }
-            
+
             return 4
         }
 
@@ -47,6 +47,17 @@ function getNextQuestionId(currentQuestionId, selections) {
 
 
 
+
+
+    } else if ((currentQuestionId > 10) && (currentQuestionId < 20)) {
+
+        if (currentQuestionId === 16) {
+            if (lastQuesionAnswer === "Offline analysis") {
+                return 6
+            } else if (lastQuesionAnswer === "Real-time analysis") {
+                return 6
+            }
+        }
 
 
     } else {
@@ -84,6 +95,19 @@ export const getQuestion = (req, res) => {
             const questionData = results[0];
 
             //console.log(questionData)
+            // {
+            //     id: 2,
+            //     content: 'Are you familiar with or have you used any of the following ecosystems or tools ? (Select all that apply)',
+            //     type: 'multiple_choice',
+            //     choices: {
+            //       c1: 'Hadoop ecosystem (e.g. HDFS, Hive, HBase)',
+            //       c2: 'Spark ecosystem',
+            //       c3: 'ELK',
+            //       c4: 'Not familiar with any of the above ecosystems'
+            //     },
+            //     is_required: 0,
+            //     help_text: 'If you are familiar with some tools, please tell us so that we can optimize our results.'
+            //   }
             res.json(questionData);
 
         } else {

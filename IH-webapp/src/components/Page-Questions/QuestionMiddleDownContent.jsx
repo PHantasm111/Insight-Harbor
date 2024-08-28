@@ -3,8 +3,8 @@ import React from 'react'
 
 const QuestionMiddleDownContent = () => {
   return (
-    <div className=''>
-      <Card className='bg-deep-orange-500'>
+    <div>
+      <Card className='bg-white h-72'>
         <Typography variant='h2' className='p-4'>
           Choices :
         </Typography>

@@ -27,10 +27,10 @@ export function QuestionTable() {
   const handleQuestionTableDetailOpen = () => setQuestionTableDetailOpen(!questionTableDetailOpen);
 
   // Control Open & Close of the Answer list when change the answer
-  const [openAnswerList, setOpenAnswerList] = useState(1);
-  const handleOpenAnswerList = (value) => setOpenAnswerList(openAnswerList === value ? 0 : value);
+  const [openAnswerList, setOpenAnswerList] = useState(0);
+  const handleOpenAnswerList = (value) => setOpenAnswerList(openAnswerList === value ? -999 : value);
 
-  // Exemple 
+  // Exemple allQuestionData
   // {
   //   "questionId": 1,
   //   "questionContent": "Where do you want to deploy your data lake ?",
@@ -48,7 +48,7 @@ export function QuestionTable() {
 
   return (
     <section className="w-full bg-white">
-      <Card className="max-h-800px w-full overflow-scroll border border-gray-300 px-6">
+      <Card className="w-full overflow-scroll border border-gray-300 px-6 h-96">
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
@@ -122,10 +122,10 @@ export function QuestionTable() {
       <>
         <Dialog open={questionTableDetailOpen} handler={handleQuestionTableDetailOpen}>
           <DialogHeader className="text-blue-gray-500">All Answers</DialogHeader>
-          <DialogBody>
-            {allQuestionsData.map((question) => (
-              <Accordion open={openAnswerList === question.questionId} key={question.questionId}>
-                <AccordionHeader onClick={() => handleOpenAnswerList(question.questionId)}>{question.questionId}. {question.questionContent}</AccordionHeader>
+          <DialogBody className="max-h-96 overflow-auto">
+            {allQuestionsData.map((question,index) => (
+              <Accordion open={openAnswerList === index} key={index}>
+                <AccordionHeader onClick={() => handleOpenAnswerList(index)}>{question.questionId}. {question.questionContent}</AccordionHeader>
                 <AccordionBody>
                   Your answer is :
                   {Object.entries(question.userSelections).map(([key, value], index) => (

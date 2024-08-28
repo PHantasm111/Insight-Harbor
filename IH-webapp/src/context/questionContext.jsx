@@ -23,6 +23,11 @@ export const QuestionProvider = ({ children }) => {
         ]);
     };
 
+    // Store the source and storage that user choice
+    const [sourceAndStorage, setSourceAndStorage] = useState({});
+
+    
+
     return (
         <QuestionContext.Provider value={{ userSelections, setUserSelections, allQuestionsData, addQuestionData }}>
             {children}

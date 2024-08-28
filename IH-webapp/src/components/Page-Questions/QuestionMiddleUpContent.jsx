@@ -32,23 +32,52 @@ const QuestionMiddleUpContent = () => {
   const [fourthSelectValue, setFourthSelectValue] = useState("");
 
   const handleFirstSelectChange = (val) => {
+    setSecondSelectValue("");
+    setThirdSelectValue("");
+    setFourthSelectValue("");
+    setFirstSelectValue(val);
+    setUserSelections({ firstSelectValue: val, });
     setShowSecond(val);
   }
 
   const handleSecondSelectChange = (val) => {
+    setThirdSelectValue("");
+    setFourthSelectValue("");
+    setSecondSelectValue(val);
+    setUserSelections({
+      firstSelectValue : firstSelectValue,
+      secondSelectValue: val,
+    })
     setShowThird(val);
   }
 
   const handleThirdSelectChange = (val) => {
+    setThirdSelectValue(val);
+    setFourthSelectValue("");
+    setUserSelections({
+      firstSelectValue : firstSelectValue,
+      secondSelectValue: secondSelectValue,
+      thirdSelectValue: val,
+    })
     setShowFourth(val);
+  }
+
+  const handleFourthSelectChange = (val) => {
+    setFourthSelectValue(val);
+    setUserSelections({
+      firstSelectValue : firstSelectValue,
+      secondSelectValue: secondSelectValue,
+      thirdSelectValue: thirdSelectValue,
+      fourthSelectValue: val,
+    })
   }
 
 
   // Test handleSelectionChange()
-  // useEffect(() => {
-  //   console.log("userSelections", userSelections)
-  //   console.log("allquestionData: ", allQuestionsData)
-  // }, [allQuestionsData, userSelections])
+  useEffect(() => {
+    console.log("userSelections", userSelections)
+    console.log("allquestionData: ", allQuestionsData)
+  }, [allQuestionsData, userSelections])
 
   const handleSelectionChange = (key, isChecked) => {
 
@@ -65,10 +94,11 @@ const QuestionMiddleUpContent = () => {
         return newSelections;
       });
 
-    } else {
+    } else if (questionData.type === "single_choice") {
       setUserSelections({
         [key]: isChecked,
       });
+
     }
   };
 
@@ -97,6 +127,47 @@ const QuestionMiddleUpContent = () => {
       setLoading(false);
     }
   };
+
+  const handleLastQuestion = async () => {
+    const index = allQuestionsData.length - 2;
+
+    if (index < 0) {
+      setQuestionData({
+        id: 1,
+        content: "Where do you want to deploy your data lake ?",
+        type: "single_choice",
+        choices: { "c1": "On-premises", "c2": "On cloud", "c3": "Hybrid" },
+        is_required: 1,
+        help_text: null
+      });
+      setCurrentQuestionId(1);
+      setUserSelections({});
+
+    } else {
+
+      const searchId = allQuestionsData[index].questionId;
+      const searchUserSelections = allQuestionsData[index].userSelections;
+      setLoading(true);
+
+      try {
+        // Send request to get next question data
+        const response = await axios.post(`http://localhost:3000/question/${searchId}`, {
+          selections: searchUserSelections,
+        });
+
+        setQuestionData(response.data);
+        setCurrentQuestionId(response.data.id)
+        setUserSelections({});
+      } catch (error) {
+        console.error("Error fetching question data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    allQuestionsData.pop();
+
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -174,8 +245,8 @@ const QuestionMiddleUpContent = () => {
                         value={thirdSelectValue}
                         onChange={(val) => handleThirdSelectChange(val)}
                       >
-                        <Option value="Relational">Relational</Option>
-                        <Option value="Nosql">NoSQL</Option>
+                        <Option value="Dis_Relational">Relational</Option>
+                        <Option value="Dis_Nosql">NoSQL</Option>
                       </Select>
                     </div>}
 
@@ -207,6 +278,7 @@ const QuestionMiddleUpContent = () => {
                       <Select
                         label="Relational Database"
                         value={fourthSelectValue}
+                        onChange={(val) => handleFourthSelectChange(val)}
                       >
                         <Option value="MySQL">MySQL</Option>
                         <Option value="PostgreSQL">PostgreSQL</Option>
@@ -220,6 +292,7 @@ const QuestionMiddleUpContent = () => {
                       <Select
                         label="NoSQL Database"
                         value={fourthSelectValue}
+                        onChange={(val) => handleFourthSelectChange(val)}
                       >
                         <Option value="Redis">Redis</Option>
                         <Option value="MongoDB">MongoDB</Option>
@@ -228,10 +301,11 @@ const QuestionMiddleUpContent = () => {
                       </Select>
                     </div>}
 
-                    {showFourth === "Relational" && showThird === "Distributed_db" && <div className="w-48">
+                    {showFourth === "Dis_Relational" && showThird === "Distributed_db" && <div className="w-48">
                       <Select
                         label="Relational Database"
                         value={fourthSelectValue}
+                        onChange={(val) => handleFourthSelectChange(val)}
                       >
                         <Option value="PostgreSQL with Citus">PostgreSQL with Citus</Option>
                         <Option value="VoltDB">VoltDB</Option>
@@ -239,10 +313,11 @@ const QuestionMiddleUpContent = () => {
                       </Select>
                     </div>}
 
-                    {showFourth === "Nosql" && showThird === "Distributed_db" && <div className="w-48">
+                    {showFourth === "Dis_Nosql" && showThird === "Distributed_db" && <div className="w-48">
                       <Select
                         label="NoSQL Database"
                         value={fourthSelectValue}
+                        onChange={(val) => handleFourthSelectChange(val)}
                       >
                         <Option value="Apache HBase">Apache HBase</Option>
                         <Option value="Cassandra">Cassandra</Option>
@@ -276,13 +351,14 @@ const QuestionMiddleUpContent = () => {
                         <Select
                           label="Database Type"
                           value={secondSelectValue}
+                          onChange={(val) => handleSecondSelectChange(val)}
                         >
                           <Option value="Relational Database">Relational Database</Option>
                           <Option value="NoSQL Database">NoSQL Database</Option>
                         </Select>
                       </div>}
                     </div>
-                  ) 
+                  )
                   : (
                     Object.entries(questionData.choices).map(([key, value]) => (
                       <div key={key}>
@@ -303,7 +379,7 @@ const QuestionMiddleUpContent = () => {
           </Typography>
 
           <div className='flex justify-between m-8 gap-8'>
-            <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black'>
+            <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' disabled={currentQuestionId === 1} onClick={handleLastQuestion}>
               <img src={leftArrow} width={40} height={40}></img>
               Last Question
             </Button>

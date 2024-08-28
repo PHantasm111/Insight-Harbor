@@ -45,6 +45,26 @@ function getNextQuestionId(currentQuestionId, selections) {
             }
         }
 
+        if (currentQuestionId === 6) {
+            return 7
+        }
+
+        if (currentQuestionId === 7) {
+            return 8
+        }
+
+        if (currentQuestionId === 8) {
+            return 9
+        }
+
+        if (currentQuestionId === 9) {
+            if (lastQuesionAnswer === "Yes") {
+                return 6
+            } else {
+                return 10
+            }
+        }
+
 
 
 

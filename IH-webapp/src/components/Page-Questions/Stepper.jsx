@@ -1,8 +1,25 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Stepper, Step, Typography } from "@material-tailwind/react";
+import { QuestionContext } from "../../context/questionContext";
 
 
 export function QuestionStepper() {
+    const { allQuestionsData, setStep } = useContext(QuestionContext);  // get all question daa
+
+    useEffect(() => {
+        const has10 = allQuestionsData.some(question => question.questionId === 10);
+        const has12 = allQuestionsData.some(question => question.questionId === 12);
+
+        if (has10) {
+            setActiveStep(1);
+            setStep(1);
+        } else if (has12) {
+            setActiveStep(2);
+            setStep(2);
+        }
+
+    }, [allQuestionsData])
+
     const [activeStep, setActiveStep] = React.useState(0);
     const [isLastStep, setIsLastStep] = React.useState(false);
     const [isFirstStep, setIsFirstStep] = React.useState(false);
@@ -17,7 +34,7 @@ export function QuestionStepper() {
                 isLastStep={(value) => setIsLastStep(value)}
                 isFirstStep={(value) => setIsFirstStep(value)}
             >
-                <Step onClick={() => setActiveStep(0)}>
+                <Step>
                     1
                     <div className="absolute -bottom-[40px] w-max text-center">
                         <Typography
@@ -29,7 +46,7 @@ export function QuestionStepper() {
                     </div>
                 </Step>
 
-                <Step onClick={() => setActiveStep(1)}>
+                <Step>
                     2
                     <div className="absolute -bottom-[40px] w-max text-center">
                         <Typography
@@ -40,7 +57,7 @@ export function QuestionStepper() {
                         </Typography>
                     </div>
                 </Step>
-                <Step onClick={() => setActiveStep(2)}>
+                <Step>
                     3
                     <div className="absolute -bottom-[40px] w-max text-center">
                         <Typography

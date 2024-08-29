@@ -4,6 +4,9 @@ export const QuestionContext = createContext();
 
 export const QuestionProvider = ({ children }) => {
 
+    // Store the Step 
+    const [step, setStep] = useState(0);
+
     const [userSelections, setUserSelections] = useState({});
 
     // Store all user answers in to a list
@@ -29,7 +32,7 @@ export const QuestionProvider = ({ children }) => {
     
 
     return (
-        <QuestionContext.Provider value={{ userSelections, setUserSelections, allQuestionsData, addQuestionData }}>
+        <QuestionContext.Provider value={{ userSelections, setUserSelections, allQuestionsData, addQuestionData, step, setStep }}>
             {children}
         </QuestionContext.Provider>
     );

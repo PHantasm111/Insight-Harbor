@@ -5,7 +5,7 @@ import { ResultTempTable } from './ResultTempTable'
 const QuestionRightSideBar = () => {
   return (
     <div className='mx-2'>
-      <Card className='bg-lime-400 flex flex-col'>
+      <Card className='bg-white flex flex-col'>
         <Typography variant='h2' className='p-4'>
           Result Temp :
         </Typography>
@@ -15,7 +15,7 @@ const QuestionRightSideBar = () => {
             Ingestion :
           </Typography>
           <div className='p-4'>
-            <ResultTempTable />
+            {/* <ResultTempTable /> */}
           </div>
         </div>
 
@@ -24,7 +24,7 @@ const QuestionRightSideBar = () => {
             Preparation :
           </Typography>
           <div className='p-4'>
-            <ResultTempTable />
+            {/* <ResultTempTable /> */}
           </div>
         </div>
 
@@ -33,7 +33,7 @@ const QuestionRightSideBar = () => {
             Analysis :
           </Typography>
           <div className='p-4'>
-            <ResultTempTable />
+            {/* <ResultTempTable /> */}
           </div>
         </div>
 

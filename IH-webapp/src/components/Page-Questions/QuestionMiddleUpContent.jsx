@@ -18,7 +18,7 @@ const QuestionMiddleUpContent = () => {
   });
   const [currentQuestionId, setCurrentQuestionId] = useState(1); // first question = 1
   const [loading, setLoading] = useState(false);
-  const { userSelections, setUserSelections, addQuestionData, allQuestionsData } = useContext(QuestionContext);  // Use useContext to get state and update function
+  const { userSelections, setUserSelections, addQuestionData, allQuestionsData, step } = useContext(QuestionContext);  // Use useContext to get state and update function
 
   // For id = 7 => Handle second/third/fourth select to show the content
   const [showSecond, setShowSecond] = React.useState("");
@@ -114,6 +114,7 @@ const QuestionMiddleUpContent = () => {
       // Send request to get next question data
       const response = await axios.post(`http://localhost:3000/question/${currentQuestionId}`, {
         selections: userSelections,
+        step: step,
       });
 
       console.log("responsedata", response.data)
@@ -153,6 +154,7 @@ const QuestionMiddleUpContent = () => {
         // Send request to get next question data
         const response = await axios.post(`http://localhost:3000/question/${searchId}`, {
           selections: searchUserSelections,
+          step:step,
         });
 
         setQuestionData(response.data);
@@ -166,6 +168,19 @@ const QuestionMiddleUpContent = () => {
     }
 
     allQuestionsData.pop();
+
+  }
+
+  const handleSkipQuestion = async () => {
+
+    try {
+      // Send req 
+      const response = await axios.get(`http://localhost:3000/questions/skip/${currentQuestionId}`);
+
+
+    } catch (error) {
+      console.error("Error fetching question data:", error);
+    }
 
   }
 
@@ -384,7 +399,7 @@ const QuestionMiddleUpContent = () => {
               Last Question
             </Button>
             <div className="flex gap-4">
-              <Button variant="text" size='lg' className='bg-gray-300/50' disabled={questionData.is_required}>Skip</Button>
+              <Button variant="text" size='lg' className='bg-gray-300/50' disabled={questionData.is_required} onClick={handleSkipQuestion}>Skip</Button>
               <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' onClick={handleNextQuestion}>
                 Next Question
                 <img src={rightArrow} width={40} height={40}></img>

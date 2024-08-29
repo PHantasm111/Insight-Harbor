@@ -1,12 +1,12 @@
 import db from "../src/db_connection.js";
 
-function getNextQuestionId(currentQuestionId, selections) {
+function getNextQuestionId(currentQuestionId, selections, currentStep) {
 
     const lastQuesionAnswer = Object.values(selections)[0]
     //console.log(Object.values(lastQuesionAnswer))
 
     if (currentQuestionId < 10) { // optimise speed 
-        if (currentQuestionId === 1) {
+        if (currentQuestionId === 1 && currentStep === 1) {
             switch (lastQuesionAnswer) {
                 case 'On-premises':
                     return 2
@@ -15,19 +15,19 @@ function getNextQuestionId(currentQuestionId, selections) {
             }
         }
 
-        if (currentQuestionId === 2) {
+        if (currentQuestionId === 2 && currentStep === 1) {
             if (lastQuesionAnswer === "Not familiar with any of the above ecosystems") {
-                return 3
+                return 4
             }
 
+            return 3
+        }
+
+        if (currentQuestionId === 3 && currentStep === 1) {
             return 4
         }
 
-        if (currentQuestionId === 3) {
-            return 4
-        }
-
-        if (currentQuestionId === 4) {
+        if (currentQuestionId === 4 && currentStep === 1) {
             if (lastQuesionAnswer === "No" || lastQuesionAnswer === "A little bit (medium budget)") {
                 return 5
             } else if (lastQuesionAnswer === "Yes") {
@@ -35,7 +35,7 @@ function getNextQuestionId(currentQuestionId, selections) {
             }
         }
 
-        if (currentQuestionId === 5) {
+        if (currentQuestionId === 5 && currentStep === 1) {
             if (lastQuesionAnswer === "Batch") {
                 return 6
             } else if (lastQuesionAnswer === "Streaming") {
@@ -45,19 +45,21 @@ function getNextQuestionId(currentQuestionId, selections) {
             }
         }
 
-        if (currentQuestionId === 6) {
+        if (currentQuestionId === 6 && currentStep === 1) {
             return 7
         }
 
-        if (currentQuestionId === 7) {
+        if (currentQuestionId === 7 && currentStep === 1) {
             return 8
-        }
-
-        if (currentQuestionId === 8) {
+        } else if (currentQuestionId === 7 && currentStep === 2){
             return 9
         }
 
-        if (currentQuestionId === 9) {
+        if (currentQuestionId === 8 && currentStep === 1) {
+            return 9
+        }
+
+        if (currentQuestionId === 9 && currentStep === 1) {
             if (lastQuesionAnswer === "Yes") {
                 return 6
             } else {
@@ -65,11 +67,21 @@ function getNextQuestionId(currentQuestionId, selections) {
             }
         }
 
+        if (currentQuestionId === 10 && currentStep === 2){
+            return 7
+        }
+
+
+
 
 
 
 
     } else if ((currentQuestionId > 10) && (currentQuestionId < 20)) {
+
+        if (currentQuestionId === 11 && currentStep === 2) {
+            return 12
+        }
 
         if (currentQuestionId === 16) {
             if (lastQuesionAnswer === "Offline analysis") {
@@ -95,7 +107,9 @@ export const getQuestion = (req, res) => {
     const currentQuestionId = parseInt(req.params.id, 10) // Decimal numbers
     //console.log("currentQuestionId : " + currentQuestionId)
 
-    const nextQuestionId = getNextQuestionId(currentQuestionId, req.body.selections)
+    const currentStep = req.body.step + 1;
+
+    const nextQuestionId = getNextQuestionId(currentQuestionId, req.body.selections, currentStep)
 
     //console.log("nextQuestionId : " + nextQuestionId)
 
@@ -134,10 +148,8 @@ export const getQuestion = (req, res) => {
             res.status(404).json({ message: 'Question not found' });
         }
     });
+}
 
-
-
-
-
+export const getSkipQuestion = (req, res) => {
 
 }

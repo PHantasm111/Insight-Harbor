@@ -6,8 +6,6 @@ import { QuestionContext } from "../../context/questionContext";
 
 const QuestionLeftSideBar = () => {
 
-  const { allQuestionsData } = useContext(QuestionContext);  // get all question data
-
   return (
     <div className="mx-2">
       <Card className="flex flex-col w-full bg-white">

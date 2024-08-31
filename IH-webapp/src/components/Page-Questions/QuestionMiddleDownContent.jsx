@@ -4,7 +4,7 @@ import { QuestionContext } from '../../context/questionContext';
 
 const QuestionMiddleDownContent = () => {
 
-  const { allQuestionsData, step } = useContext(QuestionContext);
+  const { allQuestionsData, step, setSourceAndTargetStep1, setSourceAndTargetStep2, setSourceAndTargetStep3 } = useContext(QuestionContext);
 
   const [searchIndex, setSearchIndex] = useState(0);
 
@@ -46,7 +46,7 @@ const QuestionMiddleDownContent = () => {
         }
       })
 
-       // 更新 matchedPairs 并增加 searchIndex
+       // Update matchedPairs
        setMatchedPairs(() => [
         ...newPairs,
       ]);
@@ -54,12 +54,36 @@ const QuestionMiddleDownContent = () => {
   };
 
 
-  // 使用 useEffect 监听 allQuestionsData 的变化
+  // Using useEffect to listen the change of allQuestionsData 
   useEffect(() => {
 
     computeMatchedPairs();
-    console.log("pairs ", matchedPairs)
+    //console.log("pairs ", matchedPairs)
   }, [allQuestionsData]);
+
+  useEffect(() => {
+    
+    const filteredStep1 = matchedPairs.filter(pair => pair.step === 1);
+
+    setSourceAndTargetStep1(() => [
+      ...filteredStep1,
+    ]);
+
+    // step 2
+    const filteredStep2 = matchedPairs.filter(pair => pair.step === 2);
+
+    setSourceAndTargetStep2(() => [
+      ...filteredStep2,
+    ]);
+
+    // step 3
+    const filteredStep3 = matchedPairs.filter(pair => pair.step === 3);
+
+    setSourceAndTargetStep3(() => [
+      ...filteredStep3,
+    ]);
+
+  }, [step])
 
 
   return (

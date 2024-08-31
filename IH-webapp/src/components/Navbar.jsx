@@ -128,7 +128,7 @@ export function StickyNavbar() {
                           fill="#90A4AE"
                         />
                       </svg>
-                      <Typography variant="small" className="font-medium" color="blue-gray">
+                      <Typography as="a" href="/history" variant="small" className="font-medium" color="blue-gray">
                         History
                       </Typography>
                     </MenuItem>

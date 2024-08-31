@@ -16,9 +16,17 @@ const QuestionMiddleUpContent = () => {
     is_required: 1,
     help_text: null
   });
+
+  // Current question ID
   const [currentQuestionId, setCurrentQuestionId] = useState(1); // first question = 1
+  // If loading
   const [loading, setLoading] = useState(false);
-  const { userSelections, setUserSelections, addQuestionData, allQuestionsData, step } = useContext(QuestionContext);  // Use useContext to get state and update function
+  // Use QuestionContext
+  const {
+    userSelections, setUserSelections,
+    addQuestionData, allQuestionsData,
+    step, setStep,
+    sourceAndTargetStep1, } = useContext(QuestionContext);  // Use useContext to get state and update function
 
   // For id = 7 => Handle second/third/fourth select to show the content
   const [showSecond, setShowSecond] = React.useState("");
@@ -45,7 +53,7 @@ const QuestionMiddleUpContent = () => {
     setFourthSelectValue("");
     setSecondSelectValue(val);
     setUserSelections({
-      firstSelectValue : firstSelectValue,
+      firstSelectValue: firstSelectValue,
       secondSelectValue: val,
     })
     setShowThird(val);
@@ -55,7 +63,7 @@ const QuestionMiddleUpContent = () => {
     setThirdSelectValue(val);
     setFourthSelectValue("");
     setUserSelections({
-      firstSelectValue : firstSelectValue,
+      firstSelectValue: firstSelectValue,
       secondSelectValue: secondSelectValue,
       thirdSelectValue: val,
     })
@@ -65,7 +73,7 @@ const QuestionMiddleUpContent = () => {
   const handleFourthSelectChange = (val) => {
     setFourthSelectValue(val);
     setUserSelections({
-      firstSelectValue : firstSelectValue,
+      firstSelectValue: firstSelectValue,
       secondSelectValue: secondSelectValue,
       thirdSelectValue: thirdSelectValue,
       fourthSelectValue: val,
@@ -75,9 +83,34 @@ const QuestionMiddleUpContent = () => {
 
   // Test handleSelectionChange()
   useEffect(() => {
-    console.log("userSelections", userSelections)
-    console.log("allquestionData: ", allQuestionsData)
+    //console.log("userSelections", userSelections)
+    //console.log("allquestionData: ", allQuestionsData)
   }, [allQuestionsData, userSelections])
+
+  useEffect(() => {
+
+    // Update step
+    if (currentQuestionId === 10) {
+      setStep(1);
+    } else if (currentQuestionId === 12) {
+      setStep(2);
+    } else {
+
+      // Update step
+      const has10 = allQuestionsData.some(question => question.questionId === 10);
+      const has12 = allQuestionsData.some(question => question.questionId === 12);
+
+      if (has10) {
+        setStep(1);
+      } else if (has12) {
+        setStep(2);
+      } else {
+        setStep(0);
+      }
+    }
+
+  }, [currentQuestionId])
+
 
   const handleSelectionChange = (key, isChecked) => {
 
@@ -112,6 +145,7 @@ const QuestionMiddleUpContent = () => {
       }
 
       // Send request to get next question data
+      console.log("step " + step)
       const response = await axios.post(`http://localhost:3000/question/${currentQuestionId}`, {
         selections: userSelections,
         step: step,
@@ -119,8 +153,10 @@ const QuestionMiddleUpContent = () => {
 
       console.log("responsedata", response.data)
 
+      // Update content
       setQuestionData(response.data);
       setCurrentQuestionId(response.data.id)
+
       setUserSelections({});
     } catch (error) {
       console.error("Error fetching question data:", error);
@@ -130,6 +166,7 @@ const QuestionMiddleUpContent = () => {
   };
 
   const handleLastQuestion = async () => {
+
     const index = allQuestionsData.length - 2;
 
     if (index < 0) {
@@ -151,10 +188,10 @@ const QuestionMiddleUpContent = () => {
       setLoading(true);
 
       try {
-        // Send request to get next question data
+        // Send request to get last question data
         const response = await axios.post(`http://localhost:3000/question/${searchId}`, {
           selections: searchUserSelections,
-          step:step,
+          step: step,
         });
 
         setQuestionData(response.data);
@@ -167,8 +204,8 @@ const QuestionMiddleUpContent = () => {
       }
     }
 
+    // Delete last question in allQuestionData
     allQuestionsData.pop();
-
   }
 
   const handleSkipQuestion = async () => {
@@ -374,21 +411,24 @@ const QuestionMiddleUpContent = () => {
                       </div>}
                     </div>
                   )
-                  : (
-                    Object.entries(questionData.choices).map(([key, value]) => (
-                      <div key={key}>
-                        {questionData.type === "multiple_choice"
-                          ? (<Checkbox id={`choice-${key}`}
-                            onClick={(e) => handleSelectionChange(key, e.target.checked)}
-                          />)
-                          : (<Radio name={`choice-${questionData.id}`} id={`choice-${key}`}
-                            onClick={(e) => handleSelectionChange(key, value)}
-                          />)
-                        }
-                        <label htmlFor={`choice-${key}`} className='ml-2'>{value}</label>
-                      </div>
-                    ))
-                  )
+                  : questionData.id === 10
+                    ? (
+                      <div></div>
+                    ) : (
+                      Object.entries(questionData.choices).map(([key, value]) => (
+                        <div key={key}>
+                          {questionData.type === "multiple_choice"
+                            ? (<Checkbox id={`choice-${key}`}
+                              onClick={(e) => handleSelectionChange(key, e.target.checked)}
+                            />)
+                            : (<Radio name={`choice-${questionData.id}`} id={`choice-${key}`}
+                              onClick={(e) => handleSelectionChange(key, value)}
+                            />)
+                          }
+                          <label htmlFor={`choice-${key}`} className='ml-2'>{value}</label>
+                        </div>
+                      ))
+                    )
               }
             </div>
           </Typography>

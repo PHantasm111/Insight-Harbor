@@ -12,6 +12,7 @@ import Login from './pages/Login'
 import './styles/Home.scss'
 import Questions from "./pages/Questions";
 import Tools from "./pages/Tools";
+import History from "./pages/History";
 
 
 const Layout = () => {
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
       {
         path:"/tools",
         element:<Tools/>
+      },
+      {
+        path:"/history",
+        element:<History />
       },
     ]
   },

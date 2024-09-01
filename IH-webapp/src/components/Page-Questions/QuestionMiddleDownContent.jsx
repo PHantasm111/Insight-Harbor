@@ -4,7 +4,7 @@ import { QuestionContext } from '../../context/questionContext';
 
 const QuestionMiddleDownContent = () => {
 
-  const { allQuestionsData, step, setSourceAndTargetStep1, setSourceAndTargetStep2, setSourceAndTargetStep3 } = useContext(QuestionContext);
+  const { allQuestionsData, step, sourceAndTargetStep1, setSourceAndTargetStep1, setSourceAndTargetStep2, setSourceAndTargetStep3 } = useContext(QuestionContext);
 
   const [searchIndex, setSearchIndex] = useState(0);
 
@@ -13,77 +13,108 @@ const QuestionMiddleDownContent = () => {
 
   const TABLE_HEAD = ["Step", "Source", "Target", ""];
 
-  const computeMatchedPairs = () => {
+  const computeAddMatchedPairs = () => {
 
     const newPairs = [];
 
-    if (allQuestionsData && allQuestionsData.length > searchIndex) {
+    for (let index = allQuestionsData.length - 1; index >= 0; index--) {
+      const question7 = allQuestionsData[index];
 
-      allQuestionsData.slice(searchIndex).forEach((question, index) => {
+      const previousQuestion = allQuestionsData[index - 1];
 
-        if (question.questionId === 6) {
+      if (previousQuestion && previousQuestion.questionId === 6) {
+        // get the selection from id=6
+        const sourceValue = previousQuestion.userSelections.secondSelectValue || previousQuestion.userSelections.firstSelectValue;
 
-          const nextQuestion = allQuestionsData[index + 1];
+        // get the selection from id=7
+        const targetValue = question7.userSelections.fourthSelectValue ||
+          question7.userSelections.thirdSelectValue ||
+          question7.userSelections.secondSelectValue ||
+          question7.userSelections.firstSelectValue;
 
-          if (nextQuestion && nextQuestion.questionId === 7) {
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: index - 1,
+          target: targetValue,
+          targetIndex: index,
+        })
 
-            // get the selection from id=6
-            const sourceValue = question.userSelections.secondSelectValue || question.userSelections.firstSelectValue;
+      } else if (previousQuestion && previousQuestion.questionId === 10) {
 
-            // get the selection from id=7
-            const targetValue = nextQuestion.userSelections.fourthSelectValue ||
-              nextQuestion.userSelections.thirdSelectValue ||
-              nextQuestion.userSelections.secondSelectValue ||
-              nextQuestion.userSelections.firstSelectValue;
+        // get the selection from id=10
+        const sourceValue = Object.values(previousQuestion.userSelections)
 
+        // get the selection from id=7
+        const targetValue = question7.userSelections.fourthSelectValue ||
+          question7.userSelections.thirdSelectValue ||
+          question7.userSelections.secondSelectValue ||
+          question7.userSelections.firstSelectValue;
 
-            newPairs.push({
-              step: step + 1,
-              source: sourceValue,
-              target: targetValue,
-            });
-          }
-        }
-      })
+        newPairs.push({
+          step: 2,
+          source: sourceValue,
+          sourceIndex: index - 1,
+          target: targetValue,
+          targetIndex: index,
+        })
+      } else if (previousQuestion && previousQuestion.questionId === 12) {
+        // get the selection from id=12
+        const sourceValue = Object.values(previousQuestion.userSelections)
 
-       // Update matchedPairs
-       setMatchedPairs(() => [
-        ...newPairs,
-      ]);
+        // get the selection from id=7
+        const targetValue = question7.userSelections.fourthSelectValue ||
+          question7.userSelections.thirdSelectValue ||
+          question7.userSelections.secondSelectValue ||
+          question7.userSelections.firstSelectValue;
+
+        newPairs.push({
+          step: 3,
+          source: sourceValue,
+          sourceIndex: index - 1,
+          target: targetValue,
+          targetIndex: index,
+        })
+      }
+
     }
+
+    // Update matchedPairs
+    setSourceAndTargetStep1(() => [
+      ...newPairs,
+    ]);
   };
+
+  const computeDeleteMatchedPairs = () => {
+    console.log("run delete")
+
+    if (sourceAndTargetStep1.length > 0) {
+      const { sourceIndex, targetIndex } = sourceAndTargetStep1[sourceAndTargetStep1.length - 1];
+
+      if (sourceIndex !== undefined && targetIndex !== undefined) {
+        const isSourceIndexValid = sourceIndex >= 0 && sourceIndex < allQuestionsData.length;
+        const isTargetIndexValid = targetIndex >= 0 && targetIndex < allQuestionsData.length;
+
+        if (isSourceIndexValid && isTargetIndexValid) {
+          console.log("Both sourceIndex and targetIndex are valid and exist in allQuestionsData.");
+
+        } else {
+          console.log("One or both of the indices are invalid or out of bounds. Removing the last element from sourceAndTargetStep1.");
+
+          setSourceAndTargetStep1(prev => prev.slice(0, -1));
+        }
+      }
+    }
+  }
 
 
   // Using useEffect to listen the change of allQuestionsData 
   useEffect(() => {
 
-    computeMatchedPairs();
-    //console.log("pairs ", matchedPairs)
+    computeAddMatchedPairs();
+    computeDeleteMatchedPairs();
+
   }, [allQuestionsData]);
-
-  useEffect(() => {
-    
-    const filteredStep1 = matchedPairs.filter(pair => pair.step === 1);
-
-    setSourceAndTargetStep1(() => [
-      ...filteredStep1,
-    ]);
-
-    // step 2
-    const filteredStep2 = matchedPairs.filter(pair => pair.step === 2);
-
-    setSourceAndTargetStep2(() => [
-      ...filteredStep2,
-    ]);
-
-    // step 3
-    const filteredStep3 = matchedPairs.filter(pair => pair.step === 3);
-
-    setSourceAndTargetStep3(() => [
-      ...filteredStep3,
-    ]);
-
-  }, [step])
 
 
   return (
@@ -111,7 +142,7 @@ const QuestionMiddleDownContent = () => {
                 </tr>
               </thead>
               <tbody>
-                {(matchedPairs || []).map((pair, index) => (
+                {sourceAndTargetStep1.slice().reverse().map((pair, index) => (
                   <tr key={index} className="even:bg-blue-gray-50/50">
                     <td className="p-4">
                       <Typography variant="small" color="blue-gray" className="font-normal">

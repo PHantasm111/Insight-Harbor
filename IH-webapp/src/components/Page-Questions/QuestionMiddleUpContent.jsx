@@ -1,4 +1,15 @@
-import { Card, Checkbox, Typography, Radio, Button, Select, Option } from '@material-tailwind/react'
+import {
+  Card,
+  Checkbox,
+  Typography,
+  Radio,
+  Button,
+  Select,
+  Option,
+  List,
+  ListItem,
+  ListItemPrefix,
+} from '@material-tailwind/react'
 import React, { useContext, useEffect, useState } from 'react'
 import axios, { all } from 'axios'
 import leftArrow from "/leftArrow.svg"
@@ -19,14 +30,18 @@ const QuestionMiddleUpContent = () => {
 
   // Current question ID
   const [currentQuestionId, setCurrentQuestionId] = useState(1); // first question = 1
+
   // If loading
   const [loading, setLoading] = useState(false);
+
   // Use QuestionContext
   const {
     userSelections, setUserSelections,
-    addQuestionData, allQuestionsData,
+    addQuestionData, allQuestionsData, setAllQuestionsData,
     step, setStep,
-    sourceAndTargetStep1, } = useContext(QuestionContext);  // Use useContext to get state and update function
+    sourceAndTargetStep1, setSourceAndTargetStep1,
+    sourceAndTargetStep2, setSourceAndTargetStep2,
+  } = useContext(QuestionContext);  // Use useContext to get state and update function
 
   // For id = 7 => Handle second/third/fourth select to show the content
   const [showSecond, setShowSecond] = React.useState("");
@@ -80,6 +95,9 @@ const QuestionMiddleUpContent = () => {
     })
   }
 
+  // Store 
+  const [targetList, setTargetList] = useState([])
+  const [giveTargetListValue, setGiveTargetListValue] = useState(true)
 
   // Test handleSelectionChange()
   useEffect(() => {
@@ -89,9 +107,19 @@ const QuestionMiddleUpContent = () => {
 
   useEffect(() => {
 
-    // Update step
     if (currentQuestionId === 10) {
+      // Update Step
       setStep(1);
+
+      // Update TargetList
+      if (giveTargetListValue) {
+        //console.log("sourceAndTargetStep1", sourceAndTargetStep1)
+        setTargetList(sourceAndTargetStep1.map(pair => pair.target));
+        //console.log("targetList", targetList)
+        setGiveTargetListValue(false)
+      }
+
+
     } else if (currentQuestionId === 12) {
       setStep(2);
     } else {
@@ -120,7 +148,11 @@ const QuestionMiddleUpContent = () => {
       setUserSelections(prevSelections => {
         const newSelections = { ...prevSelections };
         if (isChecked) {
-          newSelections[key] = selectedValue;
+          if (selectedValue) {
+            newSelections[key] = selectedValue;
+          } else {
+            newSelections[key] = key;
+          }
         } else {
           delete newSelections[key];
         }
@@ -142,21 +174,59 @@ const QuestionMiddleUpContent = () => {
       // At first, store all questiondata and selections into context using addQuestionData()
       if (Object.keys(userSelections).length > 0) {
         addQuestionData(questionData, userSelections);
+        // Clear the value of the select table
+        setFirstSelectValue("")
+        setSecondSelectValue("")
+        setThirdSelectValue("")
+        setFourthSelectValue("")
+        setShowSecond("")
+        setShowThird("")
+        setShowFourth("")
+      }
+
+      // loop for Q10
+      let targetListHasValue = false
+
+      console.log("currentQuestionId is : " + currentQuestionId)
+      if (currentQuestionId === 7) {
+
+        const lastQuestion = allQuestionsData.filter(q => q.questionId === 10);
+
+        if (lastQuestion) {
+          let selectedValues = [];
+
+          lastQuestion.forEach((q) => {
+            selectedValues = selectedValues.concat(Object.values(q.userSelections))
+          })
+
+          const hasOther = targetList.some(target => !selectedValues.includes(target));
+
+          targetListHasValue = hasOther;
+        }
       }
 
       // Send request to get next question data
-      console.log("step " + step)
       const response = await axios.post(`http://localhost:3000/question/${currentQuestionId}`, {
         selections: userSelections,
         step: step,
+        targetListHasValue: targetListHasValue,
       });
+
+      if (response.data.id === 10) {
+        const selectedValues = allQuestionsData
+          .filter(q => q.questionId === 10)
+          .flatMap(q => Object.values(q.userSelections));
+
+
+        const filteredTargetList = targetList.filter(target => !selectedValues.includes(target));
+        setTargetList(filteredTargetList)
+      }
 
       console.log("responsedata", response.data)
 
       // Update content
       setQuestionData(response.data);
       setCurrentQuestionId(response.data.id)
-
       setUserSelections({});
     } catch (error) {
       console.error("Error fetching question data:", error);
@@ -167,7 +237,8 @@ const QuestionMiddleUpContent = () => {
 
   const handleLastQuestion = async () => {
 
-    const index = allQuestionsData.length - 2;
+    // getLastQuestionIndex in allQuestionData
+    const index = allQuestionsData.length - 1;
 
     if (index < 0) {
       setQuestionData({
@@ -181,18 +252,23 @@ const QuestionMiddleUpContent = () => {
       setCurrentQuestionId(1);
       setUserSelections({});
 
+      // Delete last question in allQuestionData
+      setAllQuestionsData([]);
+
     } else {
 
+      // get last questionId with index
       const searchId = allQuestionsData[index].questionId;
-      const searchUserSelections = allQuestionsData[index].userSelections;
+      console.log("serachId " + searchId)
+
+      // Delete last question in allQuestionData
+      setAllQuestionsData(prev => prev.slice(0, -1)); 
+
       setLoading(true);
 
       try {
         // Send request to get last question data
-        const response = await axios.post(`http://localhost:3000/question/${searchId}`, {
-          selections: searchUserSelections,
-          step: step,
-        });
+        const response = await axios.get(`http://localhost:3000/question/${searchId}`);
 
         setQuestionData(response.data);
         setCurrentQuestionId(response.data.id)
@@ -203,23 +279,20 @@ const QuestionMiddleUpContent = () => {
         setLoading(false);
       }
     }
-
-    // Delete last question in allQuestionData
-    allQuestionsData.pop();
   }
 
   const handleSkipQuestion = async () => {
 
     try {
+
       // Send req 
       const response = await axios.get(`http://localhost:3000/questions/skip/${currentQuestionId}`);
-
 
     } catch (error) {
       console.error("Error fetching question data:", error);
     }
-
   }
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -321,7 +394,7 @@ const QuestionMiddleUpContent = () => {
                         value={thirdSelectValue}
                         onChange={(val) => handleThirdSelectChange(val)}
                       >
-                        <Option value="Relational">HDFS</Option>
+                        <Option value="HDFS">HDFS</Option>
                       </Select>
                     </div>}
 
@@ -413,7 +486,33 @@ const QuestionMiddleUpContent = () => {
                   )
                   : questionData.id === 10
                     ? (
-                      <div></div>
+                      <Card className="w-full max-w-[50rem] bg-transparent shadow-transparent">
+                        <List className="flex-row justify-between flex-wrap">
+                          {targetList.map((t, index) => (
+                            <ListItem className="p-0 w-full sm:w-1/2 md:w-1/3 lg:w-1/4" key={`target-${index}`}>
+                              <label
+                                htmlFor={`horizontal-list-${index}`}
+                                className="flex w-full cursor-pointer items-center px-3 py-2"
+                              >
+                                <ListItemPrefix className="mr-3">
+                                  <Checkbox
+                                    id={`horizontal-list-${index}`}
+                                    ripple={false}
+                                    className="hover:before:opacity-0"
+                                    containerProps={{
+                                      className: "p-0",
+                                    }}
+                                    onClick={(e) => handleSelectionChange(t, e.target.checked)}
+                                  />
+                                </ListItemPrefix>
+                                <Typography color="blue-gray" className="font-medium">
+                                  {t}
+                                </Typography>
+                              </label>
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Card>
                     ) : (
                       Object.entries(questionData.choices).map(([key, value]) => (
                         <div key={key}>

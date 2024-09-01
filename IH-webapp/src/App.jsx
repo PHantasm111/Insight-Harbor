@@ -9,7 +9,6 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Register from './pages/Register'
 import Login from './pages/Login'
-import './styles/Home.scss'
 import Questions from "./pages/Questions";
 import Tools from "./pages/Tools";
 import History from "./pages/History";

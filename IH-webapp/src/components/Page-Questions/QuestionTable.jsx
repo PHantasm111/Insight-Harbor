@@ -71,7 +71,7 @@ export function QuestionTable() {
               const classes = isLast ? "py-4" : "py-4 border-b border-gray-300";
 
               return (
-                <tr key={questionId} className="hover:bg-gray-50">
+                <tr key={`${index}-${questionId}`} className="hover:bg-gray-50">
                   <td className={classes}>
                     <Typography
                       variant="small"
@@ -129,7 +129,7 @@ export function QuestionTable() {
                 <AccordionBody>
                   Your answer is :
                   {Object.entries(question.userSelections).map(([key, value], index) => (
-                    <p key={key}>
+                    <p key={`answerList-${key}-${index}`}>
                       {index + 1}. {value}
                     </p>
                   ))}

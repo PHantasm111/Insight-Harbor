@@ -14,6 +14,7 @@ export const QuestionProvider = ({ children }) => {
     // Store the Step 
     const [step, setStep] = useState(0);
 
+    // Store the current selections
     const [userSelections, setUserSelections] = useState({});
 
     // Store all user answers into a list
@@ -33,15 +34,12 @@ export const QuestionProvider = ({ children }) => {
         ]);
     };
 
-    // Store the source and storage that user choice
-    const [sourceAndStorage, setSourceAndStorage] = useState({});
-
 
 
     return (
         <QuestionContext.Provider value={{
             userSelections, setUserSelections,
-            allQuestionsData, addQuestionData,
+            allQuestionsData, addQuestionData, setAllQuestionsData,
             step, setStep,
             sourceAndTargetStep1, setSourceAndTargetStep1,
             sourceAndTargetStep2, setSourceAndTargetStep2,

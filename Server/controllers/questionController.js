@@ -1,11 +1,11 @@
 import db from "../src/db_connection.js";
 
-function getNextQuestionId(currentQuestionId, selections, currentStep, ingestType, analysisType, deployType) {
+function getNextQuestionId(currentQuestionId, selections, currentStep, ingestType, analysisType, deployType, targetListHasValue) {
 
     const questionAnswer = Object.values(selections)[0]
     //console.log(Object.values(lastQuesionAnswer))
 
-    if (currentQuestionId < 10) { // optimise speed 
+    if (currentQuestionId <= 10) { // optimise speed 
 
         // ID = 1
         if (currentQuestionId === 1 && currentStep === 1) {
@@ -67,18 +67,20 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         // ID = 7
         if (currentQuestionId === 7 && currentStep === 1 && ingestType === "Batch") {
             return 8
-        } else if (currentQuestionId === 7 && currentStep === 2 && (ingestType === "Batch" || ingestType === "Streaming") && analysisType != "Real-time analysis") {
+        } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false && (ingestType === "Batch" || ingestType === "Streaming") && analysisType != "Real-time analysis") {
             return 11
         } else if (currentQuestionId === 7 && currentStep === 3) {
             return 13
         } else if (currentQuestionId === 7 && currentStep === 1 && ((ingestType === "Streaming" && analysisType === "Offline analysis") || ingestType === "Hybrid")) {
             return 9
-        } else if (currentQuestionId === 7 && currentStep === 2 && ingestType === "Streaming" && analysisType === "Real-time analysis") {
+        } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false && ingestType === "Streaming" && analysisType === "Real-time analysis") {
             return 20
         } else if (currentQuestionId === 7 && currentStep === 1 && deployType === "On cloud") {
             return 28
-        } else if (currentQuestionId === 7 && currentStep === 2) {
+        } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false) {
             return 24
+        } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === true) {
+            return 10
         }
 
         // ID = 8
@@ -247,10 +249,10 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
 
 // A flag to show which branch we are
 let deployType;
-let ingestType ;
+let ingestType;
 let analysisType;
 
-export const getQuestion = (req, res) => {
+export const getNextQuestion = (req, res) => {
 
     // Get the questionId from URL
     //console.log(req.body)
@@ -272,7 +274,9 @@ export const getQuestion = (req, res) => {
         analysisType = Object.values(req.body.selections)[0]
     }
 
-    const nextQuestionId = getNextQuestionId(currentQuestionId, req.body.selections, currentStep, ingestType, analysisType, deployType)
+    //console.log("boolean get" + req.body.targetListHasValue)
+
+    const nextQuestionId = getNextQuestionId(currentQuestionId, req.body.selections, currentStep, ingestType, analysisType, deployType, req.body.targetListHasValue)
 
     //console.log("nextQuestionId : " + nextQuestionId)
 
@@ -315,4 +319,29 @@ export const getQuestion = (req, res) => {
 
 export const getSkipQuestion = (req, res) => {
 
+}
+
+export const getQuestionById = (req, res) => {
+    const questionIdToGet = parseInt(req.params.id, 10) // Decimal numbers
+    const query = `select id, content, type, choices, is_required, help_text
+    from questions_table
+    where id = ?`
+
+    db.query(query,[questionIdToGet], (error, results) => {
+        if (error) {
+            console.error('Error executing query:', error);
+            res.status(500).json({ message: 'Database query failed' });
+            return;
+        }
+
+        if (results.length > 0) {
+            // Create a variable to store the questionData
+            const questionData = results[0];
+
+            res.json(questionData);
+
+        } else {
+            res.status(404).json({ message: 'Question not found' });
+        }
+    });
 }

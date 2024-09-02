@@ -86,8 +86,6 @@ const QuestionMiddleDownContent = () => {
   };
 
   const computeDeleteMatchedPairs = () => {
-    console.log("run delete")
-
     if (sourceAndTargetStep1.length > 0) {
       const { sourceIndex, targetIndex } = sourceAndTargetStep1[sourceAndTargetStep1.length - 1];
 
@@ -113,6 +111,8 @@ const QuestionMiddleDownContent = () => {
 
     computeAddMatchedPairs();
     computeDeleteMatchedPairs();
+    console.log(allQuestionsData)
+    console.log("sourceAndTargetStep1", sourceAndTargetStep1)
 
   }, [allQuestionsData]);
 

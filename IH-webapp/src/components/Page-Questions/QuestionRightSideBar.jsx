@@ -1,8 +1,21 @@
 import { Button, Card, Typography } from '@material-tailwind/react'
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import { ResultTempTable } from './ResultTempTable'
+import { QuestionContext } from '../../context/questionContext'
+
 
 const QuestionRightSideBar = () => {
+
+  // Use QuestionContext
+  const { step } = useContext(QuestionContext);  // Use useContext to get state and update function
+
+  useEffect(() => {
+    
+
+  }, [step])
+
+
+
   return (
     <div className='mx-2'>
       <Card className='bg-white flex flex-col'>

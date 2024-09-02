@@ -101,21 +101,21 @@ const QuestionMiddleUpContent = () => {
 
   // Test handleSelectionChange()
   useEffect(() => {
-    //console.log("userSelections", userSelections)
+    console.log("userSelections", userSelections)
     //console.log("allquestionData: ", allQuestionsData)
   }, [allQuestionsData, userSelections])
 
   useEffect(() => {
 
     if (currentQuestionId === 10) {
-      // Update Step
+      // Update Step -> step = 0 => step = 1
       setStep(1);
 
       // Update TargetList
       if (giveTargetListValue) {
         //console.log("sourceAndTargetStep1", sourceAndTargetStep1)
         setTargetList(sourceAndTargetStep1.map(pair => pair.target));
-        //console.log("targetList", targetList)
+        console.log("targetList", targetList)
         setGiveTargetListValue(false)
       }
 

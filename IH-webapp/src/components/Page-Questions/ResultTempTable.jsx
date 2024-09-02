@@ -30,7 +30,7 @@ const TABLE_ROWS = [
   },
 ];
  
-export function ResultTempTable() {
+export function ResultTempTable({resultStore}) {
   return (
     <Card className="h-full w-full">
       <table className="w-full min-w-max table-auto text-left">

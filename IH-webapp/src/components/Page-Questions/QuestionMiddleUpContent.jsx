@@ -101,8 +101,9 @@ const QuestionMiddleUpContent = () => {
 
   // Test handleSelectionChange()
   useEffect(() => {
-    console.log("userSelections", userSelections)
-    //console.log("allquestionData: ", allQuestionsData)
+    //console.log("userSelections", userSelections)
+    console.log("allquestionData: ", allQuestionsData)
+    console.log("sourceAndTargetStep1", sourceAndTargetStep1)
   }, [allQuestionsData, userSelections])
 
   useEffect(() => {
@@ -222,7 +223,7 @@ const QuestionMiddleUpContent = () => {
         setTargetList(filteredTargetList)
       }
 
-      console.log("responsedata", response.data)
+      //console.log("responsedata", response.data)
 
       // Update content
       setQuestionData(response.data);

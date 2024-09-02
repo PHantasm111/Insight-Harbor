@@ -111,8 +111,8 @@ const QuestionMiddleDownContent = () => {
 
     computeAddMatchedPairs();
     computeDeleteMatchedPairs();
-    console.log(allQuestionsData)
-    console.log("sourceAndTargetStep1", sourceAndTargetStep1)
+    //console.log(allQuestionsData)
+    //console.log("sourceAndTargetStep1", sourceAndTargetStep1)
 
   }, [allQuestionsData]);
 

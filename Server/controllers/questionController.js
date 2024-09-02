@@ -275,6 +275,7 @@ export const getNextQuestion = (req, res) => {
     }
 
     //console.log("boolean get" + req.body.targetListHasValue)
+    //console.log(deployType,ingestType,analysisType)
 
     const nextQuestionId = getNextQuestionId(currentQuestionId, req.body.selections, currentStep, ingestType, analysisType, deployType, req.body.targetListHasValue)
 
@@ -327,7 +328,7 @@ export const getQuestionById = (req, res) => {
     from questions_table
     where id = ?`
 
-    db.query(query,[questionIdToGet], (error, results) => {
+    db.query(query, [questionIdToGet], (error, results) => {
         if (error) {
             console.error('Error executing query:', error);
             res.status(500).json({ message: 'Database query failed' });
@@ -344,4 +345,159 @@ export const getQuestionById = (req, res) => {
             res.status(404).json({ message: 'Question not found' });
         }
     });
+}
+
+export const calculResultEachStep = (req, res) => {
+    // get the current step from the URL
+    const currentStep = parseInt(req.params.step, 10)
+    //console.log(req.body)
+
+    const { allQuestionsData, sourceAndTargetStep1 } = req.body;
+
+    //console.log(allQuestionsData)
+
+    const getAnswerById = (qId) => {
+        const question = allQuestionsData.find(q => q.questionId === qId);
+        return question ? Object.values(question.userSelections)[0] : null;
+    }
+
+    // Attention : maybe a tuple
+    const answer1 = getAnswerById(1); // deploy mode： On-p/cloud
+    const answer4 = getAnswerById(4); // pay? yes/no/a little
+    const answer5 = getAnswerById(5); // ingestType batch/streaming/hybrid
+
+
+    // Change format for query
+    // Deploy mode ?
+    let deploy_mode;
+
+    if (answer1 === "On-premises") {
+        deploy_mode = "On-p"
+    } else if (answer1 === "On cloud") {
+        deploy_mode = "Cloud"
+    } else {
+        console.log("Error answer 1")
+    }
+
+    // isPay ?
+    let isPay = 0;
+
+    if (answer4 === "Yes" || answer4 === "A little bit (medium budget)") {
+        isPay = 1;
+    } else {
+        isPay = 0;
+    }
+
+    // ingest type ?
+    let procs_mode;
+
+    if (answer5 === "Batch") {
+        procs_mode = "B"
+    } else if (answer5 === "Streaming") {
+        procs_mode = "S"
+    } else {
+        procs_mode = "B/S"
+    }
+
+    // pre processed ?
+    let pre_processed;
+
+    const answersFor8 = getAnswerById(8);
+    if (Array.isArray(answersFor8)) {
+        pre_processed = answersFor8.includes("Yes") ? 1 : 0; // pre_processed? yes/no
+    } else if (answersFor8 === "Yes") {
+        pre_processed = 1;
+    } else if (answersFor8 === "No") {
+        pre_processed = 0;
+    } else {
+        console.log("Error answer8")
+    }
+
+    const sourceTargetPairs =
+        sourceAndTargetStep1
+            .filter(pair => pair.step === currentStep)
+            .map(pair => ({
+                source: pair.source,
+                target: pair.target
+            }));
+
+    // a Array to store all the query results
+    let allResults = [];
+
+    // a Object to store the rank of tools
+    let toolScores = {};
+
+
+    // Use Promise.all to process multiple queries in parallel
+    const queries = sourceTargetPairs.map(pair => {
+        return new Promise((resolve, reject) => {
+            // query for each pair (source & target)
+            const query = `
+                    SELECT t.Id_t, t.name_t
+                    FROM tools t, output o, storage s, ingestfrom inf, datasource ds
+                    WHERE t.Id_t = o.Id_t
+                    AND o.Id_sto = s.Id_sto
+                    AND t.Id_t = inf.Id_t
+                    AND inf.id_datasource = ds.id_datasource
+                    AND t.isPay = '${isPay}'
+                    AND t.dplymt_mode_t = '${deploy_mode}'
+                    AND (t.procs_mode = '${procs_mode}' OR t.procs_mode = 'B/S')
+                    AND ds.name_datasource = '${pair.source}'  -- pair.source
+                    AND s.name_sto = '${pair.target}'          -- pair.target
+                    AND t.pre_processed = '${pre_processed}'
+                    ORDER BY t.popularity_t DESC;`;
+
+            // run query
+            db.query(query, (error, results) => {
+                if (error) {
+                    console.error('Error executing query:', error);
+                    reject(error);  // if wrong，reject this Promise
+                } else {
+                    // calculate rank for each result
+                    results.forEach((result, rank) => {
+                        if (!toolScores[result.Id_t]) {
+                            toolScores[result.Id_t] = {
+                                name: result.name_t,
+                                totalScore: 0,
+                                appearances: 0
+                            };
+                        }
+                        // calculate the score，rank is index, so rank + 1 is the real rank
+                        toolScores[result.Id_t].totalScore += (rank + 1);
+                        toolScores[result.Id_t].appearances += 1;
+                    });
+
+                    resolve(results);  // when success, resolve this Promise，and return res
+                }
+            });
+        });
+    });
+
+    // Deal with all query results
+    Promise.all(queries)
+        .then(results => {
+            // calculate final rank，according to the toolScore, the tools has high score with a low rank
+            const rankedTools = Object.entries(toolScores)
+                .sort(([, a], [, b]) => a.totalScore - b.totalScore)
+                .map(([id, tool]) => ({
+                    Id_t: id,
+                    name_t: tool.name,
+                    averageRank: tool.totalScore / tool.appearances, // calculate average rank
+                    totalScore: tool.totalScore,
+                    appearances: tool.appearances
+                }));
+
+            if (rankedTools.length > 0) {
+                console.log(rankedTools);
+                res.json(rankedTools);
+            } else {
+                res.status(404).json({ message: 'No results found for any pair' });
+            }
+        })
+        .catch(error => {
+            console.error('Error executing queries:', error);
+            res.status(500).json({ message: 'Database query failed' });
+        });
+
+
 }

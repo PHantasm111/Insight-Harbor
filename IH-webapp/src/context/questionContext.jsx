@@ -15,7 +15,7 @@ export const QuestionProvider = ({ children }) => {
     const [step, setStep] = useState(0);
 
     // Store the current selections
-    const [userSelections, setUserSelections] = useState({});
+    const [userSelections, setUserSelections] = useState([]);
 
     // Store all user answers into a list
     const [allQuestionsData, setAllQuestionsData] = useState([]);

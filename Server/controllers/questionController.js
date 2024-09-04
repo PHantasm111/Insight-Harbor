@@ -263,21 +263,21 @@ export const getNextQuestion = (req, res) => {
     const currentStep = req.body.step + 1;
 
     if (currentQuestionId === 1) {
-        deployType = Object.values(req.body.selections)[0]
+        deployType = Object.values(req.body.selections[0])[0]
     }
 
     if (currentQuestionId === 5) {
-        ingestType = Object.values(req.body.selections)[0]
+        ingestType = Object.values(req.body.selections[0])[0]
     }
 
     if (currentQuestionId === 16) {
-        analysisType = Object.values(req.body.selections)[0]
+        analysisType = Object.values(req.body.selections[0])[0]
     }
 
     //console.log("boolean get" + req.body.targetListHasValue)
-    //console.log(deployType,ingestType,analysisType)
+    console.log(deployType, ingestType, analysisType)
 
-    const nextQuestionId = getNextQuestionId(currentQuestionId, req.body.selections, currentStep, ingestType, analysisType, deployType, req.body.targetListHasValue)
+    const nextQuestionId = getNextQuestionId(currentQuestionId, req.body.selections[0], currentStep, ingestType, analysisType, deployType, req.body.targetListHasValue)
 
     //console.log("nextQuestionId : " + nextQuestionId)
 
@@ -348,17 +348,15 @@ export const getQuestionById = (req, res) => {
 }
 
 export const calculResultEachStep = (req, res) => {
+
     // get the current step from the URL
     const currentStep = parseInt(req.params.step, 10)
-    //console.log(req.body)
 
     const { allQuestionsData, sourceAndTargetStep1 } = req.body;
 
-    //console.log(allQuestionsData)
-
     const getAnswerById = (qId) => {
         const question = allQuestionsData.find(q => q.questionId === qId);
-        return question ? Object.values(question.userSelections)[0] : null;
+        return question ? Object.values(question.userSelections[0])[0] : null;
     }
 
     // Attention : maybe a tuple
@@ -421,83 +419,196 @@ export const calculResultEachStep = (req, res) => {
                 target: pair.target
             }));
 
-    // a Array to store all the query results
-    let allResults = [];
+    console.log(sourceTargetPairs)
 
-    // a Object to store the rank of tools
-    let toolScores = {};
+    if (currentStep === 1) {
+
+        // a Object to store the rank of tools
+        let toolScores = {};
 
 
-    // Use Promise.all to process multiple queries in parallel
-    const queries = sourceTargetPairs.map(pair => {
-        return new Promise((resolve, reject) => {
-            // query for each pair (source & target)
-            const query = `
+        // Use Promise.all to process multiple queries in parallel
+        const queries = sourceTargetPairs.map(pair => {
+            return new Promise((resolve, reject) => {
+                // query for each pair (source & target)
+                const query = `
                     SELECT t.Id_t, t.name_t
                     FROM tools t, output o, storage s, ingestfrom inf, datasource ds
                     WHERE t.Id_t = o.Id_t
                     AND o.Id_sto = s.Id_sto
                     AND t.Id_t = inf.Id_t
                     AND inf.id_datasource = ds.id_datasource
+                    AND t.category_t LIKE'Ingestion%'
                     AND t.isPay = '${isPay}'
                     AND t.dplymt_mode_t = '${deploy_mode}'
                     AND (t.procs_mode = '${procs_mode}' OR t.procs_mode = 'B/S')
                     AND ds.name_datasource = '${pair.source}'  -- pair.source
                     AND s.name_sto = '${pair.target}'          -- pair.target
-                    AND t.pre_processed = '${pre_processed}'
+                    AND t.pre_processed IN (${pre_processed === 0 ? '0, 1' : '1'})
                     ORDER BY t.popularity_t DESC;`;
 
-            // run query
-            db.query(query, (error, results) => {
-                if (error) {
-                    console.error('Error executing query:', error);
-                    reject(error);  // if wrong，reject this Promise
-                } else {
-                    // calculate rank for each result
-                    results.forEach((result, rank) => {
-                        if (!toolScores[result.Id_t]) {
-                            toolScores[result.Id_t] = {
-                                name: result.name_t,
-                                totalScore: 0,
-                                appearances: 0
-                            };
-                        }
-                        // calculate the score，rank is index, so rank + 1 is the real rank
-                        toolScores[result.Id_t].totalScore += (rank + 1);
-                        toolScores[result.Id_t].appearances += 1;
-                    });
+                // run query
+                db.query(query, (error, results) => {
+                    if (error) {
+                        console.error('Error executing query:', error);
+                        reject(error);  // if wrong，reject this Promise
+                    } else {
+                        // calculate rank for each result
+                        results.forEach((result, rank) => {
+                            if (!toolScores[result.Id_t]) {
+                                toolScores[result.Id_t] = {
+                                    name: result.name_t,
+                                    totalScore: 0,
+                                    appearances: 0
+                                };
+                            }
+                            // calculate the score，rank is index, so rank + 1 is the real rank
+                            toolScores[result.Id_t].totalScore += (rank + 1);
+                            toolScores[result.Id_t].appearances += 1;
+                        });
 
-                    resolve(results);  // when success, resolve this Promise，and return res
-                }
+                        resolve(results);  // when success, resolve this Promise，and return res
+                    }
+                });
             });
         });
-    });
 
-    // Deal with all query results
-    Promise.all(queries)
-        .then(results => {
-            // calculate final rank，according to the toolScore, the tools has high score with a low rank
-            const rankedTools = Object.entries(toolScores)
-                .sort(([, a], [, b]) => a.totalScore - b.totalScore)
-                .map(([id, tool]) => ({
-                    Id_t: id,
-                    name_t: tool.name,
-                    averageRank: tool.totalScore / tool.appearances, // calculate average rank
-                    totalScore: tool.totalScore,
-                    appearances: tool.appearances
-                }));
+        // Deal with all query results
+        Promise.all(queries)
+            .then(results => {
+                // calculate final rank，according to the toolScore, the tools has high score with a low rank
+                const rankedTools = Object.entries(toolScores)
+                    .sort(([, a], [, b]) => a.totalScore - b.totalScore)
+                    .map(([id, tool]) => ({
+                        Id_t: id,
+                        name_t: tool.name,
+                        averageRank: tool.totalScore / tool.appearances, // calculate average rank
+                        totalScore: tool.totalScore,
+                        appearances: tool.appearances
+                    }))
+                    .sort((a, b) => a.averageRank - b.averageRank);
 
-            if (rankedTools.length > 0) {
-                console.log(rankedTools);
-                res.json(rankedTools);
-            } else {
-                res.status(404).json({ message: 'No results found for any pair' });
-            }
-        })
-        .catch(error => {
-            console.error('Error executing queries:', error);
-            res.status(500).json({ message: 'Database query failed' });
+                if (rankedTools.length > 0) {
+                    console.log(rankedTools);
+                    res.json(rankedTools);
+                } else {
+                    res.status(404).json({ message: 'No results found for any pair' });
+                }
+            })
+            .catch(error => {
+                console.error('Error executing queries:', error);
+                res.status(500).json({ message: 'Database query failed' });
+            });
+
+    } else if (currentStep === 2) {
+
+        // Get user answer : if yes => 1 else 0
+        const streamFutur = getAnswerById(11) === "Yes" ? 1 : 0;
+        console.log("answer11: " + streamFutur + " " + getAnswerById(11))
+
+
+        const queries = sourceTargetPairs.map(pair => {
+            // Handling source conditions -> [{ source: ["HDFS", "Dis_MongoDB"], target: ["Dis_PSQL"] } ]
+            const sourceConditions = pair.source.map(sourceItem => {
+                if (sourceItem.length >= 4 && sourceItem.substring(0, 4) === "Dis_") {
+                    return `(si.name_sto = '${sourceItem.substring(4)}' AND i.dplymt_archi_input = 'Dis')`;
+                } else {
+                    return `si.name_sto = '${sourceItem}'`;
+                }
+            }).join(' AND '); // Join multiple conditions with OR if there are multiple sources
+
+
+            // Handling target conditions
+            const targetConditions = Array.isArray(pair.target)
+                ? pair.target.map(targetItem => {
+                    if (targetItem.startsWith("Dis_")) {
+                        return `(so.name_sto = '${targetItem.substring(4)}' AND o.dplymt_archi_output = 'Dis')`;
+                    } else {
+                        return `so.name_sto = '${targetItem}'`;
+                    }
+                }).join(' OR ')
+                : (pair.target.startsWith("Dis_")
+                    ? `(so.name_sto = '${pair.target.substring(4)}' AND o.dplymt_archi_output = 'Dis')`
+                    : `so.name_sto = '${pair.target}'`);
+
+            console.log("sourceConditions",sourceConditions)
+            console.log("targetConditions",targetConditions)
+
+            const query = `
+                                SELECT t.Id_t, t.name_t
+                                FROM tools t
+                                JOIN input i ON t.Id_t = i.Id_t
+                                JOIN output o ON t.Id_t = o.Id_t
+                                JOIN storage si ON i.Id_sto = si.Id_sto
+                                JOIN storage so ON o.Id_sto = so.Id_sto
+                                WHERE t.dplymt_mode_t = '${deploy_mode}'
+                                  AND t.category_t = 'Preparation'
+                                  AND t.isPay = '${isPay}'
+                                  AND t.procs_mode IN ('${streamFutur === 1 ? 'B/S' : 'B/S, B'}')
+                                  AND (${sourceConditions})
+                                  AND (${targetConditions})
+                                ORDER BY t.popularity_t DESC;
+                            `;
+
+            return new Promise((resolve, reject) => {
+                db.query(query, (error, results) => {
+                    if (error) {
+                        console.error('Error executing query:', error);
+                        reject(error);
+                    } else {
+                        console.log("result",results)
+                        resolve(results);
+                    }
+                });
+            });
         });
 
+        // 处理所有查询结果
+        Promise.all(queries)
+            .then(resultsArray => {
+                // 计算工具在所有查询结果中的出现次数
+                const toolCounts = {};
+
+                resultsArray.forEach(results => {
+                    results.forEach(result => {
+                        if (toolCounts[result.Id_t]) {
+                            toolCounts[result.Id_t].count += 1;
+                        } else {
+                            toolCounts[result.Id_t] = {
+                                name: result.name_t,
+                                count: 1
+                            };
+                        }
+                    });
+                });
+
+                console.log(toolCounts)
+
+                // 筛选出出现次数等于 sourceTargetPairs 长度的工具
+                const filteredTools = Object.entries(toolCounts)
+                    .filter(([id, tool]) => tool.count === sourceTargetPairs.length)
+                    .map(([id, tool]) => ({
+                        Id_t: id,
+                        name_t: tool.name,
+                        count: tool.count
+                    }));
+
+                console.log("filtered",filteredTools)
+
+                if (filteredTools.length > 0) {
+                    console.log(filteredTools);
+                    //res.json(filteredTools);
+                } else {
+                    res.status(404).json({ message: 'No tools found that meet all criteria.' });
+                }
+            })
+            .catch(error => {
+                console.error('Error executing queries:', error);
+                res.status(500).json({ message: 'Database query failed' });
+            });
+
+    } else {
+
+    }
 
 }

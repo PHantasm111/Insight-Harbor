@@ -25,61 +25,15 @@ const QuestionRightSideBar = () => {
 
       console.log(response.data)
       if (response.data){
-        const stepForRes = step - 1;
-        setResultStore((prev) => [
-          ...prev,
+        
+        setResultStore(() => [
           {
-            stepForRes : response.data,
+            [step] : response.data,
           }
         ])
       } else {
         console.log("response.data is null")
       }
-
-      // [
-      //   {
-      //     Id_t: '3',
-      //     name_t: 'Apache Kafka',
-      //     averageRank: 1,
-      //     totalScore: 2,
-      //     appearances: 2
-      //   },
-      //   {
-      //     Id_t: '5',
-      //     name_t: 'Logstash',
-      //     averageRank: 2,
-      //     totalScore: 4,
-      //     appearances: 2
-      //   },
-      //   {
-      //     Id_t: '6',
-      //     name_t: 'Fluentd',
-      //     averageRank: 3,
-      //     totalScore: 6,
-      //     appearances: 2
-      //   },
-      //   {
-      //     Id_t: '1',
-      //     name_t: 'Apache NIFI',
-      //     averageRank: 4,
-      //     totalScore: 8,
-      //     appearances: 2
-      //   },
-      //   {
-      //     Id_t: '4',
-      //     name_t: 'Pentaho Data Integration(a.k.a Kettle) - community',
-      //     averageRank: 5,
-      //     totalScore: 10,
-      //     appearances: 2
-      //   },
-      //   {
-      //     Id_t: '2',
-      //     name_t: 'Apache Flume',
-      //     averageRank: 6,
-      //     totalScore: 12,
-      //     appearances: 2
-      //   }
-      // ]
 
     } catch (error) {
       console.log(error)

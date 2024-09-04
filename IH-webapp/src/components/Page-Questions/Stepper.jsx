@@ -5,7 +5,7 @@ import { QuestionContext } from "../../context/questionContext";
 
 export function QuestionStepper() {
 
-    const { allQuestionsData, step } = useContext(QuestionContext);  // get all question daa
+    const { step } = useContext(QuestionContext);  // get all question daa
 
     return (
         <div className="w-full px-4 pb-8">

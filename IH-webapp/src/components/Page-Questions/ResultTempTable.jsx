@@ -1,40 +1,14 @@
 import { Card, Typography } from "@material-tailwind/react";
- 
-const TABLE_HEAD = ["Name", "Job", "Employed", ""];
- 
-const TABLE_ROWS = [
-  {
-    name: "John Michael",
-    job: "Manager",
-    date: "23/04/18",
-  },
-  {
-    name: "Alexa Liras",
-    job: "Developer",
-    date: "23/04/18",
-  },
-  {
-    name: "Laurent Perrier",
-    job: "Executive",
-    date: "19/09/17",
-  },
-  {
-    name: "Michael Levi",
-    job: "Developer",
-    date: "24/12/08",
-  },
-  {
-    name: "Richard Gran",
-    job: "Manager",
-    date: "04/10/21",
-  },
-];
- 
-export function ResultTempTable({resultStore}) {
+
+const TABLE_HEAD = ["Name", "AVG_Rank"];
+
+
+export function ResultTempTable({ resultStore }) {
+
   return (
-    <Card className="h-full w-full">
-      <table className="w-full min-w-max table-auto text-left">
-        <thead>
+    <Card className="w-full max-w-4xl max-h-96 overflow-auto">
+      <table className="w-full table-auto text-left">
+        <thead>  
           <tr>
             {TABLE_HEAD.map((head) => (
               <th
@@ -53,42 +27,53 @@ export function ResultTempTable({resultStore}) {
           </tr>
         </thead>
         <tbody>
-          {TABLE_ROWS.map(({ name, job, date }, index) => {
-            const isLast = index === TABLE_ROWS.length - 1;
-            const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
- 
-            return (
-              <tr key={name}>
-                <td className={classes}>
-                  <Typography
-                    variant="small"
-                    color="blue-gray"
-                    className="font-normal"
-                  >
-                    {name}
-                  </Typography>
-                </td>
-                <td className={classes}>
-                  <Typography
-                    variant="small"
-                    color="blue-gray"
-                    className="font-normal"
-                  >
-                    {job}
-                  </Typography>
-                </td>
-                <td className={classes}>
-                  <Typography
-                    variant="small"
-                    color="blue-gray"
-                    className="font-normal"
-                  >
-                    {date}
-                  </Typography>
-                </td>
-              </tr>
-            );
-          })}
+          {resultStore && resultStore.length > 0 ? (
+            resultStore.map((stepResult, stepIndex) => {
+              
+              const stepKey = Object.keys(stepResult)[0];
+              const tools = stepResult[stepKey];
+
+              return tools.map(({ Id_t, name_t, averageRank, totalScore, appearances }, index) => {
+                const isLast = index === tools.length - 1;
+                const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+
+                return (
+                  <tr key={Id_t}>
+                    <td className={classes}>
+                      <Typography
+                        variant="small"
+                        color="blue-gray"
+                        className="font-normal"
+                      >
+                        {name_t}
+                      </Typography>
+                    </td>
+                    <td className={classes}>
+                      <Typography
+                        variant="small"
+                        color="blue-gray"
+                        className="font-normal"
+                      >
+                        {averageRank}
+                      </Typography>
+                    </td>
+                  </tr>
+                );
+              });
+            })
+          ) : (
+            <tr>
+              <td colSpan={4} className="p-4 text-center">
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  No results available
+                </Typography>
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </Card>

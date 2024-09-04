@@ -128,7 +128,7 @@ export function QuestionTable() {
                 <AccordionHeader onClick={() => handleOpenAnswerList(index)}>{question.questionId}. {question.questionContent}</AccordionHeader>
                 <AccordionBody>
                   Your answer is :
-                  {Object.entries(question.userSelections).map(([key, value], index) => (
+                  {Object.entries(question.userSelections[0]).map(([key, value], index) => (
                     <p key={`answerList-${key}-${index}`}>
                       {index + 1}. {value}
                     </p>

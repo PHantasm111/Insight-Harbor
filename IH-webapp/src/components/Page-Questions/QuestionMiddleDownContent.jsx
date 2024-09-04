@@ -22,51 +22,15 @@ const QuestionMiddleDownContent = () => {
 
       const previousQuestion = allQuestionsData[index - 1];
 
-      if (previousQuestion && previousQuestion.questionId === 6) {
-        // get the selection from id=6
-        const sourceValue = previousQuestion.userSelections.secondSelectValue || previousQuestion.userSelections.firstSelectValue;
-
-        // get the selection from id=7
-        const targetValue = question7.userSelections.fourthSelectValue ||
-          question7.userSelections.thirdSelectValue ||
-          question7.userSelections.secondSelectValue ||
-          question7.userSelections.firstSelectValue;
-
-        newPairs.push({
-          step: 1,
-          source: sourceValue,
-          sourceIndex: index - 1,
-          target: targetValue,
-          targetIndex: index,
-        })
-
-      } else if (previousQuestion && previousQuestion.questionId === 10) {
-
-        // get the selection from id=10
-        const sourceValue = Object.values(previousQuestion.userSelections)
-
-        // get the selection from id=7
-        const targetValue = question7.userSelections.fourthSelectValue ||
-          question7.userSelections.thirdSelectValue ||
-          question7.userSelections.secondSelectValue ||
-          question7.userSelections.firstSelectValue;
-
-        newPairs.push({
-          step: 2,
-          source: sourceValue,
-          sourceIndex: index - 1,
-          target: targetValue,
-          targetIndex: index,
-        })
-      } else if (previousQuestion && previousQuestion.questionId === 12) {
+      if (previousQuestion && previousQuestion.questionId === 12) {
         // get the selection from id=12
-        const sourceValue = Object.values(previousQuestion.userSelections)
+        const sourceValue = Object.values(previousQuestion.userSelections[0])
 
         // get the selection from id=7
-        const targetValue = question7.userSelections.fourthSelectValue ||
-          question7.userSelections.thirdSelectValue ||
-          question7.userSelections.secondSelectValue ||
-          question7.userSelections.firstSelectValue;
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
 
         newPairs.push({
           step: 3,
@@ -75,8 +39,44 @@ const QuestionMiddleDownContent = () => {
           target: targetValue,
           targetIndex: index,
         })
-      }
+      } else if (previousQuestion && previousQuestion.questionId === 10) {
 
+        // get the selection from id=10
+        const sourceValue = previousQuestion.userSelections.map(selection => {
+          return Object.keys(selection)[0]
+        })
+
+        // get the selection from id=7
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+        newPairs.push({
+          step: 2,
+          source: sourceValue,
+          sourceIndex: index - 1,
+          target: targetValue,
+          targetIndex: index,
+        })
+      } else if (previousQuestion && previousQuestion.questionId === 6) {
+        // get the selection from id=6
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=7
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: index - 1,
+          target: targetValue,
+          targetIndex: index,
+        })
+      }
     }
 
     // Update matchedPairs
@@ -142,7 +142,7 @@ const QuestionMiddleDownContent = () => {
                 </tr>
               </thead>
               <tbody>
-                {sourceAndTargetStep1.slice().reverse().map((pair, index) => (
+                {sourceAndTargetStep1.map((pair, index) => (
                   <tr key={index} className="even:bg-blue-gray-50/50">
                     <td className="p-4">
                       <Typography variant="small" color="blue-gray" className="font-normal">
@@ -151,7 +151,7 @@ const QuestionMiddleDownContent = () => {
                     </td>
                     <td className="p-4">
                       <Typography variant="small" color="blue-gray" className="font-normal">
-                        {pair.source}
+                        {Array.isArray(pair.source) ? pair.source.join(", ") : pair.source}
                       </Typography>
                     </td>
                     <td className="p-4">

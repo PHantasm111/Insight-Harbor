@@ -59,7 +59,7 @@ const QuestionMiddleUpContent = () => {
     setThirdSelectValue("");
     setFourthSelectValue("");
     setFirstSelectValue(val);
-    setUserSelections({ firstSelectValue: val, });
+    setUserSelections([{ firstSelectValue: val, }]);
     setShowSecond(val);
   }
 
@@ -67,32 +67,32 @@ const QuestionMiddleUpContent = () => {
     setThirdSelectValue("");
     setFourthSelectValue("");
     setSecondSelectValue(val);
-    setUserSelections({
+    setUserSelections([{
       firstSelectValue: firstSelectValue,
       secondSelectValue: val,
-    })
+    }])
     setShowThird(val);
   }
 
   const handleThirdSelectChange = (val) => {
     setThirdSelectValue(val);
     setFourthSelectValue("");
-    setUserSelections({
+    setUserSelections([{
       firstSelectValue: firstSelectValue,
       secondSelectValue: secondSelectValue,
       thirdSelectValue: val,
-    })
+    }])
     setShowFourth(val);
   }
 
   const handleFourthSelectChange = (val) => {
     setFourthSelectValue(val);
-    setUserSelections({
+    setUserSelections([{
       firstSelectValue: firstSelectValue,
       secondSelectValue: secondSelectValue,
       thirdSelectValue: thirdSelectValue,
       fourthSelectValue: val,
-    })
+    }])
   }
 
   // Store 
@@ -101,7 +101,7 @@ const QuestionMiddleUpContent = () => {
 
   // Test handleSelectionChange()
   useEffect(() => {
-    //console.log("userSelections", userSelections)
+    console.log("userSelections", userSelections)
     console.log("allquestionData: ", allQuestionsData)
     console.log("sourceAndTargetStep1", sourceAndTargetStep1)
   }, [allQuestionsData, userSelections])
@@ -112,14 +112,15 @@ const QuestionMiddleUpContent = () => {
       // Update Step -> step = 0 => step = 1
       setStep(1);
 
-      // Update TargetList
+      // Update TargetList -> give the source and target in step 1 Exemple: [{target: source},{"HDFS:Files"},{"HDFS":"IoT"}]
       if (giveTargetListValue) {
-        //console.log("sourceAndTargetStep1", sourceAndTargetStep1)
-        setTargetList(sourceAndTargetStep1.map(pair => pair.target));
-        console.log("targetList", targetList)
+        const step1Targets = sourceAndTargetStep1
+          .filter(pair => pair.step === 1)
+          .map(pair => ({ [pair.target]: pair.source }));
+
+        setTargetList(step1Targets);
         setGiveTargetListValue(false)
       }
-
 
     } else if (currentQuestionId === 12) {
       setStep(2);
@@ -137,34 +138,49 @@ const QuestionMiddleUpContent = () => {
         setStep(0);
       }
     }
-
   }, [currentQuestionId])
+
+  useEffect(() => {
+    setGiveTargetListValue(true)
+  }, [sourceAndTargetStep1])
 
 
   const handleSelectionChange = (key, isChecked) => {
 
-    const selectedValue = questionData.choices[key];
-
-    if (questionData.type === "multiple_choice") {
+    if (typeof key === "object" && key !== null) { // Q10
       setUserSelections(prevSelections => {
-        const newSelections = { ...prevSelections };
+        let newSelections = [...prevSelections];
+
+        const objKey = Object.keys(key)[0];
+        const objValue = Object.values(key)[0];
+
         if (isChecked) {
-          if (selectedValue) {
-            newSelections[key] = selectedValue;
-          } else {
-            newSelections[key] = key;
-          }
+          newSelections.push({ [objKey]: objValue });
         } else {
-          delete newSelections[key];
+          newSelections = newSelections.filter(selection => !(selection[objKey] === objValue));
         }
         return newSelections;
       });
 
-    } else if (questionData.type === "single_choice") {
-      setUserSelections({
-        [key]: isChecked,
-      });
+    } else {
+      const selectedValue = questionData.choices[key];
 
+      if (questionData.type === "multiple_choice") {
+        setUserSelections(prevSelections => {
+          let newSelections = [...prevSelections];
+          if (isChecked) {
+            newSelections.push({ [key]: selectedValue });
+          } else {
+            newSelections = newSelections.filter(selection => !(selection[key] === selectedValue));
+          }
+          return newSelections;
+        });
+
+      } else if (questionData.type === "single_choice") {
+        setUserSelections([{
+          [key]: isChecked,
+        }]);
+      }
     }
   };
 
@@ -173,7 +189,7 @@ const QuestionMiddleUpContent = () => {
     try {
 
       // At first, store all questiondata and selections into context using addQuestionData()
-      if (Object.keys(userSelections).length > 0) {
+      if (userSelections.length > 0) {
         addQuestionData(questionData, userSelections);
         // Clear the value of the select table
         setFirstSelectValue("")
@@ -185,11 +201,11 @@ const QuestionMiddleUpContent = () => {
         setShowFourth("")
       }
 
-      // loop for Q10
+      // loop for Q10 (if we need to have loop for Q10) -> if all target has been selected then no, else yes
       let targetListHasValue = false
 
-      console.log("currentQuestionId is : " + currentQuestionId)
-      if (currentQuestionId === 7) {
+      if (currentQuestionId === 7 && (allQuestionsData[allQuestionsData.length - 1].questionId === 10
+        || allQuestionsData[allQuestionsData.length - 1].questionId === 12)) {
 
         const lastQuestion = allQuestionsData.filter(q => q.questionId === 10);
 
@@ -197,10 +213,23 @@ const QuestionMiddleUpContent = () => {
           let selectedValues = [];
 
           lastQuestion.forEach((q) => {
-            selectedValues = selectedValues.concat(Object.values(q.userSelections))
+            q.userSelections.forEach(selection => {
+              selectedValues = selectedValues.concat(selection);
+            });
           })
 
-          const hasOther = targetList.some(target => !selectedValues.includes(target));
+          const hasOther = targetList.some(target => {
+            return !selectedValues.some(selected => {
+
+              const targetKey = Object.keys(target)[0];
+              const targetValue = target[targetKey];
+
+              const selectedKey = Object.keys(selected)[0];
+              const selectedValue = selected[selectedKey];
+
+              return targetKey === selectedKey && targetValue === selectedValue;
+            });
+          });
 
           targetListHasValue = hasOther;
         }
@@ -214,21 +243,46 @@ const QuestionMiddleUpContent = () => {
       });
 
       if (response.data.id === 10) {
-        const selectedValues = allQuestionsData
-          .filter(q => q.questionId === 10)
-          .flatMap(q => Object.values(q.userSelections));
+        // Filter all questions with questionId = 10
+        const selectedQuestions = allQuestionsData.filter(q => q.questionId === 10);
 
+        if (selectedQuestions.length > 0) {
+          // Create an empty Set to store the matched pairs
+          const matchedPairs = new Set();
 
-        const filteredTargetList = targetList.filter(target => !selectedValues.includes(target));
-        setTargetList(filteredTargetList)
+          // Iterate over all userSelections in selectedQuestions
+          selectedQuestions.forEach(question => {
+
+            const userSelectionsArray = question.userSelections;
+
+            userSelectionsArray.forEach(userSelection => {
+              sourceAndTargetStep1.forEach(pair => {
+                const targetMatches = Object.keys(userSelection).includes(pair.target);
+                const sourceMatches = Object.values(userSelection).includes(pair.source);
+
+                if (targetMatches && sourceMatches) {
+                  // If there is a match, add it to matchedPairs
+                  matchedPairs.add(pair);
+                }
+              });
+            });
+
+            // Filter out elements in sourceAndTargetStep1 that do not match matchedPairs
+            const filteredTargetList = sourceAndTargetStep1
+              .filter(pair => !matchedPairs.has(pair))
+              .map(pair => ({ [pair.target]: pair.source }));
+
+            // Update targetList
+            setTargetList(filteredTargetList);
+          })
+        }
       }
-
       //console.log("responsedata", response.data)
 
       // Update content
       setQuestionData(response.data);
       setCurrentQuestionId(response.data.id)
-      setUserSelections({});
+      setUserSelections([]);
     } catch (error) {
       console.error("Error fetching question data:", error);
     } finally {
@@ -251,7 +305,7 @@ const QuestionMiddleUpContent = () => {
         help_text: null
       });
       setCurrentQuestionId(1);
-      setUserSelections({});
+      setUserSelections([]);
 
       // Delete last question in allQuestionData
       setAllQuestionsData([]);
@@ -260,10 +314,9 @@ const QuestionMiddleUpContent = () => {
 
       // get last questionId with index
       const searchId = allQuestionsData[index].questionId;
-      console.log("serachId " + searchId)
 
       // Delete last question in allQuestionData
-      setAllQuestionsData(prev => prev.slice(0, -1)); 
+      setAllQuestionsData(prev => prev.slice(0, -1));
 
       setLoading(true);
 
@@ -273,7 +326,7 @@ const QuestionMiddleUpContent = () => {
 
         setQuestionData(response.data);
         setCurrentQuestionId(response.data.id)
-        setUserSelections({});
+        setUserSelections([]);
       } catch (error) {
         console.error("Error fetching question data:", error);
       } finally {
@@ -453,7 +506,7 @@ const QuestionMiddleUpContent = () => {
                       </Select>
                     </div>}
                   </div>
-                ) : questionData.id === 6 || questionData.id === 25 || questionData.id === 26
+                ) : questionData.id === 6 || questionData.id === 26 || questionData.id === 27
                   ? (
                     <div className='flex gap-4 p-4'>
                       <div className="w-48">
@@ -507,7 +560,7 @@ const QuestionMiddleUpContent = () => {
                                   />
                                 </ListItemPrefix>
                                 <Typography color="blue-gray" className="font-medium">
-                                  {t}
+                                  {Object.keys(t)[0]}
                                 </Typography>
                               </label>
                             </ListItem>

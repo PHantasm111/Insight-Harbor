@@ -438,7 +438,7 @@ export const calculResultEachStep = (req, res) => {
                     AND o.Id_sto = s.Id_sto
                     AND t.Id_t = inf.Id_t
                     AND inf.id_datasource = ds.id_datasource
-                    AND t.category_t LIKE'Ingestion%'
+                    AND t.category_t LIKE 'Ingestion%'
                     AND t.isPay = '${isPay}'
                     AND t.dplymt_mode_t = '${deploy_mode}'
                     AND (t.procs_mode = '${procs_mode}' OR t.procs_mode = 'B/S')
@@ -515,7 +515,7 @@ export const calculResultEachStep = (req, res) => {
                 } else {
                     return `si.name_sto = '${sourceItem}'`;
                 }
-            }).join(' AND '); // Join multiple conditions with OR if there are multiple sources
+            }).join(' OR '); // Join multiple conditions with OR if there are multiple sources
 
 
             // Handling target conditions
@@ -535,15 +535,15 @@ export const calculResultEachStep = (req, res) => {
             console.log("targetConditions",targetConditions)
 
             const query = `
-                                SELECT t.Id_t, t.name_t
+                                SELECT distinct t.Id_t, t.name_t, t.popularity_t
                                 FROM tools t
                                 JOIN input i ON t.Id_t = i.Id_t
                                 JOIN output o ON t.Id_t = o.Id_t
                                 JOIN storage si ON i.Id_sto = si.Id_sto
                                 JOIN storage so ON o.Id_sto = so.Id_sto
                                 WHERE t.dplymt_mode_t = '${deploy_mode}'
-                                  AND t.category_t = 'Preparation'
-                                  AND t.isPay = '${isPay}'
+                                  AND t.category_t LIKE 'Preparation%'
+                                  AND t.isPay = ${isPay}
                                   AND t.procs_mode IN ('${streamFutur === 1 ? 'B/S' : 'B/S, B'}')
                                   AND (${sourceConditions})
                                   AND (${targetConditions})

@@ -7,6 +7,9 @@ import axios from 'axios'
 
 const QuestionRightSideBar = () => {
 
+  // Flag which decide to call function or not
+  const [flag, setFlag] = useState(true)
+
   // Store result of each step
   const [resultStore, setResultStore] = useState([]);
 
@@ -18,19 +21,23 @@ const QuestionRightSideBar = () => {
     try {
 
       console.log("allquestiondata right now", allQuestionsData);
-      const response = await axios.post(`http://localhost:3000/question/result/${step}`,{
+      // Step = 0, 1, 2 => 0 -> 1 => send step = 1 => 1 -> 2 => send step = 2 => manuel send step = 3
+      const response = await axios.post(`http://localhost:3000/question/result/${step}`, {
         allQuestionsData,
         sourceAndTargetStep1,
       })
 
-      console.log(response.data)
-      if (response.data){
-        
-        setResultStore(() => [
+      console.log("response data", response.data)
+      if (response.data) {
+
+        setResultStore((prev) => [
+          ...prev,
           {
-            [step] : response.data,
+            [step]: response.data,
           }
         ])
+        setFlag(false)
+
       } else {
         console.log("response.data is null")
       }
@@ -41,11 +48,16 @@ const QuestionRightSideBar = () => {
   }
 
   useEffect(() => {
-    if (step != 0){
+    // When go back to step = 0 actually step1 do not call function
+    if (step != 0) {
       calculResultEachStep();
     }
-
   }, [step])
+
+  // When we change the sourceAndTargetStep1, make sure that we can call function calculResultEachStep()
+  // useEffect(() => {
+  //   setFlag(true)
+  // }, [sourceAndTargetStep1])
 
 
 
@@ -61,7 +73,7 @@ const QuestionRightSideBar = () => {
             Ingestion :
           </Typography>
           <div className='p-4'>
-            <ResultTempTable resultStore={resultStore}/>
+            <ResultTempTable resultStore={resultStore} step={1} />
           </div>
         </div>
 
@@ -70,7 +82,7 @@ const QuestionRightSideBar = () => {
             Preparation :
           </Typography>
           <div className='p-4'>
-            {/* <ResultTempTable /> */}
+            <ResultTempTable resultStore={resultStore} step={2} />
           </div>
         </div>
 
@@ -79,7 +91,7 @@ const QuestionRightSideBar = () => {
             Analysis :
           </Typography>
           <div className='p-4'>
-            {/* <ResultTempTable /> */}
+            <ResultTempTable resultStore={resultStore} step={3} />
           </div>
         </div>
 

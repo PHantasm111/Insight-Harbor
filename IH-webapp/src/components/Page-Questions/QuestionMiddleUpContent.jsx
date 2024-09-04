@@ -100,11 +100,11 @@ const QuestionMiddleUpContent = () => {
   const [giveTargetListValue, setGiveTargetListValue] = useState(true)
 
   // Test handleSelectionChange()
-  useEffect(() => {
-    console.log("userSelections", userSelections)
-    console.log("allquestionData: ", allQuestionsData)
-    console.log("sourceAndTargetStep1", sourceAndTargetStep1)
-  }, [allQuestionsData, userSelections])
+  // useEffect(() => {
+  //   console.log("userSelections", userSelections)
+  //   console.log("allquestionData: ", allQuestionsData)
+  //   console.log("sourceAndTargetStep1", sourceAndTargetStep1)
+  // }, [allQuestionsData, userSelections])
 
   useEffect(() => {
 
@@ -140,9 +140,10 @@ const QuestionMiddleUpContent = () => {
     }
   }, [currentQuestionId])
 
+
   useEffect(() => {
-    setGiveTargetListValue(true)
-  }, [sourceAndTargetStep1])
+    console.log("changing targetList", targetList)
+  }, [targetList])
 
 
   const handleSelectionChange = (key, isChecked) => {
@@ -184,6 +185,10 @@ const QuestionMiddleUpContent = () => {
     }
   };
 
+  const handleLoopQ10 = (currentQuestionId) => {
+    
+  }
+
   const handleNextQuestion = async () => {
     setLoading(true);
     try {
@@ -202,38 +207,66 @@ const QuestionMiddleUpContent = () => {
       }
 
       // loop for Q10 (if we need to have loop for Q10) -> if all target has been selected then no, else yes
-      let targetListHasValue = false
+      let targetListHasValue = true
 
-      if (currentQuestionId === 7 && (allQuestionsData[allQuestionsData.length - 1].questionId === 10
-        || allQuestionsData[allQuestionsData.length - 1].questionId === 12)) {
-
-        const lastQuestion = allQuestionsData.filter(q => q.questionId === 10);
-
-        if (lastQuestion) {
-          let selectedValues = [];
-
-          lastQuestion.forEach((q) => {
-            q.userSelections.forEach(selection => {
-              selectedValues = selectedValues.concat(selection);
-            });
+      if (currentQuestionId === 7) {
+        console.log("in function allqustionData: ", allQuestionsData)
+  
+        // Filter all questions with questionId = 10
+        const selectedQuestions = allQuestionsData.filter(q => q.questionId === 10);
+  
+        console.log("in function selectedQuestions: ", selectedQuestions)
+  
+        if (selectedQuestions.length > 0) {
+  
+          // Create an empty Set to store the matched pairs
+          let matchedPairs = [];
+  
+          // Put all userSelection in to a array
+          const userAnwerList = selectedQuestions.map(q => q.userSelections)
+  
+          console.log("in function userAnwerList:", userAnwerList)
+  
+          const sourceTargetStep1 = sourceAndTargetStep1.filter(p => p.step === 1)
+  
+          console.log("in function sourceTargetStep1: ", sourceTargetStep1)
+  
+          userAnwerList.forEach(userSelection => {
+            userSelection.forEach(selectedPair => {
+              sourceTargetStep1.forEach(pair => {
+                const targetMatched = Object.keys(selectedPair)[0] === pair.target
+                const sourceMatched = Object.values(selectedPair)[0] === pair.source
+  
+                if (targetMatched && sourceMatched) {
+                  matchedPairs.push(pair)
+                }
+              })
+            })
           })
-
-          const hasOther = targetList.some(target => {
-            return !selectedValues.some(selected => {
-
-              const targetKey = Object.keys(target)[0];
-              const targetValue = target[targetKey];
-
-              const selectedKey = Object.keys(selected)[0];
-              const selectedValue = selected[selectedKey];
-
-              return targetKey === selectedKey && targetValue === selectedValue;
-            });
-          });
-
-          targetListHasValue = hasOther;
+  
+          console.log("in function matchedPairs: ", matchedPairs)
+  
+          // Filter out elements in sourceAndTargetStep1 that do not match matchedPairs
+          const filteredTargetList = sourceTargetStep1.filter(pair => {
+            // Check if the pair is NOT in matchedPairs
+            return !matchedPairs.some(matched =>
+              matched.target === pair.target && matched.source === pair.source
+            );
+          }).map(pair => ({ [pair.target]: pair.source }));
+  
+          // 检查 filteredTargetList 是否为空
+          if (filteredTargetList.length === 0) {
+            console.log("filteredTargetList is empty");
+            targetListHasValue = false
+          } else {
+            console.log("filteredTargetList", filteredTargetList);
+          }
+          // Update targetList
+          setTargetList(filteredTargetList);
         }
       }
+
+      console.log("right now flag is ", targetListHasValue)
 
       // Send request to get next question data
       const response = await axios.post(`http://localhost:3000/question/${currentQuestionId}`, {
@@ -242,41 +275,6 @@ const QuestionMiddleUpContent = () => {
         targetListHasValue: targetListHasValue,
       });
 
-      if (response.data.id === 10) {
-        // Filter all questions with questionId = 10
-        const selectedQuestions = allQuestionsData.filter(q => q.questionId === 10);
-
-        if (selectedQuestions.length > 0) {
-          // Create an empty Set to store the matched pairs
-          const matchedPairs = new Set();
-
-          // Iterate over all userSelections in selectedQuestions
-          selectedQuestions.forEach(question => {
-
-            const userSelectionsArray = question.userSelections;
-
-            userSelectionsArray.forEach(userSelection => {
-              sourceAndTargetStep1.forEach(pair => {
-                const targetMatches = Object.keys(userSelection).includes(pair.target);
-                const sourceMatches = Object.values(userSelection).includes(pair.source);
-
-                if (targetMatches && sourceMatches) {
-                  // If there is a match, add it to matchedPairs
-                  matchedPairs.add(pair);
-                }
-              });
-            });
-
-            // Filter out elements in sourceAndTargetStep1 that do not match matchedPairs
-            const filteredTargetList = sourceAndTargetStep1
-              .filter(pair => !matchedPairs.has(pair))
-              .map(pair => ({ [pair.target]: pair.source }));
-
-            // Update targetList
-            setTargetList(filteredTargetList);
-          })
-        }
-      }
       //console.log("responsedata", response.data)
 
       // Update content

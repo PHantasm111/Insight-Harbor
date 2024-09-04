@@ -30,12 +30,11 @@ const QuestionRightSideBar = () => {
       console.log("response data", response.data)
       if (response.data) {
 
-        setResultStore((prev) => [
+        setResultStore((prev) => ({
           ...prev,
-          {
-            [step]: response.data,
-          }
-        ])
+          [step]: response.data
+        }));
+
         setFlag(false)
 
       } else {
@@ -50,9 +49,14 @@ const QuestionRightSideBar = () => {
   useEffect(() => {
     // When go back to step = 0 actually step1 do not call function
     if (step != 0) {
+      console.log("step change call >>>", step)
       calculResultEachStep();
     }
   }, [step])
+
+  useEffect(() => {
+    console.log("resultstore", resultStore)
+  }, [resultStore])
 
   // When we change the sourceAndTargetStep1, make sure that we can call function calculResultEachStep()
   // useEffect(() => {
@@ -73,7 +77,7 @@ const QuestionRightSideBar = () => {
             Ingestion :
           </Typography>
           <div className='p-4'>
-            <ResultTempTable resultStore={resultStore} step={1} />
+            <ResultTempTable resultStore={resultStore[1]} step={1} />
           </div>
         </div>
 
@@ -82,7 +86,7 @@ const QuestionRightSideBar = () => {
             Preparation :
           </Typography>
           <div className='p-4'>
-            <ResultTempTable resultStore={resultStore} step={2} />
+            <ResultTempTable resultStore={resultStore[2]} step={2} />
           </div>
         </div>
 
@@ -91,7 +95,7 @@ const QuestionRightSideBar = () => {
             Analysis :
           </Typography>
           <div className='p-4'>
-            <ResultTempTable resultStore={resultStore} step={3} />
+            <ResultTempTable resultStore={resultStore[3]} step={3} />
           </div>
         </div>
 

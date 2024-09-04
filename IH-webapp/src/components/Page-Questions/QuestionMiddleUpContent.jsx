@@ -210,12 +210,8 @@ const QuestionMiddleUpContent = () => {
       let targetListHasValue = true
 
       if (currentQuestionId === 7) {
-        console.log("in function allqustionData: ", allQuestionsData)
-  
         // Filter all questions with questionId = 10
         const selectedQuestions = allQuestionsData.filter(q => q.questionId === 10);
-  
-        console.log("in function selectedQuestions: ", selectedQuestions)
   
         if (selectedQuestions.length > 0) {
   
@@ -225,11 +221,7 @@ const QuestionMiddleUpContent = () => {
           // Put all userSelection in to a array
           const userAnwerList = selectedQuestions.map(q => q.userSelections)
   
-          console.log("in function userAnwerList:", userAnwerList)
-  
           const sourceTargetStep1 = sourceAndTargetStep1.filter(p => p.step === 1)
-  
-          console.log("in function sourceTargetStep1: ", sourceTargetStep1)
   
           userAnwerList.forEach(userSelection => {
             userSelection.forEach(selectedPair => {
@@ -244,8 +236,6 @@ const QuestionMiddleUpContent = () => {
             })
           })
   
-          console.log("in function matchedPairs: ", matchedPairs)
-  
           // Filter out elements in sourceAndTargetStep1 that do not match matchedPairs
           const filteredTargetList = sourceTargetStep1.filter(pair => {
             // Check if the pair is NOT in matchedPairs
@@ -254,7 +244,7 @@ const QuestionMiddleUpContent = () => {
             );
           }).map(pair => ({ [pair.target]: pair.source }));
   
-          // 检查 filteredTargetList 是否为空
+          
           if (filteredTargetList.length === 0) {
             console.log("filteredTargetList is empty");
             targetListHasValue = false
@@ -265,8 +255,6 @@ const QuestionMiddleUpContent = () => {
           setTargetList(filteredTargetList);
         }
       }
-
-      console.log("right now flag is ", targetListHasValue)
 
       // Send request to get next question data
       const response = await axios.post(`http://localhost:3000/question/${currentQuestionId}`, {

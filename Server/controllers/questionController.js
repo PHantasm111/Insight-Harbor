@@ -597,7 +597,7 @@ export const calculResultEachStep = (req, res) => {
 
                 if (filteredTools.length > 0) {
                     console.log(filteredTools);
-                    //res.json(filteredTools);
+                    res.json(filteredTools);
                 } else {
                     res.status(404).json({ message: 'No tools found that meet all criteria.' });
                 }

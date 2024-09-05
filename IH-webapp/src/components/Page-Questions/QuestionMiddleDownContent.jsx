@@ -4,12 +4,7 @@ import { QuestionContext } from '../../context/questionContext';
 
 const QuestionMiddleDownContent = () => {
 
-  const { allQuestionsData, step, sourceAndTargetStep1, setSourceAndTargetStep1, setSourceAndTargetStep2, setSourceAndTargetStep3 } = useContext(QuestionContext);
-
-  const [searchIndex, setSearchIndex] = useState(0);
-
-  // Store all the source and target that user choose from question
-  const [matchedPairs, setMatchedPairs] = useState([]);
+  const { allQuestionsData, step, sourceAndTargetStep1, setSourceAndTargetStep1 } = useContext(QuestionContext);
 
   const TABLE_HEAD = ["Step", "Source", "Target", ""];
 
@@ -24,7 +19,7 @@ const QuestionMiddleDownContent = () => {
 
       if (previousQuestion && previousQuestion.questionId === 12) {
         // get the selection from id=12
-        const sourceValue = Object.values(previousQuestion.userSelections[0])
+        const sourceValue = previousQuestion.userSelections.map(s => Object.keys(s))
 
         // get the selection from id=7
         const targetValue = question7.userSelections[0].fourthSelectValue ||
@@ -123,8 +118,8 @@ const QuestionMiddleDownContent = () => {
           Choices :
         </Typography>
         <div className='p-4'>
-          <Card className="h-full w-full overflow-scroll">
-            <table className="w-full min-w-max table-auto text-left">
+          <Card className="w-full overflow-auto max-h-72 min-h-32 shadow-md">
+            <table className="w-full min-w-max table-auto text-left overflow-auto">
               <thead>
                 <tr>
                   {TABLE_HEAD.map((head) => (
@@ -141,7 +136,7 @@ const QuestionMiddleDownContent = () => {
                 </tr>
               </thead>
               <tbody>
-                {sourceAndTargetStep1.map((pair, index) => (
+                {sourceAndTargetStep1.length != 0 ? (sourceAndTargetStep1.map((pair, index) => (
                   <tr key={index} className="even:bg-blue-gray-50/50">
                     <td className="p-4">
                       <Typography variant="small" color="blue-gray" className="font-normal">
@@ -164,7 +159,20 @@ const QuestionMiddleDownContent = () => {
                       </Typography>
                     </td>
                   </tr>
-                ))}
+                ))) : (
+                  <tr className="even:bg-blue-gray-50/50">
+                    <td colSpan={4} className="p-4 text-center">
+                      <Typography
+                        variant="small"
+                        color="blue-gray"
+                        className="font-normal"
+                      >
+                        No data available
+                      </Typography>
+                    </td>
+                  </tr>
+                )
+                }
               </tbody>
             </table>
           </Card>

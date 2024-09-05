@@ -69,8 +69,10 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             return 8
         } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false && (ingestType === "Batch" || ingestType === "Streaming") && analysisType != "Real-time analysis") {
             return 11
-        } else if (currentQuestionId === 7 && currentStep === 3) {
+        } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === false) {
             return 13
+        } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === true) {
+            return 12
         } else if (currentQuestionId === 7 && currentStep === 1 && ((ingestType === "Streaming" && analysisType === "Offline analysis") || ingestType === "Hybrid")) {
             return 9
         } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false && ingestType === "Streaming" && analysisType === "Real-time analysis") {
@@ -134,7 +136,10 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             return 15
         }
 
-        // ID = 15
+        // ID = 15 (Last question)
+        if (currentQuestionId === 15) {
+            return "BYE"
+        }
 
         // ID = 16
         if (currentQuestionId === 16) {
@@ -280,6 +285,9 @@ export const getNextQuestion = (req, res) => {
     const nextQuestionId = getNextQuestionId(currentQuestionId, req.body.selections[0], currentStep, ingestType, analysisType, deployType, req.body.targetListHasValue)
 
     //console.log("nextQuestionId : " + nextQuestionId)
+    if (nextQuestionId === "BYE"){
+        res.json("Finish")
+    }
 
     const query = `select id, content, type, choices, is_required, help_text
                    from questions_table
@@ -531,8 +539,8 @@ export const calculResultEachStep = (req, res) => {
                     ? `(so.name_sto = '${pair.target.substring(4)}' AND o.dplymt_archi_output = 'Dis')`
                     : `so.name_sto = '${pair.target}'`);
 
-            console.log("sourceConditions",sourceConditions)
-            console.log("targetConditions",targetConditions)
+            console.log("sourceConditions", sourceConditions)
+            console.log("targetConditions", targetConditions)
 
             const query = `
                                 SELECT distinct t.Id_t, t.name_t, t.popularity_t
@@ -556,17 +564,15 @@ export const calculResultEachStep = (req, res) => {
                         console.error('Error executing query:', error);
                         reject(error);
                     } else {
-                        console.log("result",results)
+                        console.log("result", results)
                         resolve(results);
                     }
                 });
             });
         });
 
-        // 处理所有查询结果
         Promise.all(queries)
             .then(resultsArray => {
-                // 计算工具在所有查询结果中的出现次数
                 const toolCounts = {};
 
                 resultsArray.forEach(results => {
@@ -592,8 +598,6 @@ export const calculResultEachStep = (req, res) => {
                         name_t: tool.name,
                         count: tool.count
                     }));
-
-                console.log("filtered",filteredTools)
 
                 if (filteredTools.length > 0) {
                     console.log(filteredTools);

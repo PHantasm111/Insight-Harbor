@@ -100,11 +100,11 @@ const QuestionMiddleUpContent = () => {
   const [giveTargetListValue, setGiveTargetListValue] = useState(true)
 
   // Test handleSelectionChange()
-  // useEffect(() => {
-  //   console.log("userSelections", userSelections)
-  //   console.log("allquestionData: ", allQuestionsData)
-  //   console.log("sourceAndTargetStep1", sourceAndTargetStep1)
-  // }, [allQuestionsData, userSelections])
+  useEffect(() => {
+    //console.log("userSelections", userSelections)
+    console.log("allquestionData: ", allQuestionsData)
+    console.log("sourceAndTargetStep1", sourceAndTargetStep1)
+  }, [allQuestionsData, userSelections])
 
   useEffect(() => {
 
@@ -113,27 +113,35 @@ const QuestionMiddleUpContent = () => {
       setStep(1);
 
       // Update TargetList -> give the source and target in step 1 Exemple: [{target: source},{"HDFS:Files"},{"HDFS":"IoT"}]
-      if (giveTargetListValue) {
+      if (allQuestionsData.every(q => q.questionId != 10)) {
         const step1Targets = sourceAndTargetStep1
           .filter(pair => pair.step === 1)
           .map(pair => ({ [pair.target]: pair.source }));
 
         setTargetList(step1Targets);
-        setGiveTargetListValue(false)
       }
 
     } else if (currentQuestionId === 12) {
       setStep(2);
+
+      if (allQuestionsData.every(q => q.questionId != 12)) {
+        const step2Targets = sourceAndTargetStep1
+          .filter(pair => pair.step === 2)
+          .map(pair => ({ [pair.target]: pair.source }));
+
+        setTargetList(step2Targets);
+      }
+
     } else {
 
       // Update step
       const has10 = allQuestionsData.some(question => question.questionId === 10);
       const has12 = allQuestionsData.some(question => question.questionId === 12);
 
-      if (has10) {
-        setStep(1);
-      } else if (has12) {
+      if (has12) {
         setStep(2);
+      } else if (has10) {
+        setStep(1);
       } else {
         setStep(0);
       }
@@ -185,10 +193,6 @@ const QuestionMiddleUpContent = () => {
     }
   };
 
-  const handleLoopQ10 = (currentQuestionId) => {
-    
-  }
-
   const handleNextQuestion = async () => {
     setLoading(true);
     try {
@@ -206,36 +210,37 @@ const QuestionMiddleUpContent = () => {
         setShowFourth("")
       }
 
-      // loop for Q10 (if we need to have loop for Q10) -> if all target has been selected then no, else yes
+      // loop for Q10 and Q12 (if we need to have loop for Q10) -> if all target has been selected then no, else yes
       let targetListHasValue = true
 
-      if (currentQuestionId === 7) {
+      if (currentQuestionId === 7 && step === 1) {
+
         // Filter all questions with questionId = 10
         const selectedQuestions = allQuestionsData.filter(q => q.questionId === 10);
-  
+
         if (selectedQuestions.length > 0) {
-  
+
           // Create an empty Set to store the matched pairs
           let matchedPairs = [];
-  
+
           // Put all userSelection in to a array
           const userAnwerList = selectedQuestions.map(q => q.userSelections)
-  
+
           const sourceTargetStep1 = sourceAndTargetStep1.filter(p => p.step === 1)
-  
+
           userAnwerList.forEach(userSelection => {
             userSelection.forEach(selectedPair => {
               sourceTargetStep1.forEach(pair => {
                 const targetMatched = Object.keys(selectedPair)[0] === pair.target
                 const sourceMatched = Object.values(selectedPair)[0] === pair.source
-  
+
                 if (targetMatched && sourceMatched) {
                   matchedPairs.push(pair)
                 }
               })
             })
           })
-  
+
           // Filter out elements in sourceAndTargetStep1 that do not match matchedPairs
           const filteredTargetList = sourceTargetStep1.filter(pair => {
             // Check if the pair is NOT in matchedPairs
@@ -243,8 +248,75 @@ const QuestionMiddleUpContent = () => {
               matched.target === pair.target && matched.source === pair.source
             );
           }).map(pair => ({ [pair.target]: pair.source }));
-  
-          
+
+
+          if (filteredTargetList.length === 0) {
+            console.log("filteredTargetList is empty");
+            targetListHasValue = false
+          } else {
+            console.log("filteredTargetList", filteredTargetList);
+          }
+          // Update targetList
+          setTargetList(filteredTargetList);
+        }
+      } else if (currentQuestionId === 7 && step === 2) {
+        console.log("here i am in step 2")
+        // Filter all questions with questionId = 12
+        const selectedQuestions = allQuestionsData.filter(q => q.questionId === 12);
+
+        console.log("selectedQuestions in step 2", selectedQuestions)
+
+        if (selectedQuestions.length > 0) {
+
+          // Create an empty Set to store the matched pairs
+          let matchedPairs = [];
+
+          // Helper function to compare two arrays (deep comparison)
+          const arraysEqual = (arr1, arr2) => {
+            if (arr1.length !== arr2.length) return false;
+            return arr1.every((value, index) => value === arr2[index]);
+          };
+
+          // Put all userSelection in to a array
+          const userAnwerList = selectedQuestions.map(q => q.userSelections)
+          console.log("userAnwerList in step 2", userAnwerList)
+
+          const sourceTargetStep2 = sourceAndTargetStep1.filter(p => p.step === 2)
+          console.log("sourceTargetStep1 in step 2", sourceTargetStep2)
+
+          userAnwerList.forEach(userSelection => {
+            userSelection.forEach(selectedPair => {
+              sourceTargetStep2.forEach(pair => {
+                const targetMatched = Object.keys(selectedPair)[0] === pair.target
+
+                // Compare arrays for source match, handle array in selectedPair
+                const selectedSource = Object.values(selectedPair)[0];
+                const sourceMatched =
+                  Array.isArray(selectedSource) && Array.isArray(pair.source)
+                    ? arraysEqual(selectedSource, pair.source)  // Compare arrays deeply
+                    : selectedSource === pair.source;           // Compare directly if not arrays
+
+                if (targetMatched && sourceMatched) {
+                  matchedPairs.push(pair)
+                }
+              })
+            })
+          })
+
+          console.log("matchedPairs in step 2", matchedPairs)
+
+          // Filter out elements in sourceAndTargetStep1 that do not match matchedPairs
+          const filteredTargetList = sourceTargetStep2.filter(pair => {
+            // Check if the pair is NOT in matchedPairs
+            return !matchedPairs.some(matched =>
+              matched.target === pair.target &&
+                Array.isArray(matched.source) && Array.isArray(pair.source)
+                ? arraysEqual(matched.source, pair.source)  // Compare arrays deeply
+                : matched.source === pair.source            // Compare directly if not arrays
+            );
+          }).map(pair => ({ [pair.target]: pair.source }));
+
+
           if (filteredTargetList.length === 0) {
             console.log("filteredTargetList is empty");
             targetListHasValue = false
@@ -255,6 +327,7 @@ const QuestionMiddleUpContent = () => {
           setTargetList(filteredTargetList);
         }
       }
+
 
       // Send request to get next question data
       const response = await axios.post(`http://localhost:3000/question/${currentQuestionId}`, {
@@ -524,7 +597,7 @@ const QuestionMiddleUpContent = () => {
                       </div>}
                     </div>
                   )
-                  : questionData.id === 10
+                  : questionData.id === 10 || questionData.id === 12
                     ? (
                       <Card className="w-full max-w-[50rem] bg-transparent shadow-transparent">
                         <List className="flex-row justify-between flex-wrap">

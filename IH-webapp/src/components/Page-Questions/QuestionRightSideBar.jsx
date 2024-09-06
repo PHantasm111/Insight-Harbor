@@ -14,13 +14,12 @@ const QuestionRightSideBar = () => {
   const [resultStore, setResultStore] = useState([]);
 
   // Use QuestionContext
-  const { step, allQuestionsData, sourceAndTargetStep1 } = useContext(QuestionContext);  // Use useContext to get state and update function
+  const { step, allQuestionsData, sourceAndTargetStep1,forceUseFunction, setForceUseFunction} = useContext(QuestionContext);  // Use useContext to get state and update function
 
   // Function to get the result of recommadation
-  const calculResultEachStep = async () => {
+  const calculResultEachStep = async (step) => {
     try {
 
-      console.log("allquestiondata right now", allQuestionsData);
       // Step = 0, 1, 2 => 0 -> 1 => send step = 1 => 1 -> 2 => send step = 2 => manuel send step = 3
       const response = await axios.post(`http://localhost:3000/question/result/${step}`, {
         allQuestionsData,
@@ -49,20 +48,19 @@ const QuestionRightSideBar = () => {
   useEffect(() => {
     // When go back to step = 0 actually step1 do not call function
     if (step != 0) {
-      console.log("step change call >>>", step)
-      calculResultEachStep();
+      calculResultEachStep(step);
     }
   }, [step])
 
   useEffect(() => {
+    if (forceUseFunction){
+      calculResultEachStep(3);
+    }
+  },[forceUseFunction])
+
+  useEffect(() => {
     console.log("resultstore", resultStore)
   }, [resultStore])
-
-  // When we change the sourceAndTargetStep1, make sure that we can call function calculResultEachStep()
-  // useEffect(() => {
-  //   setFlag(true)
-  // }, [sourceAndTargetStep1])
-
 
 
   return (

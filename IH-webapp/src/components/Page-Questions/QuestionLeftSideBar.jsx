@@ -8,7 +8,7 @@ const QuestionLeftSideBar = () => {
 
   return (
     <div className="mx-2">
-      <Card className="flex flex-col w-full bg-white">
+      <Card className="flex flex-col w-full bg-white mb-4" >
         <Typography
           variant="h2"
           color="blue-gray"
@@ -16,6 +16,7 @@ const QuestionLeftSideBar = () => {
         >
           Step
         </Typography>
+
         {/* Stepper for the question */}
         <div className="p-4">
           <QuestionStepper />

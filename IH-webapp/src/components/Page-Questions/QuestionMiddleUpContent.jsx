@@ -31,6 +31,12 @@ const QuestionMiddleUpContent = () => {
   // Current question ID
   const [currentQuestionId, setCurrentQuestionId] = useState(1); // first question = 1
 
+  // NoSelectAlert
+  const [noSelectAlert, setNoSelectAlert] = useState(false);
+
+  // Disable Q2
+  const [disableQ2, setDisableQ2] = useState(false)
+
   // If loading
   const [loading, setLoading] = useState(false);
 
@@ -40,7 +46,7 @@ const QuestionMiddleUpContent = () => {
     addQuestionData, allQuestionsData, setAllQuestionsData,
     step, setStep,
     sourceAndTargetStep1, setSourceAndTargetStep1,
-    sourceAndTargetStep2, setSourceAndTargetStep2,
+    forceUseFunction, setForceUseFunction
   } = useContext(QuestionContext);  // Use useContext to get state and update function
 
   // For id = 7 => Handle second/third/fourth select to show the content
@@ -97,13 +103,21 @@ const QuestionMiddleUpContent = () => {
 
   // Store 
   const [targetList, setTargetList] = useState([])
-  const [giveTargetListValue, setGiveTargetListValue] = useState(true)
 
   // Test handleSelectionChange()
   useEffect(() => {
-    //console.log("userSelections", userSelections)
+    console.log("userSelections", userSelections)
     console.log("allquestionData: ", allQuestionsData)
     console.log("sourceAndTargetStep1", sourceAndTargetStep1)
+
+    if (userSelections.length > 0) {
+      setNoSelectAlert(false)
+    }
+
+    if (currentQuestionId === 2){
+      Q2Check()
+    }
+
   }, [allQuestionsData, userSelections])
 
   useEffect(() => {
@@ -146,6 +160,17 @@ const QuestionMiddleUpContent = () => {
         setStep(0);
       }
     }
+
+    if (currentQuestionId === 19){
+      if (allQuestionsData.every(q => q.questionId != 19)){
+        const step1Targets = sourceAndTargetStep1.filter(pair => pair.step === 1).map()
+      }
+    }
+
+    if (currentQuestionId === 13) {
+      setForceUseFunction(true)
+    }
+
   }, [currentQuestionId])
 
 
@@ -193,14 +218,34 @@ const QuestionMiddleUpContent = () => {
     }
   };
 
+  const Q2Check = () => {
+
+    if ((userSelections.length === 1 && Object.keys(userSelections[0]).includes("c4"))
+      || (userSelections.every(selection => !Object.keys(selection).includes("c4")))) {
+
+      setDisableQ2(false)
+      return false
+
+    } else {
+      setDisableQ2(true)
+      return true
+    }
+  }
+
   const handleNextQuestion = async () => {
+
     setLoading(true);
+
     try {
+
+      if (disableQ2) {
+        return
+      }
 
       // At first, store all questiondata and selections into context using addQuestionData()
       if (userSelections.length > 0) {
         addQuestionData(questionData, userSelections);
-        // Clear the value of the select table
+        // Clear the value of the select table 
         setFirstSelectValue("")
         setSecondSelectValue("")
         setThirdSelectValue("")
@@ -208,6 +253,9 @@ const QuestionMiddleUpContent = () => {
         setShowSecond("")
         setShowThird("")
         setShowFourth("")
+      } else {
+        setNoSelectAlert(true)
+        return;
       }
 
       // loop for Q10 and Q12 (if we need to have loop for Q10) -> if all target has been selected then no, else yes
@@ -443,88 +491,95 @@ const QuestionMiddleUpContent = () => {
                       </Select>
                     </div>
                     {/* level 2 */}
-                    {showSecond === "Database" && <div className="w-48">
-                      <Select
-                        label="Architecture"
-                        value={secondSelectValue}
-                        onChange={(val) => handleSecondSelectChange(val)}
-                      >
-                        <Option value="Centralized_db">Centralized Database</Option>
-                        <Option value="Distributed_db">Distributed Database</Option>
-                      </Select>
-                    </div>}
+                    {showSecond === "Database" &&
+                      <div className="w-48">
+                        <Select
+                          label="Architecture"
+                          value={secondSelectValue}
+                          onChange={(val) => handleSecondSelectChange(val)}
+                        >
+                          <Option value="Centralized_db">Centralized Database</Option>
+                          <Option value="Distributed_db">Distributed Database</Option>
+                        </Select>
+                      </div>}
 
-                    {showSecond === "Filesystem" && <div className="w-48">
-                      <Select
-                        label="Architecture"
-                        value={secondSelectValue}
-                        onChange={(val) => handleSecondSelectChange(val)}
-                      >
-                        <Option value="Centralized_fs">Centralized File System</Option>
-                        <Option value="Distributed_fs">Distributed File System</Option>
-                      </Select>
-                    </div>}
+                    {showSecond === "Filesystem" &&
+                      <div className="w-48">
+                        <Select
+                          label="Architecture"
+                          value={secondSelectValue}
+                          onChange={(val) => handleSecondSelectChange(val)}
+                        >
+                          <Option value="Centralized_fs">Centralized File System</Option>
+                          <Option value="Distributed_fs">Distributed File System</Option>
+                        </Select>
+                      </div>}
 
                     {/* level 3 */}
-                    {showThird === "Centralized_db" && <div className="w-48">
-                      <Select
-                        label="Database Type"
-                        value={thirdSelectValue}
-                        onChange={(val) => handleThirdSelectChange(val)}
-                      >
-                        <Option value="Relational">Relational</Option>
-                        <Option value="Nosql">NoSQL</Option>
-                      </Select>
-                    </div>}
+                    {showThird === "Centralized_db" &&
+                      <div className="w-48">
+                        <Select
+                          label="Database Type"
+                          value={thirdSelectValue}
+                          onChange={(val) => handleThirdSelectChange(val)}
+                        >
+                          <Option value="Relational">Relational</Option>
+                          <Option value="Nosql" disabled={step === 2}>NoSQL</Option>
+                        </Select>
+                      </div>}
 
-                    {showThird === "Distributed_db" && <div className="w-48">
-                      <Select
-                        label="Database Type"
-                        value={thirdSelectValue}
-                        onChange={(val) => handleThirdSelectChange(val)}
-                      >
-                        <Option value="Dis_Relational">Relational</Option>
-                        <Option value="Dis_Nosql">NoSQL</Option>
-                      </Select>
-                    </div>}
+                    {showThird === "Distributed_db" &&
+                      <div className="w-48">
+                        <Select
+                          label="Database Type"
+                          value={thirdSelectValue}
+                          onChange={(val) => handleThirdSelectChange(val)}
+                        >
+                          <Option value="Dis_Relational">Relational</Option>
+                          <Option value="Dis_Nosql" disabled={step === 2}>NoSQL</Option>
+                        </Select>
+                      </div>}
 
-                    {showThird === "Centralized_fs" && <div className="w-48">
-                      <Select
-                        label="Centralized File System"
-                        value={thirdSelectValue}
-                        onChange={(val) => handleThirdSelectChange(val)}
-                      >
-                        <Option value="NAS">NAS</Option>
-                        <Option value="SAN">SAN</Option>
-                        <Option value="NTFS">NTFS</Option>
-                        <Option value="EXT4">EXT4</Option>
-                      </Select>
-                    </div>}
+                    {showThird === "Centralized_fs" &&
+                      <div className="w-48">
+                        <Select
+                          label="Centralized File System"
+                          value={thirdSelectValue}
+                          onChange={(val) => handleThirdSelectChange(val)}
+                        >
+                          <Option value="NAS">NAS</Option>
+                          <Option value="SAN">SAN</Option>
+                          <Option value="NTFS">NTFS</Option>
+                          <Option value="EXT4">EXT4</Option>
+                        </Select>
+                      </div>}
 
-                    {showThird === "Distributed_fs" && <div className="w-48">
-                      <Select
-                        label="Distributed File System"
-                        value={thirdSelectValue}
-                        onChange={(val) => handleThirdSelectChange(val)}
-                      >
-                        <Option value="HDFS">HDFS</Option>
-                      </Select>
-                    </div>}
+                    {showThird === "Distributed_fs" &&
+                      <div className="w-48">
+                        <Select
+                          label="Distributed File System"
+                          value={thirdSelectValue}
+                          onChange={(val) => handleThirdSelectChange(val)}
+                        >
+                          <Option value="HDFS">HDFS</Option>
+                        </Select>
+                      </div>}
 
                     {/* level 4 */}
-                    {showFourth === "Relational" && showThird === "Centralized_db" && <div className="w-48">
-                      <Select
-                        label="Relational Database"
-                        value={fourthSelectValue}
-                        onChange={(val) => handleFourthSelectChange(val)}
-                      >
-                        <Option value="MySQL">MySQL</Option>
-                        <Option value="PostgreSQL">PostgreSQL</Option>
-                        <Option value="MariaDB">MariaDB</Option>
-                        <Option value="Oracle Database">Oracle Database</Option>
-                        <Option value="Microsoft SQL Server">Microsoft SQL Server</Option>
-                      </Select>
-                    </div>}
+                    {showFourth === "Relational" && showThird === "Centralized_db" &&
+                      <div className="w-48">
+                        <Select
+                          label="Relational Database"
+                          value={fourthSelectValue}
+                          onChange={(val) => handleFourthSelectChange(val)}
+                        >
+                          <Option value="MySQL">MySQL</Option>
+                          <Option value="PostgreSQL">PostgreSQL</Option>
+                          <Option value="MariaDB">MariaDB</Option>
+                          <Option value="Oracle Database">Oracle Database</Option>
+                          <Option value="Microsoft SQL Server">Microsoft SQL Server</Option>
+                        </Select>
+                      </div>}
 
                     {showFourth === "Nosql" && showThird === "Centralized_db" && <div className="w-48">
                       <Select
@@ -645,7 +700,9 @@ const QuestionMiddleUpContent = () => {
             </div>
           </Typography>
 
-          <div className='flex justify-between m-8 gap-8'>
+          {noSelectAlert && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>You need to choose an option*</span>}
+          {disableQ2 && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>Please check your selections*</span>}
+          <div className='flex justify-between mx-8 mb-8 mt-2 gap-8'>
             <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' disabled={currentQuestionId === 1} onClick={handleLastQuestion}>
               <img src={leftArrow} width={40} height={40}></img>
               Last Question

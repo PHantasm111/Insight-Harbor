@@ -99,14 +99,18 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         }
 
         // ID = 9
-        if (currentQuestionId === 9 && currentStep === 1 && (ingestType === "Batch" || ingestType === "Streaming")) {
+        if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Batch" ) {
             if (questionAnswer === "Yes") {
                 return 6
             } else {
                 return 10
             }
         } else if (currentQuestionId === 9 && currentStep === 1 && ((ingestType === "Streaming" && analysisType === "Offline analysis") || ingestType === "Hybrid")) {
-            return 8
+            if (questionAnswer === "Yes") {
+                return 6
+            } else {
+                return 8
+            }
         }
 
         // ID = 10
@@ -252,6 +256,38 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
     }
 }
 
+const getProtentialRank = (currentQuestionId, selections) => {
+
+    const questionAnswer = Object.values(selections)[0]
+
+    // ID = 13
+    if (currentQuestionId === 13) {
+        if (questionAnswer === "Yes") {
+            return ["Apache Trino", "Apache Hive", "Apache Drill"]
+        } else if (questionAnswer === "No") {
+            return ["Apache Pig"]
+        }
+    }
+
+    if (currentQuestionId === 14) {
+        if (questionAnswer === "Yes") {
+            return ["Apache Trino", "Apache Drill", "Apache Hive"]
+        } else if (questionAnswer === "No") {
+            return ["Apache Trino", "Apache Hive", "Apache Drill"]
+        }
+    }
+
+    if (currentQuestionId === 15) {
+        if (questionAnswer === "OLAP") {
+            return ["Apache Kylin", "Apache Druid", "Trino", "SAP-BO", "ClickHouse"]
+        } else if (questionAnswer === "Visualization") {
+            return ["Tableau", "PowerBI", "Qlik", "Apache Superset"]
+        } else if (questionAnswer === "ML/DL") {
+            return ["Spark MLlib", "Tenserflow", "Pytorch", "H2O.ai"]
+        }
+    }
+}
+
 // A flag to show which branch we are
 let deployType;
 let ingestType;
@@ -283,9 +319,9 @@ export const getNextQuestion = (req, res) => {
     console.log(deployType, ingestType, analysisType)
 
     const nextQuestionId = getNextQuestionId(currentQuestionId, req.body.selections[0], currentStep, ingestType, analysisType, deployType, req.body.targetListHasValue)
-
+    const protentialRank = getProtentialRank(currentQuestionId, req.body.selections[0])
     //console.log("nextQuestionId : " + nextQuestionId)
-    if (nextQuestionId === "BYE"){
+    if (nextQuestionId === "BYE") {
         res.json("Finish")
     }
 
@@ -516,28 +552,62 @@ export const calculResultEachStep = (req, res) => {
 
 
         const queries = sourceTargetPairs.map(pair => {
-            // Handling source conditions -> [{ source: ["HDFS", "Dis_MongoDB"], target: ["Dis_PSQL"] } ]
-            const sourceConditions = pair.source.map(sourceItem => {
-                if (sourceItem.length >= 4 && sourceItem.substring(0, 4) === "Dis_") {
-                    return `(si.name_sto = '${sourceItem.substring(4)}' AND i.dplymt_archi_input = 'Dis')`;
-                } else {
-                    return `si.name_sto = '${sourceItem}'`;
-                }
-            }).join(' OR '); // Join multiple conditions with OR if there are multiple sources
+
+            // Handling source conditions 
+            //[{ source: [ 'HDFS' ], target: 'NTFS' },{ source: [ 'PostgreSQL with Citus', 'HDFS' ], target: 'HDFS' }]
+            const sourceConditions = Array.isArray(pair.source)
+                ? pair.source.map(sourceItem => {
+                    if (sourceItem.length >= 4 && sourceItem.substring(0, 4) === "Dis_") {
+                        return `t.Id_t IN (
+                                        SELECT i.Id_t
+                                        FROM input i
+                                        JOIN storage si ON i.Id_sto = si.Id_sto
+                                        WHERE si.name_sto = '${sourceItem.substring(4)}'
+                                            AND i.dplymt_archi_input = 'Dis'
+                                        )`
+                    } else {
+                        return `t.Id_t IN (
+                                        SELECT i.Id_t
+                                        FROM input i
+                                        JOIN storage si ON i.Id_sto = si.Id_sto
+                                        WHERE si.name_sto = '${sourceItem}'
+                                        )`
+                    }
+                }).join(' AND ') // Join multiple conditions with OR if there are multiple sources
+                : (pair.source.startsWith("Dis_")
+                    ? `t.Id_t IN ( 
+                                    SELECT i.Id_t
+                                    FROM input i
+                                    JOIN storage si ON i.Id_sto = si.Id_sto
+                                    WHERE si.name_sto = '${pair.source.substring(4)}'
+                                        AND i.dplymt_archi_input = 'Dis'
+                                    )`
+                    : `t.Id_t IN (
+                                    SELECT i.Id_t
+                                    FROM input i
+                                    JOIN storage si ON i.Id_sto = si.Id_sto
+                                    WHERE si.name_sto = '${pair.source}'
+                                    )`
+                );
 
 
             // Handling target conditions
-            const targetConditions = Array.isArray(pair.target)
-                ? pair.target.map(targetItem => {
-                    if (targetItem.startsWith("Dis_")) {
-                        return `(so.name_sto = '${targetItem.substring(4)}' AND o.dplymt_archi_output = 'Dis')`;
-                    } else {
-                        return `so.name_sto = '${targetItem}'`;
-                    }
-                }).join(' OR ')
-                : (pair.target.startsWith("Dis_")
-                    ? `(so.name_sto = '${pair.target.substring(4)}' AND o.dplymt_archi_output = 'Dis')`
-                    : `so.name_sto = '${pair.target}'`);
+
+            const targetConditions = (pair.target.startsWith("Dis_")
+                ? `t.Id_t IN (
+                                    SELECT o.Id_t
+                                    FROM output o
+                                    JOIN storage so ON o.Id_sto = so.Id_sto
+                                    WHERE so.name_sto = '${pair.target.substring(4)}'
+                                        AND o.dplymt_archi_output = 'Dis'
+                                )`
+                : `t.Id_t IN (
+                                    SELECT o.Id_t
+                                    FROM output o
+                                    JOIN storage so ON o.Id_sto = so.Id_sto
+                                    WHERE so.name_sto = '${pair.target}'
+                                )`
+            );
 
             console.log("sourceConditions", sourceConditions)
             console.log("targetConditions", targetConditions)
@@ -545,14 +615,10 @@ export const calculResultEachStep = (req, res) => {
             const query = `
                                 SELECT distinct t.Id_t, t.name_t, t.popularity_t
                                 FROM tools t
-                                JOIN input i ON t.Id_t = i.Id_t
-                                JOIN output o ON t.Id_t = o.Id_t
-                                JOIN storage si ON i.Id_sto = si.Id_sto
-                                JOIN storage so ON o.Id_sto = so.Id_sto
                                 WHERE t.dplymt_mode_t = '${deploy_mode}'
                                   AND t.category_t LIKE 'Preparation%'
                                   AND t.isPay = ${isPay}
-                                  AND t.procs_mode IN ('${streamFutur === 1 ? 'B/S' : 'B/S, B'}')
+                                  AND t.procs_mode IN (${streamFutur === 1 ? "'B/S'" : "'B/S', 'B'"})
                                   AND (${sourceConditions})
                                   AND (${targetConditions})
                                 ORDER BY t.popularity_t DESC;
@@ -590,7 +656,7 @@ export const calculResultEachStep = (req, res) => {
 
                 console.log(toolCounts)
 
-                // 筛选出出现次数等于 sourceTargetPairs 长度的工具
+                // count ===  sourceTargetPairs.length
                 const filteredTools = Object.entries(toolCounts)
                     .filter(([id, tool]) => tool.count === sourceTargetPairs.length)
                     .map(([id, tool]) => ({
@@ -611,7 +677,114 @@ export const calculResultEachStep = (req, res) => {
                 res.status(500).json({ message: 'Database query failed' });
             });
 
-    } else {
+    } else if (currentStep === 3) {
+        const queries = sourceTargetPairs.map(pair => {
+
+            const sourceConditions = Array.isArray(pair.source)
+                ? pair.source.map(sourceItem => {
+                    if (sourceItem[0].length >= 4 && sourceItem[0].substring(0, 4) === "Dis_") {
+                        return `t.Id_t IN (
+                                    SELECT i.Id_t
+                                    FROM input i
+                                    JOIN storage si ON i.Id_sto = si.Id_sto
+                                    WHERE si.name_sto = '${sourceItem[0].substring(4)}'
+                                        AND i.dplymt_archi_input = 'Dis'
+                                    )`
+                    } else {
+                        return `t.Id_t IN (
+                                    SELECT i.Id_t
+                                    FROM input i
+                                    JOIN storage si ON i.Id_sto = si.Id_sto
+                                    WHERE si.name_sto = '${sourceItem[0]}'
+                                    )`
+                    }
+                }).join(' AND ')
+                : (console.log("sourceConditions error"))
+
+            const targetConditions = (pair.target.startsWith("Dis_")
+                ? `t.Id_t IN (
+                                SELECT o.Id_t
+                                FROM output o
+                                JOIN storage so ON o.Id_sto = so.Id_sto
+                                WHERE so.name_sto = '${pair.target.substring(4)}'
+                                    AND o.dplymt_archi_output = 'Dis'
+                            )`
+                : `t.Id_t IN (
+                                SELECT o.Id_t
+                                FROM output o
+                                JOIN storage so ON o.Id_sto = so.Id_sto
+                                WHERE so.name_sto = '${pair.target}'
+                            )`
+            );
+
+
+            console.log("sourceConditions", sourceConditions)
+            console.log("targetConditions", targetConditions)
+
+            const query = `
+                                SELECT distinct t.Id_t, t.name_t, t.popularity_t
+                                FROM tools t
+                                WHERE t.dplymt_mode_t = '${deploy_mode}'
+                                  AND t.category_t LIKE 'Analysis%'
+                                  AND t.isPay = ${isPay}
+                                  AND (${sourceConditions})
+                                  AND (${targetConditions})
+                                ORDER BY t.popularity_t DESC;
+                            `;
+
+            return new Promise((resolve, reject) => {
+                db.query(query, (error, results) => {
+                    if (error) {
+                        console.error('Error executing query:', error);
+                        reject(error);
+                    } else {
+                        console.log("result", results)
+                        resolve(results);
+                    }
+                });
+            });
+        });
+
+
+        Promise.all(queries)
+            .then(resultsArray => {
+                const toolCounts = {};
+
+                resultsArray.forEach(results => {
+                    results.forEach(result => {
+                        if (toolCounts[result.Id_t]) {
+                            toolCounts[result.Id_t].count += 1;
+                        } else {
+                            toolCounts[result.Id_t] = {
+                                name: result.name_t,
+                                count: 1
+                            };
+                        }
+                    });
+                });
+
+                console.log(toolCounts)
+
+                // count ===  sourceTargetPairs.length
+                const filteredTools = Object.entries(toolCounts)
+                    .filter(([id, tool]) => tool.count === sourceTargetPairs.length)
+                    .map(([id, tool]) => ({
+                        Id_t: id,
+                        name_t: tool.name,
+                        count: tool.count
+                    }));
+
+                if (filteredTools.length > 0) {
+                    console.log(filteredTools);
+                    res.json(filteredTools);
+                } else {
+                    res.status(404).json({ message: 'No tools found that meet all criteria.' });
+                }
+            })
+            .catch(error => {
+                console.error('Error executing queries:', error);
+                res.status(500).json({ message: 'Database query failed' });
+            });
 
     }
 

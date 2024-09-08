@@ -53,9 +53,12 @@ const QuestionMiddleUpContent = () => {
     addQuestionData, allQuestionsData, setAllQuestionsData,
     step, setStep,
     sourceAndTargetStep1, setSourceAndTargetStep1,
-    forceUseFunction, setForceUseFunction,
+    setForceUseFunction,
     currentQuestionId, setCurrentQuestionId,
-    protentialRank, setProtentialRank
+    setProtentialRank,
+    setComputeSourceAndTarget,
+    setReComputeSourceAndTarget,
+    setCalculRealTimeStreaming,
   } = useContext(QuestionContext);  // Use useContext to get state and update function
 
   // For id = 7 => Handle second/third/fourth select to show the content
@@ -110,10 +113,9 @@ const QuestionMiddleUpContent = () => {
     }])
   }
 
-
-
   useEffect(() => {
-    //console.log("bian le ", sourceAndTargetStep1)
+    console.log(allQuestionsData)
+    console.log("bian le ", sourceAndTargetStep1)
   }, [sourceAndTargetStep1])
 
   useEffect(() => {
@@ -145,6 +147,7 @@ const QuestionMiddleUpContent = () => {
       };
 
       sendRequest();
+      setComputeSourceAndTarget((prev) => prev + 1)
     }
 
     if (allQuestionsData.some(question => question.questionId === 5)) {
@@ -176,6 +179,8 @@ const QuestionMiddleUpContent = () => {
   // Supervise the currentQuestionId and when it change, handle the active step and make true that Q10 and Q12 will have the question content
   useEffect(() => {
 
+    const has33 = allQuestionsData.some(question => question.questionId === 33);
+
     if (currentQuestionId === 10) {
       // Update Step -> step = 0 => step = 1
       setStep(1);
@@ -201,9 +206,10 @@ const QuestionMiddleUpContent = () => {
       }
 
     } else if (currentQuestionId === 20) {
-      console.log("right now allquestiondata: ", allQuestionsData)
-      console.log("rigth now sourceAndTargetStep1", sourceAndTargetStep1)
-      setStep(1);
+
+      if (!has33) {
+        setStep(1);
+      }
 
     } else {
 
@@ -256,23 +262,38 @@ const QuestionMiddleUpContent = () => {
       }
     }
 
+    
+
     if (currentQuestionId === 13) {
       setForceUseFunction(true)
     }
 
+
+
     if (currentQuestionId === 20 && allQuestionsData[allQuestionsData.length - 1].questionId != 19) {
-      setSourceAndTargetStep1((prevState) => {
-        // Update all step = 1 elements to step = 2
-        const updatedState = prevState.map(item => {
-          if (item.step === 1) {
-            return { ...item, step: 2 };
-          }
-          return item;
-        });
+      if (!has33) {
+        setSourceAndTargetStep1((prevState) => {
+          // Update all step = 1 elements to step = 2
+          const updatedState = prevState.map(item => {
+            if (item.step === 1) {
+              return { ...item, step: 2 };
+            }
+            return item;
+          });
 
-        return [...updatedState,]
-      })
+          return [...updatedState,]
+        })
+      }
+    }
 
+    if (currentQuestionId === 20){
+      setCalculRealTimeStreaming((prev) => !prev)
+    }
+
+    if (currentQuestionId === 33) {
+      setDisableWhenStreaming(true)
+    } else {
+      setDisableWhenStreaming(false)
     }
 
   }, [currentQuestionId])
@@ -286,6 +307,8 @@ const QuestionMiddleUpContent = () => {
   const processQuestion19 = (currentQuestionId, userSelections, sourceAndTargetStep1, setSourceAndTargetStep1) => {
     // Check if the last question has questionId = 19
     if (currentQuestionId === 19) {
+
+      const answer16 = Object.values(allQuestionsData.find(q => q.questionId === 16)?.userSelections[0])[0]
 
       // Find the index of the question with questionId = 19
       const questionIndex = allQuestionsData.length;
@@ -312,35 +335,58 @@ const QuestionMiddleUpContent = () => {
             });
           });
         });
-
       });
 
-      setSourceAndTargetStep1(prevState => {
-        // Filter out elements from previous state that are not in matchedPairs
-        const unmatchedPairs = prevState.filter(record =>
-          !matchedPairs.some(matched =>
-            matched.target === record.target && matched.source === record.source
-          )
-        );
+      if (answer16 === "Offline analysis" || answer16 === "Real-time analysis") {
+        setSourceAndTargetStep1(prevState => {
+          // Filter out elements from previous state that are not in matchedPairs
+          const unmatchedPairs = prevState.filter(record =>
+            !matchedPairs.some(matched =>
+              matched.target === record.target && matched.source === record.source
+            )
+          );
 
-        // Update all step = 1 elements to step = 2
-        const updatedState = unmatchedPairs.map(item => {
-          if (item.step === 1) {
-            return { ...item, step: 2 };
-          }
-          return item;
+          // Create new elements from answer19
+          const newElements = answer19.map(answer => {
+            const newTarget = Object.keys(answer)[0];
+            const newSource = Object.values(answer);
+            return { step: 1, source: newSource, sourceIndex: questionIndex, target: newTarget, targetIndex: questionIndex };
+          });
+
+          // Return the final state update: updated existing state + new elements
+          return [...unmatchedPairs, ...newElements];
         });
 
-        // Create new elements from answer19
-        const newElements = answer19.map(answer => {
-          const newTarget = Object.keys(answer)[0];
-          const newSource = Object.values(answer);
-          return { step: 2, source: newSource, sourceIndex: questionIndex, target: newTarget, targetIndex: questionIndex };
-        });
+      } else {
+        setSourceAndTargetStep1(prevState => {
+          // Filter out elements from previous state that are not in matchedPairs
+          const unmatchedPairs = prevState.filter(record =>
+            !matchedPairs.some(matched =>
+              matched.target === record.target && matched.source === record.source
+            )
+          );
 
-        // Return the final state update: updated existing state + new elements
-        return [...updatedState, ...newElements];
-      });
+          // Update all step = 1 elements to step = 2
+          const updatedState = unmatchedPairs.map(item => {
+            if (item.step === 1) {
+              return { ...item, step: 2 };
+            }
+            return item;
+          });
+
+          // Create new elements from answer19
+          const newElements = answer19.map(answer => {
+            const newTarget = Object.keys(answer)[0];
+            const newSource = Object.values(answer);
+            return { step: 2, source: newSource, sourceIndex: questionIndex, target: newTarget, targetIndex: questionIndex };
+          });
+
+          // Return the final state update: updated existing state + new elements
+          return [...updatedState, ...newElements];
+        });
+      }
+
+
     }
   };
 
@@ -584,6 +630,8 @@ const QuestionMiddleUpContent = () => {
       } finally {
         setLoading(false);
       }
+
+      setReComputeSourceAndTarget((prev) => prev + 1)
     }
   }
 
@@ -780,7 +828,7 @@ const QuestionMiddleUpContent = () => {
                         </Select>
                       </div>}
                     </div>
-                  ) : questionData.id === 6 || questionData.id === 26 || questionData.id === 27
+                  ) : questionData.id === 6 || questionData.id === 26 || questionData.id === 27 || questionData.id === 32 || questionData.id === 33
                     ? (
                       <div className='flex gap-4 p-4'>
                         <div className="w-48">

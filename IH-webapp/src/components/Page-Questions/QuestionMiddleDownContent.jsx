@@ -4,7 +4,7 @@ import { QuestionContext } from '../../context/questionContext';
 
 const QuestionMiddleDownContent = () => {
 
-  const { allQuestionsData, step, sourceAndTargetStep1, setSourceAndTargetStep1 } = useContext(QuestionContext);
+  const { allQuestionsData, step, sourceAndTargetStep1, setSourceAndTargetStep1, computeSourceAndTarget, reComputeSourceAndTarget } = useContext(QuestionContext);
 
   const TABLE_HEAD = ["Step", "Source", "Target", ""];
 
@@ -12,72 +12,107 @@ const QuestionMiddleDownContent = () => {
 
     const newPairs = [];
 
-    for (let index = allQuestionsData.length - 1; index >= 0; index--) {
-      const question7 = allQuestionsData[index];
+    const question7 = allQuestionsData[allQuestionsData.length - 1];
 
-      const previousQuestion = allQuestionsData[index - 1];
+    const previousQuestion = allQuestionsData[allQuestionsData.length - 2];
 
-      if (previousQuestion && previousQuestion.questionId === 12) {
-        // get the selection from id=12
-        const sourceValue = previousQuestion.userSelections.map(s => Object.keys(s))
+    if (previousQuestion && previousQuestion.questionId === 12) {
+      // get the selection from id=12
+      const sourceValue = previousQuestion.userSelections.map(s => Object.keys(s))
 
-        // get the selection from id=7
-        const targetValue = question7.userSelections[0].fourthSelectValue ||
-          question7.userSelections[0].thirdSelectValue ||
-          question7.userSelections[0].secondSelectValue ||
-          question7.userSelections[0].firstSelectValue;
+      // get the selection from id=7
+      const targetValue = question7.userSelections[0].fourthSelectValue ||
+        question7.userSelections[0].thirdSelectValue ||
+        question7.userSelections[0].secondSelectValue ||
+        question7.userSelections[0].firstSelectValue;
 
-        newPairs.push({
-          step: 3,
-          source: sourceValue,
-          sourceIndex: index - 1,
-          target: targetValue,
-          targetIndex: index,
-        })
-      } else if (previousQuestion && previousQuestion.questionId === 10) {
+      newPairs.push({
+        step: 3,
+        source: sourceValue,
+        sourceIndex: allQuestionsData.length - 2,
+        target: targetValue,
+        targetIndex: allQuestionsData.length - 1,
+      })
+    } else if (previousQuestion && previousQuestion.questionId === 10) {
+      // get the selection from id=10
+      const sourceValue = previousQuestion.userSelections.map(selection => {
+        return Object.keys(selection)[0]
+      })
 
-        // get the selection from id=10
-        const sourceValue = previousQuestion.userSelections.map(selection => {
-          return Object.keys(selection)[0]
-        })
+      // get the selection from id=7
+      const targetValue = question7.userSelections[0].fourthSelectValue ||
+        question7.userSelections[0].thirdSelectValue ||
+        question7.userSelections[0].secondSelectValue ||
+        question7.userSelections[0].firstSelectValue;
 
-        // get the selection from id=7
-        const targetValue = question7.userSelections[0].fourthSelectValue ||
-          question7.userSelections[0].thirdSelectValue ||
-          question7.userSelections[0].secondSelectValue ||
-          question7.userSelections[0].firstSelectValue;
+      newPairs.push({
+        step: 2,
+        source: sourceValue,
+        sourceIndex: allQuestionsData.length - 2,
+        target: targetValue,
+        targetIndex: allQuestionsData.length - 1,
+      })
+    } else if (previousQuestion && previousQuestion.questionId === 6) {
+      // get the selection from id=6
+      const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
 
-        newPairs.push({
-          step: 2,
-          source: sourceValue,
-          sourceIndex: index - 1,
-          target: targetValue,
-          targetIndex: index,
-        })
-      } else if (previousQuestion && previousQuestion.questionId === 6) {
-        // get the selection from id=6
-        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+      // get the selection from id=7
+      const targetValue = question7.userSelections[0].fourthSelectValue ||
+        question7.userSelections[0].thirdSelectValue ||
+        question7.userSelections[0].secondSelectValue ||
+        question7.userSelections[0].firstSelectValue;
 
-        // get the selection from id=7
-        const targetValue = question7.userSelections[0].fourthSelectValue ||
-          question7.userSelections[0].thirdSelectValue ||
-          question7.userSelections[0].secondSelectValue ||
-          question7.userSelections[0].firstSelectValue;
+      newPairs.push({
+        step: 1,
+        source: sourceValue,
+        sourceIndex: allQuestionsData.length - 2,
+        target: targetValue,
+        targetIndex: allQuestionsData.length - 1,
+      })
+    } else if (previousQuestion && previousQuestion.questionId === 32) {
+      // get the selection from id=32
+      const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
 
-        newPairs.push({
-          step: 1,
-          source: sourceValue,
-          sourceIndex: index - 1,
-          target: targetValue,
-          targetIndex: index,
-        })
-      }
+      // get the selection from id=7
+      const targetValue = question7.userSelections[0].fourthSelectValue ||
+        question7.userSelections[0].thirdSelectValue ||
+        question7.userSelections[0].secondSelectValue ||
+        question7.userSelections[0].firstSelectValue;
+
+      newPairs.push({
+        step: 1,
+        source: sourceValue,
+        sourceIndex: allQuestionsData.length - 2,
+        target: targetValue,
+        targetIndex: allQuestionsData.length - 1,
+        ingestType: "Batch",
+      })
+    } else if (previousQuestion && previousQuestion.questionId === 33) {
+      // get the selection from id=33
+      const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+      // get the selection from id=7
+      const targetValue = question7.userSelections[0].fourthSelectValue ||
+        question7.userSelections[0].thirdSelectValue ||
+        question7.userSelections[0].secondSelectValue ||
+        question7.userSelections[0].firstSelectValue;
+
+      newPairs.push({
+        step: 1,
+        source: sourceValue,
+        sourceIndex: allQuestionsData.length - 2,
+        target: targetValue,
+        targetIndex: allQuestionsData.length - 1,
+        ingestType: "Streaming",
+      })
     }
 
     // Update matchedPairs
-    setSourceAndTargetStep1(() => [
+    setSourceAndTargetStep1((prev) => [
+      ...prev,
       ...newPairs,
     ]);
+
   };
 
   const computeDeleteMatchedPairs = () => {
@@ -100,18 +135,132 @@ const QuestionMiddleDownContent = () => {
     }
   }
 
+  const reComputeAddMatchedPairs = () => {
+    const newPairs = [];
+
+    for (let i = allQuestionsData.length - 1; i >= 0; i--) {
+      const question7 = allQuestionsData[i];
+
+      const previousQuestion = allQuestionsData[i - 1];
+
+      if (previousQuestion && previousQuestion.questionId === 12) {
+        // get the selection from id=12
+        const sourceValue = previousQuestion.userSelections.map(s => Object.keys(s))
+
+        // get the selection from id=7
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+        newPairs.push({
+          step: 3,
+          source: sourceValue,
+          sourceIndex: i - 1,
+          target: targetValue,
+          targetIndex: i,
+        })
+      } else if (previousQuestion && previousQuestion.questionId === 10) {
+        // get the selection from id=10
+        const sourceValue = previousQuestion.userSelections.map(selection => {
+          return Object.keys(selection)[0]
+        })
+
+        // get the selection from id=7
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+        newPairs.push({
+          step: 2,
+          source: sourceValue,
+          sourceIndex: i - 1,
+          target: targetValue,
+          targetIndex: i,
+        })
+      } else if (previousQuestion && previousQuestion.questionId === 6) {
+        // get the selection from id=6
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=7
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: i - 1,
+          target: targetValue,
+          targetIndex: i,
+        })
+      } else if (previousQuestion && previousQuestion.questionId === 32) {
+        // get the selection from id=32
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=7
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: i - 1,
+          target: targetValue,
+          targetIndex: i,
+          ingestType: "Batch",
+        })
+      } else if (previousQuestion && previousQuestion.questionId === 33) {
+        // get the selection from id=33
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=7
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: i - 1,
+          target: targetValue,
+          targetIndex: i,
+          ingestType: "Streaming",
+        })
+      }
+
+      // Update matchedPairs
+      setSourceAndTargetStep1(() => [
+        ...newPairs
+      ]);
+    }
+
+
+  }
+
 
   // Using useEffect to listen the change of allQuestionsData 
   useEffect(() => {
 
-    if (!allQuestionsData.some(q => q.questionId === 19)) {
-      computeAddMatchedPairs();
-    }
-
-    computeDeleteMatchedPairs();
-
 
   }, [allQuestionsData]);
+
+  useEffect(() => {
+    computeAddMatchedPairs();
+
+  }, [computeSourceAndTarget]);
+
+
+  useEffect(() => {
+    reComputeAddMatchedPairs();
+    computeDeleteMatchedPairs();
+  }, [reComputeSourceAndTarget]);
+
 
 
   return (

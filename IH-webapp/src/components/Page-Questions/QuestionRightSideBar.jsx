@@ -11,7 +11,7 @@ const QuestionRightSideBar = () => {
   const [resultStore, setResultStore] = useState([]);
 
   // Use QuestionContext
-  const { step, allQuestionsData, sourceAndTargetStep1, forceUseFunction, setForceUseFunction, protentialRank } = useContext(QuestionContext);  // Use useContext to get state and update function
+  const { step, allQuestionsData, sourceAndTargetStep1, forceUseFunction, setForceUseFunction, protentialRank, calculRealTimeStreaming } = useContext(QuestionContext);  // Use useContext to get state and update function
 
   // Function to get the result of recommadation
   const calculResultEachStep = async (step) => {
@@ -31,12 +31,42 @@ const QuestionRightSideBar = () => {
         allQuestionsData.some(question =>
           question.questionId === 16 && Object.values(question.userSelections[0]).includes("Real-time analysis"));
 
+      const hasHybridAndRealTime =
+        allQuestionsData.some(question =>
+          question.questionId === 5 && Object.values(question.userSelections[0]).includes("Hybrid")) &&
+        allQuestionsData.some(question =>
+          question.questionId === 16 && Object.values(question.userSelections[0]).includes("Real-time analysis")) &&
+        allQuestionsData.some(question =>
+          question.questionId === 33);
+
       if (response.data) {
         if (hasStreamingAndRealTime) {
           setResultStore((prev) => ({
             ...prev,
             [step + 1]: response.data
           }));
+
+        } else if (hasHybridAndRealTime) {
+
+          const compareAndCombine = (waitToUpdateObj, originObj, step) => {
+            // 确保 originObj 和 waitToUpdateObj 中的数据结构相同
+            const waitToUpdateList = waitToUpdateObj[step];
+            const originList = originObj;
+
+            // 过滤出同时出现在 originList 和 waitToUpdateList 中的元素
+            const commonElements = originList.filter(originItem =>
+              waitToUpdateList.some(updateItem => updateItem.name_t === originItem.name_t)
+            );
+
+            // 将结果更新到 resultStore
+            setResultStore(prevStore => ({
+              ...prevStore,
+              [step]: commonElements // 只保留两者都有的元素
+            }));
+          };
+
+          // 调用比较函数
+          compareAndCombine({ [step]: response.data }, resultStore[step], step);
 
         } else {
           setResultStore((prev) => ({
@@ -64,28 +94,27 @@ const QuestionRightSideBar = () => {
       calculResultEachStep(3);
       setForceUseFunction(false)
     }
-  }, [step, forceUseFunction])
+
+    if (calculRealTimeStreaming) {
+      calculResultEachStep(2)
+    }
+  }, [step, forceUseFunction, calculRealTimeStreaming])
 
   useEffect(() => {
     console.log("resultstore", resultStore)
   }, [resultStore])
 
   useEffect(() => {
-    //console.log(protentialRank)
-    //console.log(resultStore)
+    if (protentialRank.length > 0) {
+      const filteredAndSortedTools = protentialRank
+        .filter(tool => resultStore[step + 1].some(item => item.name_t === tool))  // 过滤出 resultStore 中存在的工具
+        .map(tool => resultStore[step + 1].find(item => item.name_t === tool));   // 保留顺序并获取完整对象
 
-    const filteredAndSortedTools = protentialRank
-      .filter(tool => resultStore[step + 1].some(item => item.name_t === tool))  // 过滤出 resultStore 中存在的工具
-      .map(tool => resultStore[step + 1].find(item => item.name_t === tool));   // 保留顺序并获取完整对象
-
-    //console.log(filteredAndSortedTools);
-
-    setResultStore(prevStore => ({
-      ...prevStore,
-      [step + 1]: filteredAndSortedTools // 更新 step=2 的数据
-    }));
-
-    //console.log(resultStore);
+      setResultStore(prevStore => ({
+        ...prevStore,
+        [step + 1]: filteredAndSortedTools // 更新 step=2 的数据
+      }));
+    }
   }, [protentialRank])
 
 

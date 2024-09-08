@@ -9,6 +9,9 @@ export const QuestionProvider = ({ children }) => {
     // A state to force call function calculResultEachStep(step)
     const [forceUseFunction, setForceUseFunction] = useState(false)
 
+    // A state to force call function calculResultEachStep(step) => real-time -> Streaming (final call)
+    const [calculRealTimeStreaming, setCalculRealTimeStreaming] = useState(false)
+
     // Store the Source and Target in Step 1
     const [sourceAndTargetStep1, setSourceAndTargetStep1] = useState([])
 
@@ -22,6 +25,10 @@ export const QuestionProvider = ({ children }) => {
     const [allQuestionsData, setAllQuestionsData] = useState([]);
 
     const [protentialRank, setProtentialRank] = useState([])
+
+    const [computeSourceAndTarget, setComputeSourceAndTarget] = useState(0);
+
+    const [reComputeSourceAndTarget, setReComputeSourceAndTarget] = useState(0);
 
     // Update allQuestionsData
     const addQuestionData = (questionData, selections, targetListHasValue) => {
@@ -49,6 +56,9 @@ export const QuestionProvider = ({ children }) => {
             sourceAndTargetStep1, setSourceAndTargetStep1,
             forceUseFunction, setForceUseFunction,
             protentialRank, setProtentialRank,
+            computeSourceAndTarget, setComputeSourceAndTarget,
+            reComputeSourceAndTarget, setReComputeSourceAndTarget,
+            calculRealTimeStreaming, setCalculRealTimeStreaming
         }}>
             {children}
         </QuestionContext.Provider>

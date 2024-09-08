@@ -7,14 +7,11 @@ import axios from 'axios'
 
 const QuestionRightSideBar = () => {
 
-  // Flag which decide to call function or not
-  const [flag, setFlag] = useState(true)
-
   // Store result of each step
   const [resultStore, setResultStore] = useState([]);
 
   // Use QuestionContext
-  const { step, allQuestionsData, sourceAndTargetStep1,forceUseFunction, setForceUseFunction} = useContext(QuestionContext);  // Use useContext to get state and update function
+  const { step, allQuestionsData, sourceAndTargetStep1, forceUseFunction, setForceUseFunction, protentialRank } = useContext(QuestionContext);  // Use useContext to get state and update function
 
   // Function to get the result of recommadation
   const calculResultEachStep = async (step) => {
@@ -27,14 +24,26 @@ const QuestionRightSideBar = () => {
       })
 
       console.log("response data", response.data)
+
+      const hasStreamingAndRealTime =
+        allQuestionsData.some(question =>
+          question.questionId === 5 && Object.values(question.userSelections[0]).includes("Streaming")) &&
+        allQuestionsData.some(question =>
+          question.questionId === 16 && Object.values(question.userSelections[0]).includes("Real-time analysis"));
+
       if (response.data) {
+        if (hasStreamingAndRealTime) {
+          setResultStore((prev) => ({
+            ...prev,
+            [step + 1]: response.data
+          }));
 
-        setResultStore((prev) => ({
-          ...prev,
-          [step]: response.data
-        }));
-
-        setFlag(false)
+        } else {
+          setResultStore((prev) => ({
+            ...prev,
+            [step]: response.data
+          }));
+        }
 
       } else {
         console.log("response.data is null")
@@ -50,17 +59,34 @@ const QuestionRightSideBar = () => {
     if (step != 0) {
       calculResultEachStep(step);
     }
-  }, [step])
 
-  useEffect(() => {
-    if (forceUseFunction){
+    if (forceUseFunction) {
       calculResultEachStep(3);
+      setForceUseFunction(false)
     }
-  },[forceUseFunction])
+  }, [step, forceUseFunction])
 
   useEffect(() => {
     console.log("resultstore", resultStore)
   }, [resultStore])
+
+  useEffect(() => {
+    //console.log(protentialRank)
+    //console.log(resultStore)
+
+    const filteredAndSortedTools = protentialRank
+      .filter(tool => resultStore[step + 1].some(item => item.name_t === tool))  // 过滤出 resultStore 中存在的工具
+      .map(tool => resultStore[step + 1].find(item => item.name_t === tool));   // 保留顺序并获取完整对象
+
+    //console.log(filteredAndSortedTools);
+
+    setResultStore(prevStore => ({
+      ...prevStore,
+      [step + 1]: filteredAndSortedTools // 更新 step=2 的数据
+    }));
+
+    //console.log(resultStore);
+  }, [protentialRank])
 
 
   return (

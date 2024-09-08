@@ -1,6 +1,6 @@
 import db from "../src/db_connection.js";
 
-function getNextQuestionId(currentQuestionId, selections, currentStep, ingestType, analysisType, deployType, targetListHasValue) {
+function getNextQuestionId(currentQuestionId, selections, currentStep, ingestType, analysisType, deployType, targetListHasValue, hasQ33) {
 
     const questionAnswer = Object.values(selections)[0]
     //console.log(Object.values(lastQuesionAnswer))
@@ -47,7 +47,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             } else if (questionAnswer === "Streaming") {
                 return 16
             } else if (questionAnswer === "Hybrid") {
-                return 6
+                return 16
             }
         } else if (currentQuestionId === 5 && currentStep === 1 && deployType === "On cloud") {
             if (questionAnswer === "Hybrid") {
@@ -58,29 +58,23 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         }
 
         // ID = 6
-        if (currentQuestionId === 6 && currentStep === 1 && analysisType != "Real-time analysis") {
+        if (currentQuestionId === 6 && currentStep === 1) {
             return 7
-        } else if (currentQuestionId === 6 && currentStep === 1 && ingestType === "Streaming" && analysisType === "Real-time analysis") {
-            return 10
         }
 
         // ID = 7
         if (currentQuestionId === 7 && currentStep === 1 && ingestType === "Batch") {
             return 8
-        } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false && (ingestType === "Batch" || ingestType === "Streaming") && analysisType != "Real-time analysis") {
+        } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false) {
             return 11
         } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === false) {
             return 13
         } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === true) {
             return 12
-        } else if (currentQuestionId === 7 && currentStep === 1 && ((ingestType === "Streaming" && analysisType === "Offline analysis") || ingestType === "Hybrid")) {
+        } else if (currentQuestionId === 7 && currentStep === 1 && (ingestType === "Streaming" || ingestType === "Hybrid")) {
             return 9
-        } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false && ingestType === "Streaming" && analysisType === "Real-time analysis") {
-            return 20
         } else if (currentQuestionId === 7 && currentStep === 1 && deployType === "On cloud") {
             return 28
-        } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false) {
-            return 24
         } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === true) {
             return 10
         }
@@ -90,38 +84,73 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             return 9
         } else if (currentQuestionId === 8 && currentStep === 1 && ingestType === "Streaming" && analysisType === "Offline analysis") {
             return 18
-        } else if (currentQuestionId === 8 && currentStep === 1 && ingestType === "Hybrid") {
-            if (questionAnswer === "Yes") {
-                return 19
-            } else {
-                return 10
-            }
+
+        } else if (currentQuestionId === 8 && currentStep === 1 && ingestType === "Hybrid" && analysisType === "Real-time analysis") {
+            return 10
         }
 
         // ID = 9
-        if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Batch" ) {
+        if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Batch") {
             if (questionAnswer === "Yes") {
                 return 6
             } else {
                 return 10
             }
-        } else if (currentQuestionId === 9 && currentStep === 1 && ((ingestType === "Streaming" && analysisType === "Offline analysis") || ingestType === "Hybrid")) {
+        } else if (currentQuestionId === 9 && currentStep === 1 && (ingestType === "Streaming" && analysisType === "Offline analysis")) {
             if (questionAnswer === "Yes") {
                 return 6
             } else {
                 return 8
             }
+        } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Streaming" && analysisType === "Real-time analysis") {
+            if (questionAnswer === "Yes") {
+                return 6
+            } else {
+                return 19
+            }
+        } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Hybrid" && !hasQ33) {
+            if (analysisType === "Real-time analysis") {
+                if (questionAnswer === "Yes") {
+                    return 32
+                } else {
+                    return 19
+                }
+            }
+
+            if (questionAnswer === "Yes") {
+                return 32
+            } else {
+                return 33
+            }
+
+        } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Hybrid" && hasQ33) {
+            if (analysisType === "Real-time analysis") {
+                if (questionAnswer === "Yes") {
+                    return 33
+                } else {
+                    return 19
+                }
+            }
+
+            if (questionAnswer === "Yes") {
+                return 33
+            } else {
+                return 19
+            }
         }
 
         // ID = 10
-        if (currentQuestionId === 10) {
+
+        if (currentQuestionId === 10 && (ingestType === "Streaming" && analysisType === "Real-time analysis")) {
+            return 20
+        } else if (currentQuestionId === 10) {
             return 7
         }
 
     } else if ((currentQuestionId > 10) && (currentQuestionId < 20)) {
 
         // ID = 11
-        if (currentQuestionId === 11 && currentStep === 2 && (ingestType === "Batch" || ingestType === "Streaming")) {
+        if (currentQuestionId === 11 && currentStep === 2) {
             return 12
         }
 
@@ -141,13 +170,16 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         }
 
         // ID = 15 (Last question)
-        if (currentQuestionId === 15) {
+        if (currentQuestionId === 15 && ingestType === "Hybrid" && analysisType === "Real-time analysis") {
+            return 33
+        } else if (currentQuestionId === 15) {
             return "BYE"
         }
-
         // ID = 16
-        if (currentQuestionId === 16) {
+        if (currentQuestionId === 16 && ingestType === "Streaming") {
             return 6
+        } else if (currentQuestionId === 16 && ingestType === "Hybrid") {
+            return 32
         }
 
         // No 17 in db 
@@ -162,8 +194,12 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         }
 
         // ID = 19
-        if (currentQuestionId === 19) {
-            return 16
+        if (currentQuestionId === 19 && ingestType === "Streaming" && analysisType === "Real-time analysis") {
+            return 20
+        } else if (currentQuestionId === 19 && ingestType === "Hybrid" && analysisType === "Offline analysis") {
+            return 10
+        } else if (currentQuestionId === 19 && ingestType === "Hybrid" && analysisType === "Real-time analysis") {
+            return 20
         }
 
     } else {
@@ -172,14 +208,14 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             if (questionAnswer === "Yes") {
                 return 21
             } else if (questionAnswer === "No") {
-                return 12
+                return "BYE"
             }
         }
 
         // ID = 21
         if (currentQuestionId === 21) {
             if (questionAnswer === "Yes") {
-                return 12
+                return "BYE"
             } else if (questionAnswer === "No") {
                 return 22
             }
@@ -188,7 +224,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         // ID = 22
         if (currentQuestionId === 22) {
             if (questionAnswer === "Yes") {
-                return 12
+                return "BYE"
             } else if (questionAnswer === "No") {
                 return 23
             }
@@ -196,7 +232,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
 
         // ID = 23
         if (currentQuestionId === 23) {
-            return 12
+            return "BYE"
         }
 
         // ID = 24
@@ -253,12 +289,22 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
                 return 12
             }
         }
+
+        // ID = 32
+        if (currentQuestionId === 32) {
+            return 7
+        }
+
+        // ID = 33
+        if (currentQuestionId === 33) {
+            return 7
+        }
     }
 }
 
 const getProtentialRank = (currentQuestionId, selections) => {
 
-    const questionAnswer = Object.values(selections)[0]
+    const questionAnswer = Object.values(selections[0])[0]
 
     // ID = 13
     if (currentQuestionId === 13) {
@@ -286,12 +332,45 @@ const getProtentialRank = (currentQuestionId, selections) => {
             return ["Spark MLlib", "Tenserflow", "Pytorch", "H2O.ai"]
         }
     }
+
+    if (currentQuestionId === 20) {
+        if (questionAnswer === "Yes") {
+            return ["Apache Flink", "Apache Storm", "Apache Samza", "Apache Spark"]
+        } else if (questionAnswer === "No") {
+            return ["Apache Spark"]
+        }
+    }
+
+    if (currentQuestionId === 21) {
+        if (questionAnswer === "Yes") {
+            return ["Apache Flink"]
+        } else if (questionAnswer === "No") {
+            return ["Apache Storm", "Apache Samza", "Apache Spark", "Apache Flink"]
+        }
+    }
+
+    if (currentQuestionId === 22) {
+        if (questionAnswer === "Yes") {
+            return ["Apache Flink", "Apache Spark"]
+        } else if (questionAnswer === "No") {
+            return ["Apache Storm", "Apache Samza", "Apache Spark", "Apache Flink"]
+        }
+    }
+
+    if (currentQuestionId === 23) {
+        if (questionAnswer === "Yes") {
+            return ["Apache Spark", "Apache Flink"]
+        } else if (questionAnswer === "No") {
+            return ["Apache Storm", "Apache Samza", "Apache Spark", "Apache Flink"]
+        }
+    }
+
+
+
+    return []
 }
 
-// A flag to show which branch we are
-let deployType;
-let ingestType;
-let analysisType;
+
 
 export const getNextQuestion = (req, res) => {
 
@@ -302,27 +381,72 @@ export const getNextQuestion = (req, res) => {
     //console.log("currentQuestionId : " + currentQuestionId)
 
     const currentStep = req.body.step + 1;
+    const allQuestionsData = req.body.allQuestionsData;
+    const userSelections = allQuestionsData[allQuestionsData.length - 1].userSelections;
+    const targetListHasValue = allQuestionsData[allQuestionsData.length - 1].targetListHasValue
+    const hasQ33 = allQuestionsData.some(q => q.questionId === 33)
 
-    if (currentQuestionId === 1) {
-        deployType = Object.values(req.body.selections[0])[0]
-    }
+    // A flag to show which branch we are
+    let deployType;
+    let ingestType;
+    let analysisType = "";
 
-    if (currentQuestionId === 5) {
-        ingestType = Object.values(req.body.selections[0])[0]
-    }
+    allQuestionsData.forEach(questionData => {
+        const { questionId, userSelections } = questionData;
 
-    if (currentQuestionId === 16) {
-        analysisType = Object.values(req.body.selections[0])[0]
-    }
+        if (questionId === 1) {
+            deployType = Object.values(userSelections[0])[0]
+        }
+
+        if (questionId === 5) {
+            ingestType = Object.values(userSelections[0])[0]
+        }
+
+        if (questionId === 16) {
+            analysisType = Object.values(userSelections[0])[0]
+        }
+    })
+
 
     //console.log("boolean get" + req.body.targetListHasValue)
     console.log(deployType, ingestType, analysisType)
 
-    const nextQuestionId = getNextQuestionId(currentQuestionId, req.body.selections[0], currentStep, ingestType, analysisType, deployType, req.body.targetListHasValue)
-    const protentialRank = getProtentialRank(currentQuestionId, req.body.selections[0])
-    //console.log("nextQuestionId : " + nextQuestionId)
-    if (nextQuestionId === "BYE") {
-        res.json("Finish")
+    let nextQuestionId = getNextQuestionId(currentQuestionId, userSelections[0], currentStep, ingestType, analysisType, deployType, targetListHasValue, hasQ33)
+    const protentialRank = getProtentialRank(currentQuestionId, userSelections)
+
+    //console.log("nextQuestionId : " + nextQuestionId),
+
+    if (currentQuestionId === 9 && nextQuestionId === 19) {
+        const obj = req.body.sourceAndTargetStep1.reduce((acc, curr) => {
+            // current object
+            const { source, target } = curr;
+
+            if (!acc[target]) {
+                acc[target] = new Set();
+            }
+
+            if (Array.isArray(source)) {
+                source.forEach(src => acc[target].add(src));
+            } else {
+                acc[target].add(source);
+            }
+            console.log(acc)
+            return acc;
+        }, {})
+
+        console.log("obj", obj)
+
+        const result = Object.keys(obj).some(t => obj[t].size > 1);
+        console.log(result)
+
+        if (!result && ingestType === "Streaming") {
+            nextQuestionId = 20
+        } else if (!result && ingestType === "Hybrid" && analysisType === "") {
+            nextQuestionId = 16
+        }
+
+
+
     }
 
     const query = `select id, content, type, choices, is_required, help_text
@@ -339,21 +463,9 @@ export const getNextQuestion = (req, res) => {
         if (results.length > 0) {
             // Create a variable to store the questionData
             const questionData = results[0];
-
+            questionData.protentialRank = protentialRank
             //console.log(questionData)
-            // {
-            //     id: 2,
-            //     content: 'Are you familiar with or have you used any of the following ecosystems or tools ? (Select all that apply)',
-            //     type: 'multiple_choice',
-            //     choices: {
-            //       c1: 'Hadoop ecosystem (e.g. HDFS, Hive, HBase)',
-            //       c2: 'Spark ecosystem',
-            //       c3: 'ELK',
-            //       c4: 'Not familiar with any of the above ecosystems'
-            //     },
-            //     is_required: 0,
-            //     help_text: 'If you are familiar with some tools, please tell us so that we can optimize our results.'
-            //   }
+
             res.json(questionData);
 
         } else {
@@ -395,6 +507,7 @@ export const calculResultEachStep = (req, res) => {
 
     // get the current step from the URL
     const currentStep = parseInt(req.params.step, 10)
+    console.log(currentStep)
 
     const { allQuestionsData, sourceAndTargetStep1 } = req.body;
 
@@ -407,6 +520,7 @@ export const calculResultEachStep = (req, res) => {
     const answer1 = getAnswerById(1); // deploy mode： On-p/cloud
     const answer4 = getAnswerById(4); // pay? yes/no/a little
     const answer5 = getAnswerById(5); // ingestType batch/streaming/hybrid
+    const answer16 = getAnswerById(16); // real-time / offline
 
 
     // Change format for query
@@ -466,83 +580,207 @@ export const calculResultEachStep = (req, res) => {
     console.log(sourceTargetPairs)
 
     if (currentStep === 1) {
+        if (answer5 === "Batch") {
+            // a Object to store the rank of tools
+            let toolScores = {};
 
-        // a Object to store the rank of tools
-        let toolScores = {};
 
+            // Use Promise.all to process multiple queries in parallel
+            const queries = sourceTargetPairs.map(pair => {
+                return new Promise((resolve, reject) => {
+                    // query for each pair (source & target)
+                    const query = `
+                        SELECT t.Id_t, t.name_t
+                        FROM tools t, output o, storage s, ingestfrom inf, datasource ds
+                        WHERE t.Id_t = o.Id_t
+                        AND o.Id_sto = s.Id_sto
+                        AND t.Id_t = inf.Id_t
+                        AND inf.id_datasource = ds.id_datasource
+                        AND t.category_t LIKE 'Ingestion%'
+                        AND t.isPay IN (${isPay === 0 ? '0' : "'0','1'"})
+                        AND t.dplymt_mode_t = '${deploy_mode}'
+                        AND (t.procs_mode = '${procs_mode}' OR t.procs_mode = 'B/S')
+                        AND ds.name_datasource = '${pair.source}'  -- pair.source
+                        AND s.name_sto = '${pair.target}'          -- pair.target
+                        AND t.pre_processed IN (${pre_processed === 0 ? '0, 1' : '1'})
+                        ORDER BY t.popularity_t DESC;`;
 
-        // Use Promise.all to process multiple queries in parallel
-        const queries = sourceTargetPairs.map(pair => {
-            return new Promise((resolve, reject) => {
-                // query for each pair (source & target)
-                const query = `
-                    SELECT t.Id_t, t.name_t
-                    FROM tools t, output o, storage s, ingestfrom inf, datasource ds
-                    WHERE t.Id_t = o.Id_t
-                    AND o.Id_sto = s.Id_sto
-                    AND t.Id_t = inf.Id_t
-                    AND inf.id_datasource = ds.id_datasource
-                    AND t.category_t LIKE 'Ingestion%'
-                    AND t.isPay = '${isPay}'
-                    AND t.dplymt_mode_t = '${deploy_mode}'
-                    AND (t.procs_mode = '${procs_mode}' OR t.procs_mode = 'B/S')
-                    AND ds.name_datasource = '${pair.source}'  -- pair.source
-                    AND s.name_sto = '${pair.target}'          -- pair.target
-                    AND t.pre_processed IN (${pre_processed === 0 ? '0, 1' : '1'})
-                    ORDER BY t.popularity_t DESC;`;
+                    // run query
+                    db.query(query, (error, results) => {
+                        if (error) {
+                            console.error('Error executing query:', error);
+                            reject(error);  // if wrong，reject this Promise
+                        } else {
+                            // calculate rank for each result
+                            results.forEach((result, rank) => {
+                                if (!toolScores[result.Id_t]) {
+                                    toolScores[result.Id_t] = {
+                                        name: result.name_t,
+                                        totalScore: 0,
+                                        appearances: 0
+                                    };
+                                }
+                                // calculate the score，rank is index, so rank + 1 is the real rank
+                                toolScores[result.Id_t].totalScore += (rank + 1);
+                                toolScores[result.Id_t].appearances += 1;
+                            });
 
-                // run query
-                db.query(query, (error, results) => {
-                    if (error) {
-                        console.error('Error executing query:', error);
-                        reject(error);  // if wrong，reject this Promise
-                    } else {
-                        // calculate rank for each result
-                        results.forEach((result, rank) => {
-                            if (!toolScores[result.Id_t]) {
-                                toolScores[result.Id_t] = {
-                                    name: result.name_t,
-                                    totalScore: 0,
-                                    appearances: 0
-                                };
-                            }
-                            // calculate the score，rank is index, so rank + 1 is the real rank
-                            toolScores[result.Id_t].totalScore += (rank + 1);
-                            toolScores[result.Id_t].appearances += 1;
-                        });
-
-                        resolve(results);  // when success, resolve this Promise，and return res
-                    }
+                            resolve(results);  // when success, resolve this Promise，and return res
+                        }
+                    });
                 });
             });
-        });
 
-        // Deal with all query results
-        Promise.all(queries)
-            .then(results => {
-                // calculate final rank，according to the toolScore, the tools has high score with a low rank
-                const rankedTools = Object.entries(toolScores)
-                    .sort(([, a], [, b]) => a.totalScore - b.totalScore)
-                    .map(([id, tool]) => ({
-                        Id_t: id,
-                        name_t: tool.name,
-                        averageRank: tool.totalScore / tool.appearances, // calculate average rank
-                        totalScore: tool.totalScore,
-                        appearances: tool.appearances
-                    }))
-                    .sort((a, b) => a.averageRank - b.averageRank);
+            // Deal with all query results
+            Promise.all(queries)
+                .then(results => {
+                    // calculate final rank，according to the toolScore, the tools has high score with a low rank
+                    const rankedTools = Object.entries(toolScores)
+                        .sort(([, a], [, b]) => a.totalScore - b.totalScore)
+                        .map(([id, tool]) => ({
+                            Id_t: id,
+                            name_t: tool.name,
+                            averageRank: tool.totalScore / tool.appearances, // calculate average rank
+                            totalScore: tool.totalScore,
+                            appearances: tool.appearances
+                        }))
+                        .sort((a, b) => a.averageRank - b.averageRank);
 
-                if (rankedTools.length > 0) {
-                    console.log(rankedTools);
-                    res.json(rankedTools);
-                } else {
-                    res.status(404).json({ message: 'No results found for any pair' });
-                }
-            })
-            .catch(error => {
-                console.error('Error executing queries:', error);
-                res.status(500).json({ message: 'Database query failed' });
-            });
+                    if (rankedTools.length > 0) {
+                        console.log(rankedTools);
+                        res.json(rankedTools);
+                    } else {
+                        res.status(404).json({ message: 'No results found for any pair' });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error executing queries:', error);
+                    res.status(500).json({ message: 'Database query failed' });
+                });
+
+        } else if (answer5 === "Streaming") {
+            if (answer16 === "Real-time analysis") {
+                console.log("我在正确的函数里面")
+                // this time there are only step 2 in the list
+                const sourceTargetPairs_RealTime =
+                    sourceAndTargetStep1
+                        .filter(pair => pair.step === currentStep + 1)
+                        .map(pair => ({
+                            source: pair.source,
+                            target: pair.target
+                        }));
+
+                console.log("real time pairs", sourceTargetPairs_RealTime)
+
+
+                const queries = sourceTargetPairs_RealTime.map(pair => {
+                    // Handling source conditions 
+                    const sourceConditions = Array.isArray(pair.source[0])
+                        ? pair.source[0].map(sourceItem => {
+                            return `t.Id_t IN (
+                                        SELECT i.Id_t
+                                        FROM ingestfrom i
+                                        JOIN datasource ds ON i.id_datasource = ds.id_datasource
+                                        WHERE ds.name_datasource = '${sourceItem}'
+                                        )`
+                        }).join(' AND ')
+                        : `t.Id_t IN (
+                                        SELECT i.Id_t
+                                        FROM ingestfrom i
+                                        JOIN datasource ds ON i.id_datasource = ds.id_datasource
+                                        WHERE ds.name_datasource = '${pair.source}'
+                                        )`
+
+
+                    console.log("sourceConditions", sourceConditions)
+
+                    const targetConditions = (pair.target.startsWith("Dis_")
+                        ? `t.Id_t IN (
+                                        SELECT o.Id_t
+                                        FROM output o
+                                        JOIN storage so ON o.Id_sto = so.Id_sto
+                                        WHERE so.name_sto = '${pair.target.substring(4)}'
+                                            AND o.dplymt_archi_output = 'Dis'
+                                    )`
+                        : `t.Id_t IN (
+                                        SELECT o.Id_t
+                                        FROM output o
+                                        JOIN storage so ON o.Id_sto = so.Id_sto
+                                        WHERE so.name_sto = '${pair.target}'
+                                    )`
+                    );
+
+                    console.log("targetConditions", targetConditions);
+
+                    const query = `
+                                SELECT distinct t.Id_t, t.name_t, t.popularity_t
+                                FROM tools t
+                                WHERE t.dplymt_mode_t = '${deploy_mode}'
+                                  AND t.category_t LIKE 'Preparation%'
+                                  AND t.isPay IN (${isPay === 0 ? '0' : "'0','1'"})
+                                  AND t.procs_mode IN ('B/S', 'S')
+                                  AND (${sourceConditions})
+                                  AND (${targetConditions})
+                                ORDER BY t.popularity_t DESC;
+                            `;
+
+                    return new Promise((resolve, reject) => {
+                        db.query(query, (error, results) => {
+                            if (error) {
+                                console.error('Error executing query:', error);
+                                reject(error);
+                            } else {
+                                console.log("result", results)
+                                resolve(results);
+                            }
+                        });
+                    });
+                });
+
+                Promise.all(queries)
+                    .then(resultsArray => {
+                        const toolCounts = {};
+
+                        resultsArray.forEach(results => {
+                            results.forEach(result => {
+                                if (toolCounts[result.Id_t]) {
+                                    toolCounts[result.Id_t].count += 1;
+                                } else {
+                                    toolCounts[result.Id_t] = {
+                                        name: result.name_t,
+                                        count: 1
+                                    };
+                                }
+                            });
+                        });
+
+                        console.log(toolCounts)
+
+                        // count ===  sourceTargetPairs.length
+                        const filteredTools = Object.entries(toolCounts)
+                            .filter(([id, tool]) => tool.count === sourceTargetPairs_RealTime.length)
+                            .map(([id, tool]) => ({
+                                Id_t: id,
+                                name_t: tool.name,
+                                count: tool.count
+                            }));
+
+                        if (filteredTools.length > 0) {
+                            console.log(filteredTools);
+                            res.json(filteredTools);
+                        } else {
+                            res.status(404).json({ message: 'No tools found that meet all criteria.' });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error executing queries:', error);
+                        res.status(500).json({ message: 'Database query failed' });
+                    });
+
+
+
+            }
+        }
 
     } else if (currentStep === 2) {
 
@@ -617,7 +855,7 @@ export const calculResultEachStep = (req, res) => {
                                 FROM tools t
                                 WHERE t.dplymt_mode_t = '${deploy_mode}'
                                   AND t.category_t LIKE 'Preparation%'
-                                  AND t.isPay = ${isPay}
+                                  AND t.isPay IN (${isPay === 0 ? '0' : "'0','1'"})
                                   AND t.procs_mode IN (${streamFutur === 1 ? "'B/S'" : "'B/S', 'B'"})
                                   AND (${sourceConditions})
                                   AND (${targetConditions})
@@ -726,7 +964,7 @@ export const calculResultEachStep = (req, res) => {
                                 FROM tools t
                                 WHERE t.dplymt_mode_t = '${deploy_mode}'
                                   AND t.category_t LIKE 'Analysis%'
-                                  AND t.isPay = ${isPay}
+                                  AND t.isPay IN (${isPay === 0 ? '0' : "'0','1'"})
                                   AND (${sourceConditions})
                                   AND (${targetConditions})
                                 ORDER BY t.popularity_t DESC;

@@ -104,7 +104,10 @@ const QuestionMiddleDownContent = () => {
   // Using useEffect to listen the change of allQuestionsData 
   useEffect(() => {
 
-    computeAddMatchedPairs();
+    if (!allQuestionsData.some(q => q.questionId === 19)) {
+      computeAddMatchedPairs();
+    }
+
     computeDeleteMatchedPairs();
 
 
@@ -136,7 +139,7 @@ const QuestionMiddleDownContent = () => {
                 </tr>
               </thead>
               <tbody>
-                {sourceAndTargetStep1.length != 0 ? (sourceAndTargetStep1.map((pair, index) => (
+                {sourceAndTargetStep1.length > 0 ? (sourceAndTargetStep1.map((pair, index) => (
                   <tr key={index} className="even:bg-blue-gray-50/50">
                     <td className="p-4">
                       <Typography variant="small" color="blue-gray" className="font-normal">

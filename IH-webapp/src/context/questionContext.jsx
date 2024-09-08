@@ -3,6 +3,9 @@ import React, { createContext, useState } from 'react';
 export const QuestionContext = createContext();
 
 export const QuestionProvider = ({ children }) => {
+    //Store current question id
+    const [currentQuestionId, setCurrentQuestionId] = useState(1); // first question = 1
+
     // A state to force call function calculResultEachStep(step)
     const [forceUseFunction, setForceUseFunction] = useState(false)
 
@@ -18,8 +21,10 @@ export const QuestionProvider = ({ children }) => {
     // Store all user answers into a list
     const [allQuestionsData, setAllQuestionsData] = useState([]);
 
+    const [protentialRank, setProtentialRank] = useState([])
+
     // Update allQuestionsData
-    const addQuestionData = (questionData, selections) => {
+    const addQuestionData = (questionData, selections, targetListHasValue) => {
         setAllQuestionsData(prevData => [
             ...prevData,
             {
@@ -28,6 +33,7 @@ export const QuestionProvider = ({ children }) => {
                 questionType: questionData.type,
                 choices: questionData.choices,
                 userSelections: selections,
+                targetListHasValue:targetListHasValue,
             }
         ]);
     };
@@ -36,11 +42,13 @@ export const QuestionProvider = ({ children }) => {
 
     return (
         <QuestionContext.Provider value={{
+            currentQuestionId, setCurrentQuestionId,
             userSelections, setUserSelections,
             allQuestionsData, addQuestionData, setAllQuestionsData,
             step, setStep,
             sourceAndTargetStep1, setSourceAndTargetStep1,
-            forceUseFunction, setForceUseFunction
+            forceUseFunction, setForceUseFunction,
+            protentialRank, setProtentialRank,
         }}>
             {children}
         </QuestionContext.Provider>

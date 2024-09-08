@@ -27,7 +27,7 @@ export function ResultTempTable({ resultStore, step }) {
           </tr>
         </thead>
         <tbody>
-          {resultStore ? (
+          {resultStore && resultStore.length > 0 ? (
             resultStore.map((stepResult, stepIndex) => {
 
                 const isLast = stepIndex === resultStore.length - 1;

@@ -30,6 +30,50 @@ export function QuestionTable() {
   const [openAnswerList, setOpenAnswerList] = useState(0);
   const handleOpenAnswerList = (value) => setOpenAnswerList(openAnswerList === value ? -999 : value);
 
+
+  const TABLE_HEAD1 = ["id", "qId", "Content", "Answer"];
+
+  const TABLE_ROWS = [
+    {
+      name: "Mary Smith",
+      role: "Project Manager",
+      email: "mary.smith@example.com",
+      location: "New York, USA",
+    },
+    {
+      name: "Bob Johnson",
+      role: "Lead Developer",
+      email: "bob.johnson@example.com",
+      location: "London, UK",
+    },
+    {
+      name: "Carol White",
+      role: "UX Designer",
+      email: "carol.white@example.com",
+      location: "Berlin, Germany",
+    },
+    {
+      name: "David Brown",
+      role: "QA Engineer",
+      email: "david.brown@example.com",
+      location: "Sydney, Australia",
+    },
+    {
+      name: "David Brown",
+      role: "QA Engineer",
+      email: "david.brown@example.com",
+      location: "Sydney, Australia",
+    },
+    {
+      name: "David Brown",
+      role: "QA Engineer",
+      email: "david.brown@example.com",
+      location: "Sydney, Australia",
+    },
+  ];
+
+
+
   // Exemple allQuestionData
   // {
   //   "questionId": 1,
@@ -53,7 +97,7 @@ export function QuestionTable() {
           <thead>
             <tr>
               {TABLE_HEAD.map((head) => (
-                <th key={head} className="border-b border-gray-300 pb-4 pt-10">
+                <th key={head} className="border-b border-gray-300 pb-4 pt-6">
                   <Typography
                     variant="small"
                     color="blue-gray"
@@ -95,35 +139,13 @@ export function QuestionTable() {
           </tbody>
         </table>
       </Card>
-      {/* Dialog - Warning */}
-      <>
-        <Dialog open={open} handler={handleOpen}>
-          <DialogHeader className="text-red-500">Warning !</DialogHeader>
-          <DialogBody>
-            If you modify the answer to the question, the follow-up questions you answered before will disappear!
-          </DialogBody>
-          <DialogFooter>
-            <Button
-              variant="text"
-              color="red"
-              onClick={handleOpen}
-              className="mr-1"
-            >
-              <span>Cancel</span>
-            </Button>
-            <Button variant="gradient" color="green" onClick={() => { handleOpen(); handleQuestionTableDetailOpen(); }}>
-              <span>Confirm</span>
-            </Button>
-          </DialogFooter>
-        </Dialog>
-      </>
 
       {/* Dialog - Answer List */}
       <>
-        <Dialog open={questionTableDetailOpen} handler={handleQuestionTableDetailOpen}>
-          <DialogHeader className="text-blue-gray-500">All Answers</DialogHeader>
-          <DialogBody className="max-h-96 overflow-auto">
-            {allQuestionsData.map((question,index) => (
+        <Dialog open={open} handler={handleOpen} className="h-2/3">
+          <DialogHeader className="text-blue-gray-500">All Answers List</DialogHeader>
+          <DialogBody className="max-h-[60vh]">
+            {/* {allQuestionsData.map((question,index) => (
               <Accordion open={openAnswerList === index} key={index}>
                 <AccordionHeader onClick={() => handleOpenAnswerList(index)}>{question.questionId}. {question.questionContent}</AccordionHeader>
                 <AccordionBody>
@@ -135,18 +157,136 @@ export function QuestionTable() {
                   ))}
                 </AccordionBody>
               </Accordion>
-            ))}
+            ))} */}
+
+
+            <section className="w-full h-full bg-white">
+              <div className="px-6 pb-4">
+                <Typography variant="lead" color="red" className="font-bold">
+                  Warning !
+                </Typography>
+                <Typography className="mb-4 w-80 font-normal text-gray-600 md:w-full">
+                  If you modify the answer to the question, the follow-up questions you answered before will disappear!
+                </Typography>
+              </div>
+              <Card className="w-full max-h-80 overflow-y-auto border border-gray-300 px-6">
+                <table className="w-full min-w-max table-auto text-left">
+                  <thead>
+                    <tr>
+                      {TABLE_HEAD1.map((head) => (
+                        <th key={head} className="border-b border-gray-300 pb-4 pt-6">
+                          <Typography
+                            variant="small"
+                            color="blue-gray"
+                            className="font-bold leading-none"
+                          >
+                            {head}
+                          </Typography>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allQuestionsData.map(({ questionId, questionContent, userSelections }, index) => {
+                      const isLast = index === allQuestionsData.length - 1;
+                      const classes = isLast ? "py-4" : "py-4 border-b border-gray-300";
+
+                      const questionObj = userSelections[0];
+
+                      const questionAnswer = () => {
+                        switch (questionId) {
+                          case 6:
+                          case 7:
+                            const { firstSelectValue, secondSelectValue, thirdSelectValue, fourthSelectValue } = questionObj;
+
+                            if (fourthSelectValue) {
+                              return fourthSelectValue;
+                            } else if (thirdSelectValue) {
+                              return thirdSelectValue;
+                            } else if (secondSelectValue) {
+                              return secondSelectValue;
+                            } else if (firstSelectValue) {
+                              return firstSelectValue;
+                            } else {
+                              return "No selection found";
+                            }
+                          case 10:
+                          case 12:
+                            // Collect all keys from userSelections
+                            const selectionKeys = userSelections.flatMap(selection => Object.keys(selection));
+
+                            // Return the keys as a comma-separated string or empty message
+                            return selectionKeys.length > 0 ? selectionKeys.join(', ') : 'No selection found';
+
+                          default:
+                            // Check if userSelections exists and has at least one item
+                            if (userSelections && userSelections.length > 0) {
+                              // Use Object.values to get the first value from the first selection object
+                              return Object.values(userSelections[0])[0] || "No selection found";
+                            } else {
+                              return "No selection found"; // Handle the case where userSelections is empty
+                            }
+                        }
+                      }
+                      //  6.7
+                      // 10.12
+                      // others
+
+
+                      return (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className={classes}>
+                            <Typography
+                              variant="small"
+                              color="blue-gray"
+                              className="font-bold mr-8"
+                            >
+                              {index + 1}
+                            </Typography>
+                          </td>
+                          <td className={classes}>
+                            <Typography
+                              variant="small"
+                              className="font-normal text-gray-600 mr-4"
+                            >
+                              {questionId}
+                            </Typography>
+                          </td>
+                          <td className={classes}>
+                            <Typography
+                              variant="small"
+                              className="font-normal text-gray-600 break-words w-72 mr-4"
+                            >
+                              {questionContent}
+                            </Typography>
+                          </td>
+                          <td className={classes}>
+                            <Typography
+                              variant="small"
+                              className="font-normal text-gray-600"
+                            >
+                              {questionAnswer()}
+                            </Typography>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </Card>
+            </section>
+
           </DialogBody>
           <DialogFooter>
             <Button
               variant="text"
               color="red"
-              onClick={handleQuestionTableDetailOpen}
+              onClick={handleOpen}
               className="mr-1"
             >
               <span>Cancel</span>
             </Button>
-            <Button variant="gradient" color="green" onClick={handleQuestionTableDetailOpen}>
+            <Button variant="gradient" color="green" onClick={handleOpen}>
               <span>Confirm</span>
             </Button>
           </DialogFooter>

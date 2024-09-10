@@ -12,6 +12,7 @@ import Login from './pages/Login'
 import Questions from "./pages/Questions";
 import Tools from "./pages/Tools";
 import History from "./pages/History";
+import FinalRes from "./pages/FinalRes";
 
 
 const Layout = () => {
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
       {
         path:"/history",
         element:<History />
+      },
+      {
+        path:"/finalres",
+        element:<FinalRes />
       },
     ]
   },

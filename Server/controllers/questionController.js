@@ -415,7 +415,7 @@ export const getNextQuestion = (req, res) => {
 
 
     //console.log("boolean get" + req.body.targetListHasValue)
-    console.log(deployType, ingestType, analysisType)
+    //console.log(deployType, ingestType, analysisType)
 
     let nextQuestionId = getNextQuestionId(currentQuestionId, userSelections[0], currentStep, ingestType, analysisType, deployType, targetListHasValue, hasQ33)
     const protentialRank = getProtentialRank(currentQuestionId, userSelections)

@@ -9,20 +9,23 @@ const Questions = () => {
   return (
     <QuestionProvider>
       <div className='flex justify-center bg-gray-100 min-h-screen pt-8'>
-        <div className='w-[25%]'>
-          <QuestionLeftSideBar />
-        </div>
-        <div className='w-[50%]'>
-          <div>
-            <QuestionMiddleUpContent />
+        <div className="w-full flex justify-center">
+          <div className='w-[25%] h-full'>
+            <QuestionLeftSideBar />
           </div>
-          <div>
-            <QuestionMiddleDownContent />
+          <div className='w-[50%] h-full'>
+            <div>
+              <QuestionMiddleUpContent />
+            </div>
+            <div>
+              <QuestionMiddleDownContent />
+            </div>
+          </div>
+          <div className='w-[25%] mb-4'>
+            <QuestionRightSideBar />
           </div>
         </div>
-        <div className='w-[25%]'>
-          <QuestionRightSideBar />
-        </div>
+
       </div>
     </QuestionProvider>
   )

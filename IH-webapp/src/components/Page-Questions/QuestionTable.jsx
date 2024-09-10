@@ -6,6 +6,9 @@ import {
   DialogHeader,
   DialogBody,
   DialogFooter,
+  Popover,
+  PopoverHandler,
+  PopoverContent,
 } from "@material-tailwind/react";
 
 
@@ -14,7 +17,7 @@ import {
 export function QuestionTable() {
 
   // Header of the table
-  const TABLE_HEAD = ["QuestionId", "Modif."];
+
 
   const { allQuestionsData } = useContext(QuestionContext);
 
@@ -30,48 +33,8 @@ export function QuestionTable() {
   const [openAnswerList, setOpenAnswerList] = useState(0);
   const handleOpenAnswerList = (value) => setOpenAnswerList(openAnswerList === value ? -999 : value);
 
-
-  const TABLE_HEAD1 = ["id", "qId", "Content", "Answer"];
-
-  const TABLE_ROWS = [
-    {
-      name: "Mary Smith",
-      role: "Project Manager",
-      email: "mary.smith@example.com",
-      location: "New York, USA",
-    },
-    {
-      name: "Bob Johnson",
-      role: "Lead Developer",
-      email: "bob.johnson@example.com",
-      location: "London, UK",
-    },
-    {
-      name: "Carol White",
-      role: "UX Designer",
-      email: "carol.white@example.com",
-      location: "Berlin, Germany",
-    },
-    {
-      name: "David Brown",
-      role: "QA Engineer",
-      email: "david.brown@example.com",
-      location: "Sydney, Australia",
-    },
-    {
-      name: "David Brown",
-      role: "QA Engineer",
-      email: "david.brown@example.com",
-      location: "Sydney, Australia",
-    },
-    {
-      name: "David Brown",
-      role: "QA Engineer",
-      email: "david.brown@example.com",
-      location: "Sydney, Australia",
-    },
-  ];
-
+  const TABLE_HEAD = ["QId", "Answer"];
+  const TABLE_HEAD1 = ["id", "QId", "Content", "Answer"];
 
 
   // Exemple allQuestionData
@@ -92,14 +55,26 @@ export function QuestionTable() {
 
   return (
     <section className="w-full bg-white">
-      <Card className="w-full overflow-scroll border border-gray-300 px-6 h-96">
+      <div className="flex items-center justify-between">
+        <Typography
+          variant="h2"
+          color="blue-gray"
+          className="pt-2 pb-4"
+        >
+          Answer list
+        </Typography>
+        <div className="">
+          <Button onClick={handleOpen} size="md" variant="gradient">Modify</Button>
+        </div>
+      </div>
+      <Card className="w-full overflow-scroll border border-gray-300 px-4 h-96">
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
               {TABLE_HEAD.map((head) => (
-                <th key={head} className="border-b border-gray-300 pb-4 pt-6">
+                <th key={head} className="border-b border-gray-300 pb-4 pt-5 px-1">
                   <Typography
-                    variant="small"
+                    variant="lead"
                     color="blue-gray"
                     className="font-bold leading-none"
                   >
@@ -110,30 +85,82 @@ export function QuestionTable() {
             </tr>
           </thead>
           <tbody>
-            {allQuestionsData.map(({ questionId }, index) => {
+            {allQuestionsData.map(({ questionId, userSelections, questionContent }, index) => {
               const isLast = index === allQuestionsData.length - 1;
               const classes = isLast ? "py-4" : "py-4 border-b border-gray-300";
 
+              const questionObj = userSelections[0];
+
+              const questionAnswer = () => {
+                switch (questionId) {
+                  case 6:
+                  case 7:
+                    const { firstSelectValue, secondSelectValue, thirdSelectValue, fourthSelectValue } = questionObj;
+
+                    if (fourthSelectValue) {
+                      return fourthSelectValue;
+                    } else if (thirdSelectValue) {
+                      return thirdSelectValue;
+                    } else if (secondSelectValue) {
+                      return secondSelectValue;
+                    } else if (firstSelectValue) {
+                      return firstSelectValue;
+                    } else {
+                      return "No selection found";
+                    }
+                  case 10:
+                  case 12:
+                    // Collect all keys from userSelections
+                    const selectionKeys = userSelections.flatMap(selection => Object.keys(selection));
+
+                    // Return the keys as a comma-separated string or empty message
+                    return selectionKeys.length > 0 ? selectionKeys.join(', ') : 'No selection found';
+
+                  case 19:
+                    const formatUserSelections = (userSelections) => {
+                      return userSelections.map((selection) => {
+                        const [key, values] = Object.entries(selection)[0];
+
+                        return `${values.join(' & ')} => ${key}`;
+                      });
+                    };
+
+                    const formattedSelections = formatUserSelections(userSelections);
+                    return formattedSelections;
+
+                  default:
+                    // Check if userSelections exists and has at least one item
+                    if (userSelections && userSelections.length > 0) {
+                      // Use Object.values to get the first value from the first selection object
+                      return Object.values(userSelections[0])[0] || "No selection found";
+                    } else {
+                      return "No selection found"; // Handle the case where userSelections is empty
+                    }
+                }
+              }
+
               return (
-                <tr key={`${index}-${questionId}`} className="hover:bg-gray-50">
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-bold"
-                    >
-                      {questionId}
+                <Popover key={index} placement="top">
+                  <PopoverHandler>
+                    <tr className="hover:bg-gray-50 cursor-pointer">
+                      <td className={classes}>
+                        <Typography variant="small" color="blue-gray" className="font-bold">
+                          {questionId}
+                        </Typography>
+                      </td>
+                      <td className={classes}>
+                        <Typography variant="small" className="font-normal text-gray-600">
+                          {questionAnswer()}
+                        </Typography>
+                      </td>
+                    </tr>
+                  </PopoverHandler>
+                  <PopoverContent className="w-64">
+                    <Typography variant="small" color="blue-gray" className="font-normal">
+                      {questionContent}
                     </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      className="font-normal text-gray-600"
-                    >
-                      <Button size="sm" variant="filled" onClick={handleOpen}>EDIT</Button>
-                    </Typography>
-                  </td>
-                </tr>
+                  </PopoverContent>
+                </Popover>
               );
             })}
           </tbody>
@@ -142,24 +169,10 @@ export function QuestionTable() {
 
       {/* Dialog - Answer List */}
       <>
-        <Dialog open={open} handler={handleOpen} className="h-2/3">
+        <Dialog open={open} handler={handleOpen} className="max-h-2/3">
           <DialogHeader className="text-blue-gray-500">All Answers List</DialogHeader>
+
           <DialogBody className="max-h-[60vh]">
-            {/* {allQuestionsData.map((question,index) => (
-              <Accordion open={openAnswerList === index} key={index}>
-                <AccordionHeader onClick={() => handleOpenAnswerList(index)}>{question.questionId}. {question.questionContent}</AccordionHeader>
-                <AccordionBody>
-                  Your answer is :
-                  {Object.entries(question.userSelections[0]).map(([key, value], index) => (
-                    <p key={`answerList-${key}-${index}`}>
-                      {index + 1}. {value}
-                    </p>
-                  ))}
-                </AccordionBody>
-              </Accordion>
-            ))} */}
-
-
             <section className="w-full h-full bg-white">
               <div className="px-6 pb-4">
                 <Typography variant="lead" color="red" className="font-bold">
@@ -217,6 +230,18 @@ export function QuestionTable() {
 
                             // Return the keys as a comma-separated string or empty message
                             return selectionKeys.length > 0 ? selectionKeys.join(', ') : 'No selection found';
+
+                          case 19:
+                            const formatUserSelections = (userSelections) => {
+                              return userSelections.map((selection) => {
+                                const [key, values] = Object.entries(selection)[0];
+
+                                return `${values.join(' & ')} => ${key}`;
+                              });
+                            };
+
+                            const formattedSelections = formatUserSelections(userSelections);
+                            return formattedSelections;
 
                           default:
                             // Check if userSelections exists and has at least one item

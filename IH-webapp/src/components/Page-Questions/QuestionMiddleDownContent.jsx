@@ -57,10 +57,16 @@ const QuestionMiddleDownContent = () => {
       const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
 
       // get the selection from id=7
-      const targetValue = question7.userSelections[0].fourthSelectValue ||
+      let targetValue;
+      if (question7.questionId === 7){
+        targetValue = question7.userSelections[0].fourthSelectValue ||
         question7.userSelections[0].thirdSelectValue ||
         question7.userSelections[0].secondSelectValue ||
         question7.userSelections[0].firstSelectValue;
+      } else if (question7.questionId === 34){
+        targetValue = Object.values(question7.userSelections[0])[0]
+      }
+      
 
       newPairs.push({
         step: 1,
@@ -184,10 +190,15 @@ const QuestionMiddleDownContent = () => {
         const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
 
         // get the selection from id=7
-        const targetValue = question7.userSelections[0].fourthSelectValue ||
+        let targetValue;
+        if (question7.questionId === 7){
+          targetValue = question7.userSelections[0].fourthSelectValue ||
           question7.userSelections[0].thirdSelectValue ||
           question7.userSelections[0].secondSelectValue ||
           question7.userSelections[0].firstSelectValue;
+        } else if (question7.questionId === 34){
+          targetValue = Object.values(question7.userSelections[0])[0]
+        }
 
         newPairs.push({
           step: 1,
@@ -266,7 +277,7 @@ const QuestionMiddleDownContent = () => {
   return (
     <div className='mb-4'>
       <Card className='bg-white'>
-        <Typography variant='h2' className='p-4'>
+        <Typography variant='h2' className='p-4' color='black'>
           Choices :
         </Typography>
         <div className='p-4'>

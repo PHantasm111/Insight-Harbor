@@ -23,7 +23,7 @@ const QuestionMiddleUpContent = () => {
     id: 1,
     content: "Where do you want to deploy your data lake ?",
     type: "single_choice",
-    choices: { "c1": "On-premises", "c2": "On cloud", "c3": "Hybrid" },
+    choices: { "c1": "On-premises", "c2": "On cloud" },
     is_required: 1,
     help_text: null
   });
@@ -34,8 +34,7 @@ const QuestionMiddleUpContent = () => {
   // Store 
   const [targetList, setTargetList] = useState([])
 
-  // Disable Q2
-  const [disableQ2, setDisableQ2] = useState(false)
+  const [nextQuestionButtonState, setNextQuestionButtonState] = useState(true)
 
   // If loading
   const [loading, setLoading] = useState(false);
@@ -170,7 +169,7 @@ const QuestionMiddleUpContent = () => {
       setNoSelectAlert(false)
     }
 
-    if (currentQuestionId === 2) {
+    if (currentQuestionId === 2 || currentQuestionId === 30) {
       Q2Check()
     }
 
@@ -210,6 +209,9 @@ const QuestionMiddleUpContent = () => {
       if (!has33) {
         setStep(1);
       }
+
+    } else if (currentQuestionId === 28) {
+      setStep(1)
 
     } else {
 
@@ -262,7 +264,7 @@ const QuestionMiddleUpContent = () => {
       }
     }
 
-    
+
 
     if (currentQuestionId === 13) {
       setForceUseFunction(true)
@@ -286,7 +288,7 @@ const QuestionMiddleUpContent = () => {
       }
     }
 
-    if (currentQuestionId === 20){
+    if (currentQuestionId === 20) {
       setCalculRealTimeStreaming((prev) => !prev)
     }
 
@@ -385,11 +387,8 @@ const QuestionMiddleUpContent = () => {
           return [...updatedState, ...newElements];
         });
       }
-
-
     }
   };
-
 
   // when user click the option, store it
   const handleSelectionChange = (key, isChecked) => {
@@ -437,12 +436,9 @@ const QuestionMiddleUpContent = () => {
     if ((userSelections.length === 1 && Object.keys(userSelections[0]).includes("c4"))
       || (userSelections.every(selection => !Object.keys(selection).includes("c4")))) {
 
-      setDisableQ2(false)
-      return false
-
+      setNextQuestionButtonState(true)
     } else {
-      setDisableQ2(true)
-      return true
+      setNextQuestionButtonState(false)
     }
   }
 
@@ -450,10 +446,6 @@ const QuestionMiddleUpContent = () => {
   const handleNextQuestion = async () => {
 
     setLoading(true);
-
-    if (disableQ2) {
-      return;
-    }
 
     if (userSelections.length <= 0) {
       setNoSelectAlert(true)
@@ -639,11 +631,17 @@ const QuestionMiddleUpContent = () => {
 
     try {
 
+      setLoading(true);
       // Send req 
-      const response = await axios.get(`http://localhost:3000/questions/skip/${currentQuestionId}`);
+      const response = await axios.get(`http://localhost:3000/question/skip/${currentQuestionId}`);
 
+      setQuestionData(response.data);
+      setCurrentQuestionId(response.data.id)
+      setUserSelections([]);
     } catch (error) {
       console.error("Error fetching question data:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -659,9 +657,26 @@ const QuestionMiddleUpContent = () => {
   return (
     <div className='mb-2 w-full'>
       <Card className='bg-white shadow-md'>
-        <Typography variant='h2' className='p-4'>
-          Question :
-        </Typography>
+        <div className='flex items-center justify-between'>
+          <Typography variant='h2' className='p-4' color='black'>
+            Question :
+          </Typography>
+          <div className='flex gap-2 pr-8'>
+            <div className="">
+              <Button className="bg-blue-gray-200 text-gray-800 h-10 w-10 flex items-center justify-center">
+              <i class="fa-solid fa-arrows-rotate"></i>
+              </Button>
+            </div>
+            <div className="">
+              <Button className="bg-blue-gray-200 text-gray-800 h-10 w-10 flex items-center justify-center">
+                <i className="fa-solid fa-floppy-disk"></i>
+              </Button>
+            </div>
+          </div>
+
+
+        </div>
+
 
 
         {/* if question finish -> show other content */}
@@ -679,7 +694,7 @@ const QuestionMiddleUpContent = () => {
         {/* if still has question */}
         {!questionFinish &&
           <form className='flex flex-col'>
-            <Typography key={questionData.id} variant='h5' className='p-4 ml-4'>
+            <Typography key={questionData.id} variant='h5' className='p-4 ml-4' color='black'>
               <div>
                 {questionData.id}{". "}{questionData.content}{questionData.is_required ? " *" : ""}
               </div>
@@ -755,10 +770,10 @@ const QuestionMiddleUpContent = () => {
                             value={thirdSelectValue}
                             onChange={(val) => handleThirdSelectChange(val)}
                           >
-                            <Option value="NAS">NAS</Option>
-                            <Option value="SAN">SAN</Option>
-                            <Option value="NTFS">NTFS</Option>
-                            <Option value="EXT4">EXT4</Option>
+                            <Option value="Network Attached Storage(NAS)">NAS</Option>
+                            <Option value="Storage Area Network(SAN)">SAN</Option>
+                            <Option value="New Technology File System(NTFS)">NTFS</Option>
+                            <Option value="Fourth Extended Filesystem(EXT4)">EXT4</Option>
                           </Select>
                         </div>}
 
@@ -908,7 +923,7 @@ const QuestionMiddleUpContent = () => {
             </Typography>
 
             {noSelectAlert && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>You need to choose an option*</span>}
-            {disableQ2 && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>Please check your selections*</span>}
+            {!nextQuestionButtonState && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>Please check your selections*</span>}
             <div className='flex justify-between mx-8 mb-8 mt-2 gap-8'>
               <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' disabled={currentQuestionId === 1} onClick={handleLastQuestion}>
                 <img src={leftArrow} width={40} height={40}></img>
@@ -916,7 +931,7 @@ const QuestionMiddleUpContent = () => {
               </Button>
               <div className="flex gap-4">
                 <Button variant="text" size='lg' className='bg-gray-300/50' disabled={questionData.is_required} onClick={handleSkipQuestion}>Skip</Button>
-                <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' onClick={handleNextQuestion}>
+                <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' disabled={!nextQuestionButtonState} onClick={handleNextQuestion}>
                   Next Question
                   <img src={rightArrow} width={40} height={40}></img>
                 </Button>

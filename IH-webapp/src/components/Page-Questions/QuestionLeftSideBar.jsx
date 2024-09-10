@@ -1,4 +1,4 @@
-import { Card, Typography } from "@material-tailwind/react"
+import { Button, Card, Typography } from "@material-tailwind/react"
 import { QuestionStepper } from "./Stepper"
 import { QuestionTable } from "./QuestionTable"
 import { useContext } from "react";
@@ -18,19 +18,11 @@ const QuestionLeftSideBar = () => {
         </Typography>
 
         {/* Stepper for the question */}
-        <div className="p-4">
+        <div className="px-4 pb-2">
           <QuestionStepper />
         </div>
 
-        <Typography
-          variant="h2"
-          color="blue-gray"
-          className="p-4"
-        >
-          Answer list
-        </Typography>
-
-        <div className="px-4 pb-8">
+        <div className="px-4 pb-8 w-full">
           <QuestionTable />
         </div>
       </Card>

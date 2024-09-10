@@ -13,6 +13,7 @@ import Questions from "./pages/Questions";
 import Tools from "./pages/Tools";
 import History from "./pages/History";
 import FinalRes from "./pages/FinalRes";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 
 const Layout = () => {

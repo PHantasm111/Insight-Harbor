@@ -7,26 +7,11 @@ import { QuestionContext } from "../../context/questionContext";
 const QuestionLeftSideBar = () => {
 
   return (
-    <div className="mx-2">
-      <Card className="flex flex-col w-full bg-white mb-4" >
-        <Typography
-          variant="h2"
-          color="blue-gray"
-          className="p-4"
-        >
-          Step
-        </Typography>
 
-        {/* Stepper for the question */}
-        <div className="px-4 pb-2">
-          <QuestionStepper />
-        </div>
+    <Card className="flex flex-col mx-2 px-4 pb-8 pt-4 h-full bg-white/50" >
+      <QuestionTable />
+    </Card>
 
-        <div className="px-4 pb-8 w-full">
-          <QuestionTable />
-        </div>
-      </Card>
-    </div>
   )
 }
 

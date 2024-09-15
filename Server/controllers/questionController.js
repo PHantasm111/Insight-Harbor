@@ -327,6 +327,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
     }
 }
 
+
 const getProtentialRank = (currentQuestionId, selections) => {
 
     const questionAnswer = Object.values(selections[0])[0]
@@ -383,6 +384,7 @@ const getProtentialRank = (currentQuestionId, selections) => {
     return []
 }
 
+
 const getNextSkipQuestion = (currentQuestionId) => {
     switch (currentQuestionId) {
         case 2:
@@ -399,6 +401,8 @@ const getNextSkipQuestion = (currentQuestionId) => {
             return 22
         case 22:
             return 23
+        case 30:
+            return 5
         default:
             return null
     }
@@ -535,6 +539,7 @@ export const getNextQuestion = (req, res) => {
     });
 }
 
+
 // The function that handle the skip question
 export const getSkipQuestion = (req, res) => {
     // get current question ID from params
@@ -592,6 +597,7 @@ export const getQuestionById = (req, res) => {
         }
     });
 }
+
 
 export const calculResultEachStep = (req, res) => {
 
@@ -678,13 +684,27 @@ export const calculResultEachStep = (req, res) => {
     if (currentStep === 1 && deploy_mode === "Cloud") {
 
         if (procs_mode === "B") {
-            if (answer30 === "Google Cloud Services"){
-                `[
-                    { Id_t: '24', name_t: 'Apache Spark', count: 1 },
-                    { Id_t: '25', name_t: 'Apache Flink', count: 1 },
-                ]`
-                res.json([{}])
-            }
+            // if (answer30 === "Google Cloud Services"){
+            //     `[
+            //         { Id_t: '24', name_t: 'Apache Spark', count: 1 },
+            //         { Id_t: '25', name_t: 'Apache Flink', count: 1 },
+            //     ]`
+            //     res.json([{}])
+            // }
+
+            const q = `select Id_t, name_t
+                        from tools
+                        where category_t like '%Ingestion%'
+                        and procs_mode = 'B'
+                        and dplymt_mode_t = 'Cloud'
+                        order by name_t`
+            
+            db.query(q, (err, data) => {
+                if (err) return res.status(500).json("query error !")
+                
+                console.log(data)
+                res.status(200).json(data)
+            })
 
         } else if (procs_mode === "S") {
 
@@ -699,9 +719,8 @@ export const calculResultEachStep = (req, res) => {
 
 
     // On-p Zone
-    if (currentStep === 1) {
+    if (currentStep === 1 && deploy_mode != "Cloud") {
         if (answer5 === "Batch") {
-            console.log("ddddddd")
             // a Object to store the rank of tools
             let toolScores = {};
 
@@ -1484,5 +1503,24 @@ export const calculResultEachStep = (req, res) => {
             });
 
     }
+
+}
+
+
+export const saveQuestionData = (req, res) => {
+
+    console.log("in function")
+    // // Get the data from request body
+    console.log(req.body.allQuestionsData)
+    console.log("--------------------------------------")
+    console.log(req.body.currentQuestionId)
+    console.log("--------------------------------------")
+    console.log(req.body.resultStore)
+    console.log("--------------------------------------")
+    console.log(req.body.sourceAndTargetStep1)
+    console.log("--------------------------------------")
+    console.log(req.body.UserID)
+
+
 
 }

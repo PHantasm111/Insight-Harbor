@@ -1,5 +1,5 @@
 import { Button, Card, Typography, Accordion, AccordionHeader, AccordionBody } from "@material-tailwind/react";
-import { useContext, React, useState } from "react";
+import { useContext, React, useState, useEffect } from "react";
 import { QuestionContext } from "../../context/questionContext";
 import {
   Dialog,
@@ -10,52 +10,85 @@ import {
   PopoverHandler,
   PopoverContent,
 } from "@material-tailwind/react";
+import axios from "axios";
 
 
 
 
 export function QuestionTable() {
 
-  // Header of the table
-
-
-  const { allQuestionsData } = useContext(QuestionContext);
+  const { allQuestionsData, setQuestionData, setCurrentQuestionId, setUserSelections, setReComputeSourceAndTarget } = useContext(QuestionContext);
 
   // Control Dialog - Warning => Open & Close
   const [open, setOpen] = useState(false);
-  const [questionTableDetailOpen, setQuestionTableDetailOpen] = useState(false);
 
   // Control Dialog - All Answers => Open & Close
   const handleOpen = () => setOpen(!open);
-  const handleQuestionTableDetailOpen = () => setQuestionTableDetailOpen(!questionTableDetailOpen);
 
-  // Control Open & Close of the Answer list when change the answer
-  const [openAnswerList, setOpenAnswerList] = useState(0);
-  const handleOpenAnswerList = (value) => setOpenAnswerList(openAnswerList === value ? -999 : value);
+  // Controls the opening and closing of the confirmation modification dialog
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
+  // Used to store the currently selected question
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
+
+  const [dismissConfig, setDismissConfig] = useState({ outsidePress: true, escapeKey: true });
+
+  // Header of the table
   const TABLE_HEAD = ["QId", "Answer"];
   const TABLE_HEAD1 = ["id", "QId", "Content", "Answer"];
 
 
-  // Exemple allQuestionData
-  // {
-  //   "questionId": 1,
-  //   "questionContent": "Where do you want to deploy your data lake ?",
-  //   "questionType": "single_choice",
-  //   "choices": {
-  //       "c1": "On-premises",
-  //       "c2": "On cloud",
-  //       "c3": "Hybrid"
-  //   },
-  //   "userSelections": {
-  //       "c1": "On-premises"
-  //   }
-  // }
+  const handleConfirmDialogOpen = () => {
+    setConfirmDialogOpen(!confirmDialogOpen);
+  };
+
+
+  const handleSelectedQuestion = (questionElement, index) => {
+    // Store selected question
+    setSelectedQuestion([
+      index,
+      questionElement
+    ]);
+
+    // Open the confirmDialog
+    setConfirmDialogOpen(true);
+  };
+
+  const handleModifyQuestion = async () => {
+
+    console.log(selectedQuestion)
+
+    allQuestionsData.splice(selectedQuestion[0]);
+
+    try {
+      // get the selected question and set to MiddleUpContent
+      const searchId = selectedQuestion[1].questionId;
+      const response = await axios.get(`http://localhost:3000/question/${searchId}`)
+
+      setQuestionData(response.data);
+      setCurrentQuestionId(response.data.id)
+      setUserSelections([]);
+    } catch (error) {
+      console.error("Error fetching question data:", error);
+    } finally {
+      setReComputeSourceAndTarget((prev) => prev + 1)
+    }
+
+
+  }
+
+  useEffect(() => {
+    if (confirmDialogOpen === true) {
+      setDismissConfig({ outsidePress: false, escapeKey: false });
+    } else {
+      setDismissConfig({ outsidePress: true, escapeKey: true });
+    }
+  }, [confirmDialogOpen])
 
 
   return (
-    <section className="w-full bg-white">
-      <div className="flex items-center justify-between">
+    <section className="w-full h-full">
+      <div className="flex items-center justify-between h-1/6">
         <Typography
           variant="h2"
           color="blue-gray"
@@ -67,7 +100,7 @@ export function QuestionTable() {
           <Button onClick={handleOpen} size="md" variant="gradient">Modify</Button>
         </div>
       </div>
-      <Card className="w-full overflow-scroll border border-gray-300 px-4 h-96">
+      <Card className="w-full overflow-scroll border border-gray-300 px-4 h-2/3 bg-white/50">
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
@@ -169,7 +202,7 @@ export function QuestionTable() {
 
       {/* Dialog - Answer List */}
       <>
-        <Dialog open={open} handler={handleOpen} className="max-h-2/3">
+        <Dialog open={open} handler={handleOpen} className="max-h-2/3" aria-hidden={open ? "false" : "true"} dismiss={dismissConfig}>
           <DialogHeader className="text-blue-gray-500">All Answers List</DialogHeader>
 
           <DialogBody className="max-h-[60vh]">
@@ -259,7 +292,7 @@ export function QuestionTable() {
 
 
                       return (
-                        <tr key={index} className="hover:bg-gray-50">
+                        <tr key={index} className="hover:bg-gray-50" onClick={() => handleSelectedQuestion(allQuestionsData[index], index)}>
                           <td className={classes}>
                             <Typography
                               variant="small"
@@ -303,16 +336,36 @@ export function QuestionTable() {
 
           </DialogBody>
           <DialogFooter>
-            <Button
-              variant="text"
-              color="red"
-              onClick={handleOpen}
-              className="mr-1"
-            >
-              <span>Cancel</span>
-            </Button>
             <Button variant="gradient" color="green" onClick={handleOpen}>
-              <span>Confirm</span>
+              <span>Close</span>
+            </Button>
+          </DialogFooter>
+        </Dialog>
+      </>
+      <>
+        <Dialog open={confirmDialogOpen} handler={handleConfirmDialogOpen} className="max-h-2/3">
+          <DialogHeader className="text-blue-gray-500">Confirm changes</DialogHeader>
+          <DialogBody className="max-h-[60vh]">
+            <Typography variant="lead" color="red" className="font-bold">
+              Are you sure you want to edit this question?
+            </Typography>
+            {selectedQuestion && (
+              <Typography className="mb-4 w-80 font-normal text-gray-600 md:w-full">
+                The ID of the currently selected question: {selectedQuestion[1].questionId}
+              </Typography>
+            )}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="text" color="red" onClick={() => { handleConfirmDialogOpen(); }} className="mr-1">
+              Cancel
+            </Button>
+            <Button variant="gradient" color="green" onClick={() => {
+              console.log("修改问题: ", selectedQuestion);
+              handleConfirmDialogOpen();
+              setOpen(false);
+              handleModifyQuestion();
+            }}>
+              Confirm
             </Button>
           </DialogFooter>
         </Dialog>

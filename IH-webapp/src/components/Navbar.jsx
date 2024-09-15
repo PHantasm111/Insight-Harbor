@@ -43,18 +43,18 @@ export function StickyNavbar() {
     <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-10 ">
       <Typography
         as="li"
-        variant="small"
+        variant="paragraph"
         color="blue-gray"
-        className="p-2 font-normal uppercase hover:text-blue-900 hover:bg-blue-gray-800/10 hover:rounded-md">
+        className="p-2 font-bold uppercase hover:text-blue-900 hover:bg-blue-gray-800/10 hover:rounded-md">
         <Link to="/questions" className="flex items-center">
           Build your Data Lake
         </Link>
       </Typography>
       <Typography
         as="li"
-        variant="small"
+        variant="paragraph"
         color="blue-gray"
-        className="p-2 font-normal uppercase hover:text-blue-900 hover:bg-blue-gray-800/10 hover:rounded-lg">
+        className="p-2 font-bold uppercase hover:text-blue-900 hover:bg-blue-gray-800/10 hover:rounded-lg">
         <Link to="/tools" className="flex items-center">
           Tool Exhibition
         </Link>
@@ -70,14 +70,16 @@ export function StickyNavbar() {
           <Typography
             as="a"
             href="/"
-            className="mr-4 cursor-pointer py-1.5 font-bold text-xl">
+            className="cursor-pointer font-bold"
+            variant="h3"
+            >
             Insight Harbor&#8482;
           </Typography>
           <div className="flex items-center gap-4">
             <div className="mr-4 hidden lg:block">{navList}</div>
             {currentUser ?
               <div className="flex items-center">
-                <Typography className="pr-4" variant="small">
+                <Typography className="pr-4" variant="paragraph">
                   Hi, {currentUser.name_U}
                 </Typography>
 

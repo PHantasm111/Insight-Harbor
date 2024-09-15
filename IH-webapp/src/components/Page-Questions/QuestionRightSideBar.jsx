@@ -7,11 +7,15 @@ import axios from 'axios'
 
 const QuestionRightSideBar = () => {
 
-  // Store result of each step
-  const [resultStore, setResultStore] = useState([]);
-
   // Use QuestionContext
-  const { step, allQuestionsData, sourceAndTargetStep1, forceUseFunction, setForceUseFunction, protentialRank, calculRealTimeStreaming } = useContext(QuestionContext);  // Use useContext to get state and update function
+  const {
+    step,
+    allQuestionsData,
+    sourceAndTargetStep1,
+    forceUseFunction, setForceUseFunction,
+    protentialRank,
+    calculRealTimeStreaming,
+    resultStore, setResultStore } = useContext(QuestionContext);  // Use useContext to get state and update function
 
   // Function to get the result of recommadation
   const calculResultEachStep = async (step) => {
@@ -49,23 +53,22 @@ const QuestionRightSideBar = () => {
         } else if (hasHybridAndRealTime) {
 
           const compareAndCombine = (waitToUpdateObj, originObj, step) => {
-            // 确保 originObj 和 waitToUpdateObj 中的数据结构相同
+
             const waitToUpdateList = waitToUpdateObj[step];
             const originList = originObj;
 
-            // 过滤出同时出现在 originList 和 waitToUpdateList 中的元素
+
             const commonElements = originList.filter(originItem =>
               waitToUpdateList.some(updateItem => updateItem.name_t === originItem.name_t)
             );
 
-            // 将结果更新到 resultStore
+
             setResultStore(prevStore => ({
               ...prevStore,
-              [step]: commonElements // 只保留两者都有的元素
+              [step]: commonElements
             }));
           };
 
-          // 调用比较函数
           compareAndCombine({ [step]: response.data }, resultStore[step], step);
 
         } else {
@@ -107,22 +110,22 @@ const QuestionRightSideBar = () => {
   useEffect(() => {
     if (protentialRank.length > 0) {
       const filteredAndSortedTools = protentialRank
-        .filter(tool => resultStore[step + 1].some(item => item.name_t === tool))  // 过滤出 resultStore 中存在的工具
-        .map(tool => resultStore[step + 1].find(item => item.name_t === tool));   // 保留顺序并获取完整对象
+        .filter(tool => resultStore[step + 1].some(item => item.name_t === tool))
+        .map(tool => resultStore[step + 1].find(item => item.name_t === tool));
 
       setResultStore(prevStore => ({
         ...prevStore,
-        [step + 1]: filteredAndSortedTools // 更新 step=2 的数据
-      }));
+        [step + 1]: filteredAndSortedTools
+      }))
     }
   }, [protentialRank])
 
 
   return (
-    <div className='mx-2'>
-      <Card className='bg-white flex flex-col'>
+    <div className='mx-2 h-full'>
+      <Card className='bg-white/50 flex flex-col h-full overflow-auto'>
         <Typography variant='h2' className='p-4' color='black'>
-          Result Temp :
+          Tempo Result :
         </Typography>
 
         <div>

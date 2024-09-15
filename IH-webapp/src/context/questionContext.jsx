@@ -6,6 +6,17 @@ export const QuestionProvider = ({ children }) => {
     //Store current question id
     const [currentQuestionId, setCurrentQuestionId] = useState(1); // first question = 1
 
+    // Define states to store current problem data
+    const [questionData, setQuestionData] = useState({
+        id: 1,
+        content: "Where do you want to deploy your data lake ?",
+        type: "single_choice",
+        choices: { "c1": "On-premises", "c2": "On cloud" },
+        is_required: 1,
+        help_text: null
+    });
+
+
     // A state to force call function calculResultEachStep(step)
     const [forceUseFunction, setForceUseFunction] = useState(false)
 
@@ -24,6 +35,9 @@ export const QuestionProvider = ({ children }) => {
     // Store all user answers into a list
     const [allQuestionsData, setAllQuestionsData] = useState([]);
 
+    // Store result of each step
+    const [resultStore, setResultStore] = useState([]);
+
     const [protentialRank, setProtentialRank] = useState([])
 
     const [computeSourceAndTarget, setComputeSourceAndTarget] = useState(0);
@@ -40,7 +54,7 @@ export const QuestionProvider = ({ children }) => {
                 questionType: questionData.type,
                 choices: questionData.choices,
                 userSelections: selections,
-                targetListHasValue:targetListHasValue,
+                targetListHasValue: targetListHasValue,
             }
         ]);
     };
@@ -50,6 +64,7 @@ export const QuestionProvider = ({ children }) => {
     return (
         <QuestionContext.Provider value={{
             currentQuestionId, setCurrentQuestionId,
+            questionData, setQuestionData,
             userSelections, setUserSelections,
             allQuestionsData, addQuestionData, setAllQuestionsData,
             step, setStep,
@@ -58,7 +73,8 @@ export const QuestionProvider = ({ children }) => {
             protentialRank, setProtentialRank,
             computeSourceAndTarget, setComputeSourceAndTarget,
             reComputeSourceAndTarget, setReComputeSourceAndTarget,
-            calculRealTimeStreaming, setCalculRealTimeStreaming
+            calculRealTimeStreaming, setCalculRealTimeStreaming,
+            resultStore, setResultStore
         }}>
             {children}
         </QuestionContext.Provider>

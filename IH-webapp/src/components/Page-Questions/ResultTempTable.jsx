@@ -7,10 +7,25 @@ const TABLE_HEAD = ["Name", "AVG_Rank"];
 
 export function ResultTempTable({ resultStore, step }) {
 
-  const { allQuestionData } = useContext(QuestionContext);
+  const { allQuestionsData } = useContext(QuestionContext);
 
-  if (allQuestionData && allQuestionData.length > 0) {
-    const showRank = allQuestionData.filter(q => q.quesitonId === 1).map(q =>Object.values(q.userSelections[0])[0] === "Cloud" )
+  let showRank;
+
+  if (allQuestionsData && allQuestionsData.length > 0) {
+    const filteredQuestions = allQuestionsData.filter(q => q.questionId === 1);
+
+    if (filteredQuestions.length > 0) {
+      const userSelections = filteredQuestions[0].userSelections;
+
+      if (userSelections && userSelections.length > 0) {
+        const userSelectionValue = Object.values(userSelections[0])[0];
+        showRank = userSelectionValue !== "On cloud";
+      } else {
+        console.error("No user selections available for questionId 1");
+      }
+    } else {
+      console.error("No question with questionId 1 found");
+    }
   }
 
   return (
@@ -58,7 +73,7 @@ export function ResultTempTable({ resultStore, step }) {
                       color="blue-gray"
                       className="font-normal"
                     >
-                      {stepIndex + 1}
+                      {showRank ? stepIndex + 1 : "-"}
                     </Typography>
                   </td>
                 </tr>

@@ -16,102 +16,143 @@ const QuestionMiddleDownContent = () => {
 
     const previousQuestion = allQuestionsData[allQuestionsData.length - 2];
 
-    if (previousQuestion && previousQuestion.questionId === 12) {
-      // get the selection from id=12
-      const sourceValue = previousQuestion.userSelections.map(s => Object.keys(s))
+    if (question7) {
+      if (previousQuestion && previousQuestion.questionId === 12) {
+        // get the selection from id=12
+        const sourceValue = previousQuestion.userSelections.map(s => Object.keys(s))
 
-      // get the selection from id=7
-      const targetValue = question7.userSelections[0].fourthSelectValue ||
-        question7.userSelections[0].thirdSelectValue ||
-        question7.userSelections[0].secondSelectValue ||
-        question7.userSelections[0].firstSelectValue;
+        // get the selection from id=7
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
 
-      newPairs.push({
-        step: 3,
-        source: sourceValue,
-        sourceIndex: allQuestionsData.length - 2,
-        target: targetValue,
-        targetIndex: allQuestionsData.length - 1,
-      })
-    } else if (previousQuestion && previousQuestion.questionId === 10) {
-      // get the selection from id=10
-      const sourceValue = previousQuestion.userSelections.map(selection => {
-        return Object.keys(selection)[0]
-      })
+        newPairs.push({
+          step: 3,
+          source: sourceValue,
+          sourceIndex: allQuestionsData.length - 2,
+          target: targetValue,
+          targetIndex: allQuestionsData.length - 1,
+        })
+      } else if (previousQuestion && previousQuestion.questionId === 10) {
+        // get the selection from id=10
+        const sourceValue = previousQuestion.userSelections.map(selection => {
+          return Object.keys(selection)[0]
+        })
 
-      // get the selection from id=7
-      const targetValue = question7.userSelections[0].fourthSelectValue ||
-        question7.userSelections[0].thirdSelectValue ||
-        question7.userSelections[0].secondSelectValue ||
-        question7.userSelections[0].firstSelectValue;
+        // get the selection from id=7
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
 
-      newPairs.push({
-        step: 2,
-        source: sourceValue,
-        sourceIndex: allQuestionsData.length - 2,
-        target: targetValue,
-        targetIndex: allQuestionsData.length - 1,
-      })
-    } else if (previousQuestion && previousQuestion.questionId === 6) {
-      // get the selection from id=6
-      const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+        newPairs.push({
+          step: 2,
+          source: sourceValue,
+          sourceIndex: allQuestionsData.length - 2,
+          target: targetValue,
+          targetIndex: allQuestionsData.length - 1,
+        })
+      } else if (previousQuestion && previousQuestion.questionId === 6) {
+        // get the selection from id=6
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
 
-      // get the selection from id=7
-      let targetValue;
-      if (question7.questionId === 7){
-        targetValue = question7.userSelections[0].fourthSelectValue ||
-        question7.userSelections[0].thirdSelectValue ||
-        question7.userSelections[0].secondSelectValue ||
-        question7.userSelections[0].firstSelectValue;
-      } else if (question7.questionId === 34){
-        targetValue = Object.values(question7.userSelections[0])[0]
+        // get the selection from id=7
+        let targetValue;
+        if (question7.questionId === 7) {
+          targetValue = question7.userSelections[0].fourthSelectValue ||
+            question7.userSelections[0].thirdSelectValue ||
+            question7.userSelections[0].secondSelectValue ||
+            question7.userSelections[0].firstSelectValue;
+        } else if (question7.questionId === 34) {
+          targetValue = Object.values(question7.userSelections[0])[0]
+        }
+
+
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: allQuestionsData.length - 2,
+          target: targetValue,
+          targetIndex: allQuestionsData.length - 1,
+        })
+      } else if (previousQuestion && previousQuestion.questionId === 32) {
+        // get the selection from id=32
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=7
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: allQuestionsData.length - 2,
+          target: targetValue,
+          targetIndex: allQuestionsData.length - 1,
+          ingestType: "Batch",
+        })
+      } else if (previousQuestion && previousQuestion.questionId === 33) {
+        // get the selection from id=33
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=7
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: allQuestionsData.length - 2,
+          target: targetValue,
+          targetIndex: allQuestionsData.length - 1,
+          ingestType: "Streaming",
+        })
+      } else if (question7.questionId === 34 && previousQuestion && previousQuestion.questionId === 26) {
+
+        // get the selection from id = 34
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=26
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: allQuestionsData.length - 2,
+          target: targetValue,
+          targetIndex: allQuestionsData.length - 1,
+          ingestType: "Batch",
+        })
+      } else if (question7.questionId === 34 && previousQuestion && previousQuestion.questionId === 27) {
+        // get the selection from id = 34
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=27
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: allQuestionsData.length - 2,
+          target: targetValue,
+          targetIndex: allQuestionsData.length - 1,
+          ingestType: "Streaming",
+        })
       }
-      
-
-      newPairs.push({
-        step: 1,
-        source: sourceValue,
-        sourceIndex: allQuestionsData.length - 2,
-        target: targetValue,
-        targetIndex: allQuestionsData.length - 1,
-      })
-    } else if (previousQuestion && previousQuestion.questionId === 32) {
-      // get the selection from id=32
-      const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
-
-      // get the selection from id=7
-      const targetValue = question7.userSelections[0].fourthSelectValue ||
-        question7.userSelections[0].thirdSelectValue ||
-        question7.userSelections[0].secondSelectValue ||
-        question7.userSelections[0].firstSelectValue;
-
-      newPairs.push({
-        step: 1,
-        source: sourceValue,
-        sourceIndex: allQuestionsData.length - 2,
-        target: targetValue,
-        targetIndex: allQuestionsData.length - 1,
-        ingestType: "Batch",
-      })
-    } else if (previousQuestion && previousQuestion.questionId === 33) {
-      // get the selection from id=33
-      const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
-
-      // get the selection from id=7
-      const targetValue = question7.userSelections[0].fourthSelectValue ||
-        question7.userSelections[0].thirdSelectValue ||
-        question7.userSelections[0].secondSelectValue ||
-        question7.userSelections[0].firstSelectValue;
-
-      newPairs.push({
-        step: 1,
-        source: sourceValue,
-        sourceIndex: allQuestionsData.length - 2,
-        target: targetValue,
-        targetIndex: allQuestionsData.length - 1,
-        ingestType: "Streaming",
-      })
     }
+
 
     // Update matchedPairs
     setSourceAndTargetStep1((prev) => [
@@ -191,12 +232,12 @@ const QuestionMiddleDownContent = () => {
 
         // get the selection from id=7
         let targetValue;
-        if (question7.questionId === 7){
+        if (question7.questionId === 7) {
           targetValue = question7.userSelections[0].fourthSelectValue ||
-          question7.userSelections[0].thirdSelectValue ||
-          question7.userSelections[0].secondSelectValue ||
-          question7.userSelections[0].firstSelectValue;
-        } else if (question7.questionId === 34){
+            question7.userSelections[0].thirdSelectValue ||
+            question7.userSelections[0].secondSelectValue ||
+            question7.userSelections[0].firstSelectValue;
+        } else if (question7.questionId === 34) {
           targetValue = Object.values(question7.userSelections[0])[0]
         }
 
@@ -243,6 +284,44 @@ const QuestionMiddleDownContent = () => {
           targetIndex: i,
           ingestType: "Streaming",
         })
+      } else if (question7.questionId === 34 && previousQuestion && previousQuestion.questionId === 26) {
+
+        // get the selection from id = 34
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=26
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: allQuestionsData.length - 2,
+          target: targetValue,
+          targetIndex: allQuestionsData.length - 1,
+          ingestType: "Batch",
+        })
+      } else if (question7.questionId === 34 && previousQuestion && previousQuestion.questionId === 27) {
+        // get the selection from id = 34
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=27
+        const targetValue = question7.userSelections[0].fourthSelectValue ||
+          question7.userSelections[0].thirdSelectValue ||
+          question7.userSelections[0].secondSelectValue ||
+          question7.userSelections[0].firstSelectValue;
+
+        newPairs.push({
+          step: 1,
+          source: sourceValue,
+          sourceIndex: allQuestionsData.length - 2,
+          target: targetValue,
+          targetIndex: allQuestionsData.length - 1,
+          ingestType: "Streaming",
+        })
       }
 
       // Update matchedPairs
@@ -256,10 +335,9 @@ const QuestionMiddleDownContent = () => {
 
 
   // Using useEffect to listen the change of allQuestionsData 
-  useEffect(() => {
+  // useEffect(() => {
 
-
-  }, [allQuestionsData]);
+  // }, [allQuestionsData]);
 
   useEffect(() => {
     computeAddMatchedPairs();

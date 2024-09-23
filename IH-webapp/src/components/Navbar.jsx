@@ -72,7 +72,7 @@ export function StickyNavbar() {
             href="/"
             className="cursor-pointer font-bold"
             variant="h3"
-            >
+          >
             Insight Harbor&#8482;
           </Typography>
           <div className="flex items-center gap-4">
@@ -111,7 +111,9 @@ export function StickyNavbar() {
                       </svg>
 
                       <Typography variant="small" className="font-medium" color="blue-gray">
-                        My Profile
+                        <Link to="/profile">
+                          My Profile
+                        </Link>
                       </Typography>
                     </MenuItem>
 

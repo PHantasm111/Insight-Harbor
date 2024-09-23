@@ -13,8 +13,8 @@ import Questions from "./pages/Questions";
 import Tools from "./pages/Tools";
 import History from "./pages/History";
 import FinalRes from "./pages/FinalRes";
+import Profile from "./pages/Profile";
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
 
 const Layout = () => {
   return (
@@ -58,6 +58,10 @@ const router = createBrowserRouter([
       {
         path:"/finalres",
         element:<FinalRes />
+      },
+      {
+        path:"/profile",
+        element:<Profile />
       },
     ]
   },

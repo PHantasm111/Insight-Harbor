@@ -106,8 +106,8 @@ const QuestionMiddleUpContent = () => {
   }
 
   useEffect(() => {
-    console.log(allQuestionsData)
-    console.log("bian le ", sourceAndTargetStep1)
+    console.log("allquestion", allQuestionsData)
+    console.log("sourceAndTargetStep1 change :  ", sourceAndTargetStep1)
   }, [sourceAndTargetStep1])
 
   useEffect(() => {
@@ -203,7 +203,7 @@ const QuestionMiddleUpContent = () => {
         setStep(1);
       }
 
-    } else if (currentQuestionId === 28) {
+    } else if (currentQuestionId === 35) {
       setStep(1)
 
     } else {
@@ -212,10 +212,11 @@ const QuestionMiddleUpContent = () => {
       const has10 = allQuestionsData.some(question => question.questionId === 10);
       const has12 = allQuestionsData.some(question => question.questionId === 12);
       const has20 = allQuestionsData.some(question => question.questionId === 20);
+      const has35 = allQuestionsData.some(question => question.questionId === 35);
 
       if (has12) {
         setStep(2);
-      } else if (has10 || has20) {
+      } else if (has10 || has20 || has35) {
         setStep(1);
       } else {
         setStep(0);
@@ -257,13 +258,9 @@ const QuestionMiddleUpContent = () => {
       }
     }
 
-
-
     if (currentQuestionId === 13) {
       setForceUseFunction(true)
     }
-
-
 
     if (currentQuestionId === 20 && allQuestionsData[allQuestionsData.length - 1].questionId != 19) {
       if (!has33) {
@@ -281,7 +278,7 @@ const QuestionMiddleUpContent = () => {
       }
     }
 
-    if (currentQuestionId === 20) {
+    if (currentQuestionId === 20 || currentQuestionId === 28) {
       setCalculRealTimeStreaming((prev) => !prev)
     }
 
@@ -298,41 +295,118 @@ const QuestionMiddleUpContent = () => {
     console.log("changing targetList", targetList)
   }, [targetList])
 
-
+  // Combine the same target to one line data
   const processQuestion19 = (currentQuestionId, userSelections, sourceAndTargetStep1, setSourceAndTargetStep1) => {
     // Check if the last question has questionId = 19
     if (currentQuestionId === 19) {
+      if (allQuestionsData.some(q => q.questionId === 16)) {
+        const answer16 = Object.values(allQuestionsData.find(q => q.questionId === 16)?.userSelections[0])[0]
 
-      const answer16 = Object.values(allQuestionsData.find(q => q.questionId === 16)?.userSelections[0])[0]
+        // Find the index of the question with questionId = 19
+        const questionIndex = allQuestionsData.length;
 
-      // Find the index of the question with questionId = 19
-      const questionIndex = allQuestionsData.length;
+        const answer19 = userSelections;
 
-      const answer19 = userSelections;
+        let matchedPairs = [];
 
-      let matchedPairs = [];
+        answer19.forEach(answer => {
+          Object.keys(answer).forEach(targetKey => {
+            const values = answer[targetKey];  // Get the array of values, like ["Logs", "Http API"]
 
-      answer19.forEach(answer => {
-        Object.keys(answer).forEach(targetKey => {
-          const values = answer[targetKey];  // Get the array of values, like ["Logs", "Http API"]
+            // Map each value to the desired object structure
+            const sourceAndTargetPairs = values.map(value => ({ [targetKey]: value }));
 
-          // Map each value to the desired object structure
-          const sourceAndTargetPairs = values.map(value => ({ [targetKey]: value }));
+            sourceAndTargetStep1.forEach(record => {
+              sourceAndTargetPairs.forEach(pair => {
+                const targetMatched = record.target === Object.keys(pair)[0];
+                const sourceMatched = record.source === Object.values(pair)[0];
 
-          sourceAndTargetStep1.forEach(record => {
-            sourceAndTargetPairs.forEach(pair => {
-              const targetMatched = record.target === Object.keys(pair)[0];
-              const sourceMatched = record.source === Object.values(pair)[0];
-
-              if (targetMatched && sourceMatched) {
-                matchedPairs.push(record);
-              }
+                if (targetMatched && sourceMatched) {
+                  matchedPairs.push(record);
+                }
+              });
             });
           });
         });
-      });
 
-      if (answer16 === "Offline analysis" || answer16 === "Real-time analysis") {
+        if (answer16 === "Offline analysis" || answer16 === "Real-time analysis") {
+          setSourceAndTargetStep1(prevState => {
+            // Filter out elements from previous state that are not in matchedPairs
+            const unmatchedPairs = prevState.filter(record =>
+              !matchedPairs.some(matched =>
+                matched.target === record.target && matched.source === record.source
+              )
+            );
+
+            // Create new elements from answer19
+            const newElements = answer19.map(answer => {
+              const newTarget = Object.keys(answer)[0];
+              const newSource = Object.values(answer);
+              return { step: 1, source: newSource, sourceIndex: questionIndex, target: newTarget, targetIndex: questionIndex };
+            });
+
+            // Return the final state update: updated existing state + new elements
+            return [...unmatchedPairs, ...newElements];
+          });
+
+        } else {
+          setSourceAndTargetStep1(prevState => {
+            // Filter out elements from previous state that are not in matchedPairs
+            const unmatchedPairs = prevState.filter(record =>
+              !matchedPairs.some(matched =>
+                matched.target === record.target && matched.source === record.source
+              )
+            );
+
+            // Update all step = 1 elements to step = 2
+            const updatedState = unmatchedPairs.map(item => {
+              if (item.step === 1) {
+                return { ...item, step: 2 };
+              }
+              return item;
+            });
+
+            // Create new elements from answer19
+            const newElements = answer19.map(answer => {
+              const newTarget = Object.keys(answer)[0];
+              const newSource = Object.values(answer);
+              return { step: 2, source: newSource, sourceIndex: questionIndex, target: newTarget, targetIndex: questionIndex };
+            });
+
+            // Return the final state update: updated existing state + new elements
+            return [...updatedState, ...newElements];
+          });
+        }
+      } else {
+        // Find the index of the question with questionId = 19
+        const questionIndex = allQuestionsData.length;
+
+        const answer19 = userSelections;
+
+        let matchedPairs = [];
+
+        answer19.forEach(answer => {
+          Object.keys(answer).forEach(targetKey => {
+            const values = answer[targetKey];  // Get the array of values, like ["Logs", "Http API"]
+
+            // Map each value to the desired object structure
+            const sourceAndTargetPairs = values.map(value => ({ [targetKey]: value }));
+
+            sourceAndTargetStep1.forEach(record => {
+              sourceAndTargetPairs.forEach(pair => {
+                const targetMatched = record.target === Object.keys(pair)[0];
+                const sourceMatched = record.source === Object.values(pair)[0];
+
+                if (targetMatched && sourceMatched) {
+                  matchedPairs.push(record);
+                }
+              });
+            });
+          });
+        });
+
+        console.log("Matchedl", matchedPairs)
+
         setSourceAndTargetStep1(prevState => {
           // Filter out elements from previous state that are not in matchedPairs
           const unmatchedPairs = prevState.filter(record =>
@@ -352,33 +426,6 @@ const QuestionMiddleUpContent = () => {
           return [...unmatchedPairs, ...newElements];
         });
 
-      } else {
-        setSourceAndTargetStep1(prevState => {
-          // Filter out elements from previous state that are not in matchedPairs
-          const unmatchedPairs = prevState.filter(record =>
-            !matchedPairs.some(matched =>
-              matched.target === record.target && matched.source === record.source
-            )
-          );
-
-          // Update all step = 1 elements to step = 2
-          const updatedState = unmatchedPairs.map(item => {
-            if (item.step === 1) {
-              return { ...item, step: 2 };
-            }
-            return item;
-          });
-
-          // Create new elements from answer19
-          const newElements = answer19.map(answer => {
-            const newTarget = Object.keys(answer)[0];
-            const newSource = Object.values(answer);
-            return { step: 2, source: newSource, sourceIndex: questionIndex, target: newTarget, targetIndex: questionIndex };
-          });
-
-          // Return the final state update: updated existing state + new elements
-          return [...updatedState, ...newElements];
-        });
       }
     }
   };
@@ -640,26 +687,33 @@ const QuestionMiddleUpContent = () => {
 
   const { currentUser } = useContext(AuthContext);
 
-  const [alertLogin, setAlertLogin] = useState(false)
+  const [alert, setAlert] = useState(false)
+
+  const [errSave, SetErrSave] = useState(null)
 
   const handleSave = async () => {
 
-    console.log(alertLogin)
+    console.log(alert)
     // Check if Login
     if (!currentUser) {
-      setAlertLogin(true);
+      setAlert(true);
+      SetErrSave("You need to Login to use Save function !")
     } else {
 
-      const response = await axios.post(`http://localhost:3000/question/save`,{
-        allQuestionsData,
-        sourceAndTargetStep1,
-        currentQuestionId,
-        resultStore,
-        UserID:currentUser.UserID
-      })
+      try {
+        const response = await axios.post(`http://localhost:3000/question/save`, {
+          allQuestionsData,
+          sourceAndTargetStep1,
+          currentQuestionId,
+          resultStore,
+          UserID: currentUser.UserID
+        })
 
-      console.log("data give back",response.data)
-
+        console.log("data give back", response.data)
+      } catch (err) {
+        SetErrSave(err.response.data)
+        setAlert(true);
+      }
     }
   }
 
@@ -682,289 +736,322 @@ const QuestionMiddleUpContent = () => {
           <div className='flex gap-2 pr-8'>
             <div className="">
               <Button className="bg-blue-gray-200 text-gray-800 h-10 w-10 flex items-center justify-center">
-                <i class="fa-solid fa-arrows-rotate"></i>
+                <i className="fa-solid fa-arrows-rotate"></i>
               </Button>
             </div>
-            <div className="">
+            <div className="relative">
               <Button className="bg-blue-gray-200 text-gray-800 h-10 w-10 flex items-center justify-center" onClick={() => { handleSave() }}>
                 <i className="fa-solid fa-floppy-disk"></i>
               </Button>
-              {alertLogin && (
-                <div className='fixed top-40 right-96 z-50'>
-                  <Alert onClose={() => setAlertLogin(false)} variant='ghost' animate={{
-                    mount: { y: 0 },
-                    unmount: { y: 100 },
-                  }} >
-                    <span>You need to Login first to use Save function !</span>
+              {alert && (
+                <div className='absolute -top-16 -right-10 z-50'>
+                  <Alert onClose={() => setAlert(false)} variant="ghost" className='w-96'
+                    animate={{
+                      mount: { y: 0 },
+                      unmount: { y: 100 },
+                    }} >
+                    <span>{errSave}</span>
                   </Alert>
                 </div>
               )}
+            </div>
           </div>
         </div>
-    </div>
 
-        {/* if question finish -> show other content */ }
-  {
-    questionFinish &&
-    <div className='p-4 ml-4'>
-      <Typography variant='h3' color='blue-gray'>
-        Congratulations! you have completed all the questions and now you can:
-      </Typography>
-      <form className='flex items-center justify-center mt-16'>
-        <Button variant="gradient" value="123" className='text-lg '>Generate Final Report</Button>
-      </form>
-    </div>
-  }
+        {/* if question finish -> show other content */}
+        {
+          questionFinish &&
+          <div className='p-4 ml-4'>
+            <Typography variant='h3' color='blue-gray'>
+              Congratulations! you have completed all the questions and now you can:
+            </Typography>
+            <form className='flex items-center justify-center mt-16'>
+              <Button variant="gradient" value="123" className='text-lg '>Generate Final Report</Button>
+            </form>
+          </div>
+        }
 
-  {/* if still has question */ }
-  {
-    !questionFinish &&
-    <form className='flex flex-col'>
-      <Typography key={questionData.id} variant='h5' className='p-4 ml-4' color='black'>
-        <div>
-          {questionData.id}{". "}{questionData.content}{questionData.is_required ? " *" : ""}
-        </div>
-        <div className='flex flex-col justify-center gap-2 mt-4'>
-          {questionData.id === 7 // special content for the question 7
-            ? (
-              <div className='flex gap-4 p-4'>
-
-                <div className="w-48">
-                  <Select
-                    label="Storage Type"
-                    value={firstSelectValue}
-                    onChange={(val) => handleFirstSelectChange(val)}
-                  >
-                    <Option value="Database">Database</Option>
-                    <Option value="Filesystem">Filesystem</Option>
-                  </Select>
-                </div>
-                {/* level 2 */}
-                {showSecond === "Database" &&
-                  <div className="w-48">
-                    <Select
-                      label="Architecture"
-                      value={secondSelectValue}
-                      onChange={(val) => handleSecondSelectChange(val)}
-                    >
-                      <Option value="Centralized_db">Centralized Database</Option>
-                      <Option value="Distributed_db">Distributed Database</Option>
-                    </Select>
-                  </div>}
-
-                {showSecond === "Filesystem" &&
-                  <div className="w-48">
-                    <Select
-                      label="Architecture"
-                      value={secondSelectValue}
-                      onChange={(val) => handleSecondSelectChange(val)}
-                    >
-                      <Option value="Centralized_fs">Centralized File System</Option>
-                      <Option value="Distributed_fs">Distributed File System</Option>
-                    </Select>
-                  </div>}
-
-                {/* level 3 */}
-                {showThird === "Centralized_db" &&
-                  <div className="w-48">
-                    <Select
-                      label="Database Type"
-                      value={thirdSelectValue}
-                      onChange={(val) => handleThirdSelectChange(val)}
-                    >
-                      <Option value="Relational">Relational</Option>
-                      <Option value="Nosql" disabled={step === 2}>NoSQL</Option>
-                    </Select>
-                  </div>}
-
-                {showThird === "Distributed_db" &&
-                  <div className="w-48">
-                    <Select
-                      label="Database Type"
-                      value={thirdSelectValue}
-                      onChange={(val) => handleThirdSelectChange(val)}
-                    >
-                      <Option value="Dis_Relational">Relational</Option>
-                      <Option value="Dis_Nosql" disabled={step === 2}>NoSQL</Option>
-                    </Select>
-                  </div>}
-
-                {showThird === "Centralized_fs" &&
-                  <div className="w-48">
-                    <Select
-                      label="Centralized File System"
-                      value={thirdSelectValue}
-                      onChange={(val) => handleThirdSelectChange(val)}
-                    >
-                      <Option value="Network Attached Storage(NAS)">NAS</Option>
-                      <Option value="Storage Area Network(SAN)">SAN</Option>
-                      <Option value="New Technology File System(NTFS)">NTFS</Option>
-                      <Option value="Fourth Extended Filesystem(EXT4)">EXT4</Option>
-                    </Select>
-                  </div>}
-
-                {showThird === "Distributed_fs" &&
-                  <div className="w-48">
-                    <Select
-                      label="Distributed File System"
-                      value={thirdSelectValue}
-                      onChange={(val) => handleThirdSelectChange(val)}
-                    >
-                      <Option value="HDFS">HDFS</Option>
-                    </Select>
-                  </div>}
-
-                {/* level 4 */}
-                {showFourth === "Relational" && showThird === "Centralized_db" &&
-                  <div className="w-48">
-                    <Select
-                      label="Relational Database"
-                      value={fourthSelectValue}
-                      onChange={(val) => handleFourthSelectChange(val)}
-                    >
-                      <Option value="MySQL">MySQL</Option>
-                      <Option value="PostgreSQL">PostgreSQL</Option>
-                      <Option value="MariaDB">MariaDB</Option>
-                      <Option value="Oracle Database">Oracle Database</Option>
-                      <Option value="Microsoft SQL Server">Microsoft SQL Server</Option>
-                    </Select>
-                  </div>}
-
-                {showFourth === "Nosql" && showThird === "Centralized_db" && <div className="w-48">
-                  <Select
-                    label="NoSQL Database"
-                    value={fourthSelectValue}
-                    onChange={(val) => handleFourthSelectChange(val)}
-                  >
-                    <Option value="Redis">Redis</Option>
-                    <Option value="MongoDB">MongoDB</Option>
-                    <Option value="InfluxDB">InfluxDB</Option>
-                    <Option value="Neo4j">Neo4j</Option>
-                  </Select>
-                </div>}
-
-                {showFourth === "Dis_Relational" && showThird === "Distributed_db" && <div className="w-48">
-                  <Select
-                    label="Relational Database"
-                    value={fourthSelectValue}
-                    onChange={(val) => handleFourthSelectChange(val)}
-                  >
-                    <Option value="PostgreSQL with Citus">PostgreSQL with Citus</Option>
-                    <Option value="VoltDB">VoltDB</Option>
-                    <Option value="MySQL Cluster (NDB Cluster)">MySQL Cluster (NDB Cluster)</Option>
-                  </Select>
-                </div>}
-
-                {showFourth === "Dis_Nosql" && showThird === "Distributed_db" && <div className="w-48">
-                  <Select
-                    label="NoSQL Database"
-                    value={fourthSelectValue}
-                    onChange={(val) => handleFourthSelectChange(val)}
-                  >
-                    <Option value="Apache HBase">Apache HBase</Option>
-                    <Option value="Cassandra">Cassandra</Option>
-                    <Option value="Dis_MongoDB">MongoDB</Option>
-                    <Option value="Dis_Neo4j">Neo4j</Option>
-                    <Option value="Dis_InfluxDB">InfluxDB</Option>
-                  </Select>
-                </div>}
+        {/* if still has question */}
+        {
+          !questionFinish &&
+          <form className='flex flex-col'>
+            <Typography key={questionData.id} variant='h5' className='p-4 ml-4' color='black'>
+              <div>
+                {questionData.content}{questionData.is_required ? " *" : ""}
               </div>
-            ) : questionData.id === 6 || questionData.id === 26 || questionData.id === 27 || questionData.id === 32 || questionData.id === 33
-              ? (
-                <div className='flex gap-4 p-4'>
-                  <div className="w-48">
-                    <Select
-                      label="Source Type"
-                      value={firstSelectValue}
-                      onChange={(val) => handleFirstSelectChange(val)}
-                    >
-                      <Option value="Http API">Http API</Option>
-                      <Option disabled={disableWhenStreaming} value="Database">Database</Option>
-                      <Option disabled={disableWhenStreaming} value="DataSet(Demi-structured)">DataSet(Demi-structured)</Option>
-                      <Option disabled={disableWhenStreaming} value="Files(Unstructured)">Files(Unstructured)</Option>
-                      <Option value="Logs">Logs</Option>
-                      <Option value="IoT">IoT</Option>
-                    </Select>
-                  </div>
-
-                  {/* level 2 */}
-                  {showSecond === "Database" && <div className="w-48">
-                    <Select
-                      label="Database Type"
-                      value={secondSelectValue}
-                      onChange={(val) => handleSecondSelectChange(val)}
-                    >
-                      <Option value="Relational Database">Relational Database</Option>
-                      <Option value="NoSQL Database">NoSQL Database</Option>
-                    </Select>
-                  </div>}
-                </div>
-              )
-              : questionData.id === 10 || questionData.id === 12 || questionData.id === 19
-                ? (
-                  <Card className="w-full max-w-[50rem] bg-transparent shadow-transparent">
-                    <List className="flex-row justify-between flex-wrap">
-                      {targetList.map((t, index) => (
-                        <ListItem className="p-0 w-full sm:w-1/2 md:w-1/3 lg:w-1/4" key={`target-${index}`}>
-                          <label
-                            htmlFor={`horizontal-list-${index}`}
-                            className="flex w-full cursor-pointer items-center px-3 py-2"
+              <div className='flex flex-col justify-center gap-2 mt-4'>
+                {questionData.id === 7 // special content for the question 7
+                  ? (
+                    <div className='flex gap-4 p-4'>
+                      <div className="w-48">
+                        <Select
+                          label="Storage Type"
+                          value={firstSelectValue}
+                          onChange={(val) => handleFirstSelectChange(val)}
+                        >
+                          <Option value="Database">Database</Option>
+                          <Option value="Filesystem">Filesystem</Option>
+                        </Select>
+                      </div>
+                      {/* level 2 */}
+                      {showSecond === "Database" &&
+                        <div className="w-48">
+                          <Select
+                            label="Architecture"
+                            value={secondSelectValue}
+                            onChange={(val) => handleSecondSelectChange(val)}
                           >
-                            <ListItemPrefix className="mr-3">
-                              <Checkbox
-                                id={`horizontal-list-${index}`}
-                                ripple={false}
-                                className="hover:before:opacity-0"
-                                containerProps={{
-                                  className: "p-0",
-                                }}
-                                onClick={(e) => handleSelectionChange(t, e.target.checked)}
-                              />
-                            </ListItemPrefix>
-                            <Typography color="blue-gray" className="font-medium">
-                              {Object.keys(t)[0]}
-                            </Typography>
-                          </label>
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Card>
-                ) : (
-                  Object.entries(questionData.choices).map(([key, value]) => (
-                    <div key={key}>
-                      {questionData.type === "multiple_choice"
-                        ? (<Checkbox id={`choice-${key}`}
-                          onClick={(e) => handleSelectionChange(key, e.target.checked)}
-                        />)
-                        : (<Radio name={`choice-${questionData.id}`} id={`choice-${key}`}
-                          onClick={(e) => handleSelectionChange(key, value)}
-                        />)
-                      }
-                      <label htmlFor={`choice-${key}`} className='ml-2'>{value}</label>
-                    </div>
-                  ))
-                )
-          }
-        </div>
-      </Typography>
+                            <Option value="Centralized_db">Centralized Database</Option>
+                            <Option value="Distributed_db">Distributed Database</Option>
+                          </Select>
+                        </div>}
 
-      {noSelectAlert && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>You need to choose an option*</span>}
-      {!nextQuestionButtonState && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>Please check your selections*</span>}
-      <div className='flex justify-between mx-8 mb-8 mt-2 gap-8'>
-        <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' disabled={currentQuestionId === 1} onClick={handleLastQuestion}>
-          <img src={leftArrow} width={40} height={40}></img>
-          Last Question
-        </Button>
-        <div className="flex gap-4">
-          <Button variant="text" size='lg' className='bg-gray-300/50' disabled={questionData.is_required} onClick={handleSkipQuestion}>Skip</Button>
-          <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' disabled={!nextQuestionButtonState} onClick={handleNextQuestion}>
-            Next Question
-            <img src={rightArrow} width={40} height={40}></img>
-          </Button>
-        </div>
-      </div>
-    </form>
-  }
+                      {showSecond === "Filesystem" &&
+                        <div className="w-48">
+                          <Select
+                            label="Architecture"
+                            value={secondSelectValue}
+                            onChange={(val) => handleSecondSelectChange(val)}
+                          >
+                            <Option value="Centralized_fs">Centralized File System</Option>
+                            <Option value="Distributed_fs">Distributed File System</Option>
+                          </Select>
+                        </div>}
+
+                      {/* level 3 */}
+                      {showThird === "Centralized_db" &&
+                        <div className="w-48">
+                          <Select
+                            label="Database Type"
+                            value={thirdSelectValue}
+                            onChange={(val) => handleThirdSelectChange(val)}
+                          >
+                            <Option value="Relational">Relational</Option>
+                            <Option value="Nosql" disabled={step === 2}>NoSQL</Option>
+                          </Select>
+                        </div>}
+
+                      {showThird === "Distributed_db" &&
+                        <div className="w-48">
+                          <Select
+                            label="Database Type"
+                            value={thirdSelectValue}
+                            onChange={(val) => handleThirdSelectChange(val)}
+                          >
+                            <Option value="Dis_Relational">Relational</Option>
+                            <Option value="Dis_Nosql" disabled={step === 2}>NoSQL</Option>
+                          </Select>
+                        </div>}
+
+                      {showThird === "Centralized_fs" &&
+                        <div className="w-48">
+                          <Select
+                            label="Centralized File System"
+                            value={thirdSelectValue}
+                            onChange={(val) => handleThirdSelectChange(val)}
+                          >
+                            <Option value="Network Attached Storage(NAS)">NAS</Option>
+                            <Option value="Storage Area Network(SAN)">SAN</Option>
+                            <Option value="New Technology File System(NTFS)">NTFS</Option>
+                            <Option value="Fourth Extended Filesystem(EXT4)">EXT4</Option>
+                          </Select>
+                        </div>}
+
+                      {showThird === "Distributed_fs" &&
+                        <div className="w-48">
+                          <Select
+                            label="Distributed File System"
+                            value={thirdSelectValue}
+                            onChange={(val) => handleThirdSelectChange(val)}
+                          >
+                            <Option value="HDFS">HDFS</Option>
+                          </Select>
+                        </div>}
+
+                      {/* level 4 */}
+                      {showFourth === "Relational" && showThird === "Centralized_db" &&
+                        <div className="w-48">
+                          <Select
+                            label="Relational Database"
+                            value={fourthSelectValue}
+                            onChange={(val) => handleFourthSelectChange(val)}
+                          >
+                            <Option value="MySQL">MySQL</Option>
+                            <Option value="PostgreSQL">PostgreSQL</Option>
+                            <Option value="MariaDB">MariaDB</Option>
+                            <Option value="Oracle Database">Oracle Database</Option>
+                            <Option value="Microsoft SQL Server">Microsoft SQL Server</Option>
+                          </Select>
+                        </div>}
+
+                      {showFourth === "Nosql" && showThird === "Centralized_db" && <div className="w-48">
+                        <Select
+                          label="NoSQL Database"
+                          value={fourthSelectValue}
+                          onChange={(val) => handleFourthSelectChange(val)}
+                        >
+                          <Option value="Redis">Redis</Option>
+                          <Option value="MongoDB">MongoDB</Option>
+                          <Option value="InfluxDB">InfluxDB</Option>
+                          <Option value="Neo4j">Neo4j</Option>
+                        </Select>
+                      </div>}
+
+                      {showFourth === "Dis_Relational" && showThird === "Distributed_db" && <div className="w-48">
+                        <Select
+                          label="Relational Database"
+                          value={fourthSelectValue}
+                          onChange={(val) => handleFourthSelectChange(val)}
+                        >
+                          <Option value="PostgreSQL with Citus">PostgreSQL with Citus</Option>
+                          <Option value="VoltDB">VoltDB</Option>
+                          <Option value="MySQL Cluster (NDB Cluster)">MySQL Cluster (NDB Cluster)</Option>
+                        </Select>
+                      </div>}
+
+                      {showFourth === "Dis_Nosql" && showThird === "Distributed_db" && <div className="w-48">
+                        <Select
+                          label="NoSQL Database"
+                          value={fourthSelectValue}
+                          onChange={(val) => handleFourthSelectChange(val)}
+                        >
+                          <Option value="Apache HBase">Apache HBase</Option>
+                          <Option value="Cassandra">Cassandra</Option>
+                          <Option value="Dis_MongoDB">MongoDB</Option>
+                          <Option value="Dis_Neo4j">Neo4j</Option>
+                          <Option value="Dis_InfluxDB">InfluxDB</Option>
+                        </Select>
+                      </div>}
+                    </div>
+                  ) : questionData.id === 6 || questionData.id === 26 || questionData.id === 27 || questionData.id === 32 || questionData.id === 33
+                    ? (
+                      <div className='flex gap-4 p-4'>
+                        <div className="w-48">
+                          <Select
+                            label="Source Type"
+                            value={firstSelectValue}
+                            onChange={(val) => handleFirstSelectChange(val)}
+                          >
+                            <Option value="Http API">Http API</Option>
+                            <Option disabled={disableWhenStreaming} value="Database">Database</Option>
+                            <Option disabled={disableWhenStreaming} value="DataSet(Demi-structured)">DataSet(Demi-structured)</Option>
+                            <Option disabled={disableWhenStreaming} value="Files(Unstructured)">Files(Unstructured)</Option>
+                            <Option value="Logs">Logs</Option>
+                            <Option value="IoT">IoT</Option>
+                          </Select>
+                        </div>
+
+                        {/* level 2 */}
+                        {showSecond === "Database" && <div className="w-48">
+                          <Select
+                            label="Database Type"
+                            value={secondSelectValue}
+                            onChange={(val) => handleSecondSelectChange(val)}
+                          >
+                            <Option value="Relational Database">Relational Database</Option>
+                            <Option value="NoSQL Database">NoSQL Database</Option>
+                          </Select>
+                        </div>}
+                      </div>
+                    )
+                    : questionData.id === 10 || questionData.id === 12 || questionData.id === 19
+                      ? (
+                        <Card className="w-full max-w-[50rem] bg-transparent shadow-transparent">
+                          <List className="flex-row justify-between flex-wrap">
+                            {targetList.map((t, index) => (
+                              <ListItem className="p-0 w-full sm:w-1/2 md:w-1/3 lg:w-1/4" key={`target-${index}`}>
+                                <label
+                                  htmlFor={`horizontal-list-${index}`}
+                                  className="flex w-full cursor-pointer items-center px-3 py-2"
+                                >
+                                  <ListItemPrefix className="mr-3">
+                                    <Checkbox
+                                      id={`horizontal-list-${index}`}
+                                      ripple={false}
+                                      className="hover:before:opacity-0"
+                                      containerProps={{
+                                        className: "p-0",
+                                      }}
+                                      onClick={(e) => handleSelectionChange(t, e.target.checked)}
+                                    />
+                                  </ListItemPrefix>
+                                  <Typography color="blue-gray" className="font-medium">
+                                    {Object.keys(t)[0]}
+                                  </Typography>
+                                </label>
+                              </ListItem>
+                            ))}
+                          </List>
+                        </Card>
+                      )
+                      : questionData.id === 34
+                        ? (
+                          <div className='flex gap-4 p-4'>
+                            <div className="w-48">
+                              <Select
+                                label="Storage Type"
+                                value={firstSelectValue}
+                                onChange={(val) => handleFirstSelectChange(val)}
+                              >
+                                <Option value="Relational Database">Relational Database</Option>
+                                <Option value="NoSQL Database">NoSQL Database</Option>
+                                <Option value="Document Storage">Document Storage</Option>
+                                <Option value="Object Store">Object Store</Option>
+                              </Select>
+                            </div>
+
+                            {/* level 2 */}
+                            {showSecond === "NoSQL Database" &&
+                              <div className="w-48">
+                                <Select
+                                  label="NoSQL Type"
+                                  value={secondSelectValue}
+                                  onChange={(val) => handleSecondSelectChange(val)}
+                                >
+                                  <Option value="Relational Database">Key-value Database</Option>
+                                  <Option value="Document Store">Document Store</Option>
+                                  <Option value="Column Family Store">Column Family Store</Option>
+                                  <Option value="Graph Store">Graph Store</Option>
+                                </Select>
+                              </div>}
+                          </div>
+                        )
+                        : (
+                          Object.entries(questionData.choices).map(([key, value]) => (
+                            <div key={key}>
+                              {questionData.type === "multiple_choice"
+                                ? (<Checkbox id={`choice-${key}`}
+                                  onClick={(e) => handleSelectionChange(key, e.target.checked)}
+                                />)
+                                : (<Radio name={`choice-${questionData.id}`} id={`choice-${key}`}
+                                  onClick={(e) => handleSelectionChange(key, value)}
+                                />)
+                              }
+                              <label htmlFor={`choice-${key}`} className='ml-2'>{value}</label>
+                            </div>
+                          ))
+                        )
+                }
+              </div>
+            </Typography>
+
+            {noSelectAlert && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>You need to choose an option*</span>}
+            {!nextQuestionButtonState && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>Please check your selections*</span>}
+            <div className='flex justify-between mx-8 mb-8 mt-2 gap-8'>
+              <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' disabled={currentQuestionId === 1} onClick={handleLastQuestion}>
+                <img src={leftArrow} width={40} height={40}></img>
+                Last Question
+              </Button>
+              <div className="flex gap-4">
+                <Button variant="text" size='lg' className='bg-gray-300/50' disabled={questionData.is_required} onClick={handleSkipQuestion}>Skip</Button>
+                <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' disabled={!nextQuestionButtonState} onClick={handleNextQuestion}>
+                  Next Question
+                  <img src={rightArrow} width={40} height={40}></img>
+                </Button>
+              </div>
+            </div>
+          </form>
+        }
       </Card >
     </div >
   )

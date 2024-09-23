@@ -56,7 +56,7 @@ const Register = () => {
 
 
     return (
-        <div className='flex items-center justify-center min-h-screen bg-gray-100'>
+        <div className='flex items-center justify-center min-h-screen bg-gray-100 bg-custom-bg bg-cover'>
             <Card color="white" shadow={true} className="h-auto w-96 my-16">
                 <CardHeader
                     variant="gradient"
@@ -69,13 +69,13 @@ const Register = () => {
                 </CardHeader>
 
                 <div className="flex flex-col items-center justify-center">
-                    <Typography color="gray" className="mt-1 font-normal">
+                    <Typography color="gray" className="mt-1 font-medium text-xl">
                         Nice to meet you! <br></br>
                         Please enter your details to register.
                     </Typography>
 
                     <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-80" method='post' onSubmit={handleSubmit}>
-                        <div className="mb-1 flex flex-col gap-6">
+                        <div className="mb-1 flex flex-col gap-6 w-full">
                             <Typography variant="h6" color="blue-gray" className="-mb-3">
                                 Your Name
                             </Typography>

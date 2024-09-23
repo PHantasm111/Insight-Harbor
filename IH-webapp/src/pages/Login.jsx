@@ -16,9 +16,18 @@ import {
 
 const Login = () => {
 
+  const [visible, setVisible] = useState(false);
+
   // Scroll to top on mount when we come to this page
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    // Set the text to be visible after the component mounts
+    setTimeout(() => {
+      setVisible(true);
+    }, 50); // Optional delay before starting the transition
   }, []);
 
   // Navigate to sign in page
@@ -60,15 +69,18 @@ const Login = () => {
 
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-96">
+    <div className={`flex items-center justify-center min-h-screen bg-gray-100 bg-custom-bg bg-cover ease-in-out ${visible ? 'opacity-100' : 'opacity-0'}`}
+      style={{
+        transitionDuration: '1000ms' // 1 seconds
+      }}
+    >
+      <Card className="w-1/4 bg-white">
         <CardHeader
           variant="gradient"
-          color="gray"
-          className="mb-4 grid h-28 place-items-center"
+          className="mb-4 grid h-28 place-items-center bg-black"
         >
           <Typography variant="h3" color="white">
-            Sign In
+            Welcome aboard !
           </Typography>
         </CardHeader>
         <CardBody className="flex flex-col gap-4">
@@ -87,11 +99,11 @@ const Login = () => {
               {err}
             </Typography>
           }
-          <Button variant="gradient" fullWidth onClick={handleSubmit}>
+          <Button variant="outlined" fullWidth onClick={handleSubmit} className="text-lg hover:bg-light-blue-400 hover:bg-opacity-30 hover:text-blue-800" >
             Sign In
           </Button>
           <Typography variant="small" className="mt-6 flex justify-center">
-            Don&apos;t have an account? <span className='font-bold pl-1 underline'><Link to="/register">Sign up</Link></span>
+            Don&apos;t have an account? <span className='font-bold pl-1 underline text-light-blue-600'><Link to="/register">Sign up</Link></span>
           </Typography>
         </CardFooter>
       </Card>

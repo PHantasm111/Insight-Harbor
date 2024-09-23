@@ -11,7 +11,7 @@ const Questions = () => {
     <QuestionProvider>
       <div className='flex justify-center bg-gray-200 h-screen'>
         <div className='w-full h-full px-8 flex flex-col'>
-          <div className='w-full py-8 px-96 h-1/12'>
+          <div className='w-full pb-8 pt-9 px-96 h-1/12'>
             <QuestionStepper />
           </div>
           <div className="w-full flex justify-center h-5/6">

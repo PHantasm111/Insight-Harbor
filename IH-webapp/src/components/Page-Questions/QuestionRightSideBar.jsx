@@ -43,6 +43,14 @@ const QuestionRightSideBar = () => {
         allQuestionsData.some(question =>
           question.questionId === 33);
 
+      const hasCloudAndHybrid =
+        allQuestionsData.some(question =>
+          question.questionId === 1 && Object.values(question.userSelections[0]).includes("On cloud")) &&
+        allQuestionsData.some(question =>
+          question.questionId === 5 && Object.values(question.userSelections[0]).includes("Hybrid")) &&
+        allQuestionsData.some(question =>
+          question.questionId === 35);
+
       if (response.data) {
         if (hasStreamingAndRealTime) {
           setResultStore((prev) => ({
@@ -70,6 +78,11 @@ const QuestionRightSideBar = () => {
           };
 
           compareAndCombine({ [step]: response.data }, resultStore[step], step);
+
+        } else if (hasCloudAndHybrid) {
+          setResultStore(() => ({
+            [step]: response.data
+          }));
 
         } else {
           setResultStore((prev) => ({

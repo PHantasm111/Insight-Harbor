@@ -35,7 +35,7 @@ export function QuestionTable() {
 
   // Header of the table
   const TABLE_HEAD = ["QId", "Answer"];
-  const TABLE_HEAD1 = ["id", "QId", "Content", "Answer"];
+  const TABLE_HEAD1 = ["Id", "QId", "Question", "Answer"];
 
 
   const handleConfirmDialogOpen = () => {
@@ -104,17 +104,23 @@ export function QuestionTable() {
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
-              {TABLE_HEAD.map((head) => (
-                <th key={head} className="border-b border-gray-300 pb-4 pt-5 px-1">
-                  <Typography
-                    variant="lead"
-                    color="blue-gray"
-                    className="font-bold leading-none"
-                  >
-                    {head}
-                  </Typography>
-                </th>
-              ))}
+              {TABLE_HEAD.map((head, index) => {
+
+                const isFirstCol = index;
+                const classes = isFirstCol === 0 ? "border-b border-gray-300 pb-4 pt-5 px-1 w-1/6" : "border-b border-gray-300 pb-4 pt-5 px-1";
+
+                return (
+                  <th key={head} className={classes}>
+                    <Typography
+                      variant="lead"
+                      color="blue-gray"
+                      className="font-bold leading-none"
+                    >
+                      {head}
+                    </Typography>
+                  </th>
+                )
+              })}
             </tr>
           </thead>
           <tbody>
@@ -177,12 +183,12 @@ export function QuestionTable() {
                   <PopoverHandler>
                     <tr className="hover:bg-gray-50 cursor-pointer">
                       <td className={classes}>
-                        <Typography variant="small" color="blue-gray" className="font-bold">
+                        <Typography variant="small" color="blue-gray-600" className="font-bold">
                           {questionId}
                         </Typography>
                       </td>
                       <td className={classes}>
-                        <Typography variant="small" className="font-normal text-gray-600">
+                        <Typography variant="small" color="blue-gray-600" className="font-normal">
                           {questionAnswer()}
                         </Typography>
                       </td>
@@ -233,102 +239,112 @@ export function QuestionTable() {
                     </tr>
                   </thead>
                   <tbody>
-                    {allQuestionsData.map(({ questionId, questionContent, userSelections }, index) => {
-                      const isLast = index === allQuestionsData.length - 1;
-                      const classes = isLast ? "py-4" : "py-4 border-b border-gray-300";
+                    {allQuestionsData.length > 0
+                      ? (allQuestionsData.map(({ questionId, questionContent, userSelections }, index) => {
+                        const isLast = index === allQuestionsData.length - 1;
+                        const classes = isLast ? "py-4" : "py-4 border-b border-gray-300";
 
-                      const questionObj = userSelections[0];
+                        const questionObj = userSelections[0];
 
-                      const questionAnswer = () => {
-                        switch (questionId) {
-                          case 6:
-                          case 7:
-                            const { firstSelectValue, secondSelectValue, thirdSelectValue, fourthSelectValue } = questionObj;
+                        const questionAnswer = () => {
+                          switch (questionId) {
+                            case 6:
+                            case 7:
+                              const { firstSelectValue, secondSelectValue, thirdSelectValue, fourthSelectValue } = questionObj;
 
-                            if (fourthSelectValue) {
-                              return fourthSelectValue;
-                            } else if (thirdSelectValue) {
-                              return thirdSelectValue;
-                            } else if (secondSelectValue) {
-                              return secondSelectValue;
-                            } else if (firstSelectValue) {
-                              return firstSelectValue;
-                            } else {
-                              return "No selection found";
-                            }
-                          case 10:
-                          case 12:
-                            // Collect all keys from userSelections
-                            const selectionKeys = userSelections.flatMap(selection => Object.keys(selection));
+                              if (fourthSelectValue) {
+                                return fourthSelectValue;
+                              } else if (thirdSelectValue) {
+                                return thirdSelectValue;
+                              } else if (secondSelectValue) {
+                                return secondSelectValue;
+                              } else if (firstSelectValue) {
+                                return firstSelectValue;
+                              } else {
+                                return "No selection found";
+                              }
+                            case 10:
+                            case 12:
+                              // Collect all keys from userSelections
+                              const selectionKeys = userSelections.flatMap(selection => Object.keys(selection));
 
-                            // Return the keys as a comma-separated string or empty message
-                            return selectionKeys.length > 0 ? selectionKeys.join(', ') : 'No selection found';
+                              // Return the keys as a comma-separated string or empty message
+                              return selectionKeys.length > 0 ? selectionKeys.join(', ') : 'No selection found';
 
-                          case 19:
-                            const formatUserSelections = (userSelections) => {
-                              return userSelections.map((selection) => {
-                                const [key, values] = Object.entries(selection)[0];
+                            case 19:
+                              const formatUserSelections = (userSelections) => {
+                                return userSelections.map((selection) => {
+                                  const [key, values] = Object.entries(selection)[0];
 
-                                return `${values.join(' & ')} => ${key}`;
-                              });
-                            };
+                                  return `${values.join(' & ')} => ${key}`;
+                                });
+                              };
 
-                            const formattedSelections = formatUserSelections(userSelections);
-                            return formattedSelections;
+                              const formattedSelections = formatUserSelections(userSelections);
+                              return formattedSelections;
 
-                          default:
-                            // Check if userSelections exists and has at least one item
-                            if (userSelections && userSelections.length > 0) {
-                              // Use Object.values to get the first value from the first selection object
-                              return Object.values(userSelections[0])[0] || "No selection found";
-                            } else {
-                              return "No selection found"; // Handle the case where userSelections is empty
-                            }
+                            default:
+                              // Check if userSelections exists and has at least one item
+                              if (userSelections && userSelections.length > 0) {
+                                // Use Object.values to get the first value from the first selection object
+                                return Object.values(userSelections[0])[0] || "No selection found";
+                              } else {
+                                return "No selection found"; // Handle the case where userSelections is empty
+                              }
+                          }
                         }
-                      }
-                      //  6.7
-                      // 10.12
-                      // others
 
-
-                      return (
-                        <tr key={index} className="hover:bg-gray-50" onClick={() => handleSelectedQuestion(allQuestionsData[index], index)}>
-                          <td className={classes}>
+                        return (
+                          <tr key={index} className="hover:bg-gray-50" onClick={() => handleSelectedQuestion(allQuestionsData[index], index)}>
+                            <td className={classes}>
+                              <Typography
+                                variant="small"
+                                color="blue-gray"
+                                className="font-bold mr-8"
+                              >
+                                {index + 1}
+                              </Typography>
+                            </td>
+                            <td className={classes}>
+                              <Typography
+                                variant="small"
+                                className="font-normal text-gray-600 mr-4"
+                              >
+                                {questionId}
+                              </Typography>
+                            </td>
+                            <td className={classes}>
+                              <Typography
+                                variant="small"
+                                className="font-normal text-gray-600 break-words w-72 mr-4"
+                              >
+                                {questionContent}
+                              </Typography>
+                            </td>
+                            <td className={classes}>
+                              <Typography
+                                variant="small"
+                                className="font-normal text-gray-600"
+                              >
+                                {questionAnswer()}
+                              </Typography>
+                            </td>
+                          </tr>
+                        );
+                      })
+                      ) : (
+                        <tr>
+                          <td colSpan={4} className="p-4 text-center">
                             <Typography
                               variant="small"
                               color="blue-gray"
-                              className="font-bold mr-8"
+                              className="font-normal"
                             >
-                              {index + 1}
-                            </Typography>
-                          </td>
-                          <td className={classes}>
-                            <Typography
-                              variant="small"
-                              className="font-normal text-gray-600 mr-4"
-                            >
-                              {questionId}
-                            </Typography>
-                          </td>
-                          <td className={classes}>
-                            <Typography
-                              variant="small"
-                              className="font-normal text-gray-600 break-words w-72 mr-4"
-                            >
-                              {questionContent}
-                            </Typography>
-                          </td>
-                          <td className={classes}>
-                            <Typography
-                              variant="small"
-                              className="font-normal text-gray-600"
-                            >
-                              {questionAnswer()}
+                              No available result
                             </Typography>
                           </td>
                         </tr>
-                      );
-                    })}
+                      )}
                   </tbody>
                 </table>
               </Card>

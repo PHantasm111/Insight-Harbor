@@ -46,6 +46,10 @@ export const register = (req, res) => {
 
 export const login = (req, res) => {
 
+    if (!req.body.email || !req.body.password){
+        return res.status(404).json("Please enter your email ou password !")
+    }
+
     // Check user
     const q = "SELECT * FROM users WHERE email_U = ?";
 

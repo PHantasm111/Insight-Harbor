@@ -1,6 +1,6 @@
 import db from "../src/db_connection.js";
 
-function getNextQuestionId(currentQuestionId, selections, currentStep, ingestType, analysisType, deployType, targetListHasValue, hasQ33) {
+function getNextQuestionId(currentQuestionId, selections, currentStep, ingestType, analysisType, deployType, targetListHasValue, hasQ33, hasQ27, hasQ35) {
 
     const questionAnswer = Object.values(selections)[0]
     //console.log(Object.values(lastQuesionAnswer))
@@ -67,7 +67,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         // ID = 7
         if (currentQuestionId === 7 && currentStep === 1 && ingestType === "Batch" && deployType != "On cloud") {
             return 8
-        } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false) {
+        } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false && deployType != "On cloud") {
             return 11
         } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === false && !hasQ33) {
             return 13
@@ -92,25 +92,25 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         }
 
         // ID = 9
-        if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Batch" && deployType != "On cloud") {
+        if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Batch" && deployType === "On-premises") {
             if (questionAnswer === "Yes") {
                 return 6
             } else {
                 return 10
             }
-        } else if (currentQuestionId === 9 && currentStep === 1 && (ingestType === "Streaming" && analysisType === "Offline analysis")) {
+        } else if (currentQuestionId === 9 && currentStep === 1 && (ingestType === "Streaming" && analysisType === "Offline analysis") && deployType === "On-premises") {
             if (questionAnswer === "Yes") {
                 return 6
             } else {
                 return 8
             }
-        } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Streaming" && analysisType === "Real-time analysis") {
+        } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Streaming" && analysisType === "Real-time analysis" && deployType === "On-premises") {
             if (questionAnswer === "Yes") {
                 return 6
             } else {
                 return 19
             }
-        } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Hybrid" && !hasQ33 && deployType != "On cloud") {
+        } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Hybrid" && !hasQ33 && deployType === "On-premises") {
             if (analysisType === "Real-time analysis") {
                 if (questionAnswer === "Yes") {
                     return 32
@@ -125,7 +125,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
                 return 33
             }
 
-        } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Hybrid" && hasQ33 && deployType != "On cloud") {
+        } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Hybrid" && hasQ33 && deployType === "On-premises") {
             if (analysisType === "Real-time analysis") {
                 if (questionAnswer === "Yes") {
                     return 33
@@ -139,7 +139,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             } else {
                 return 19
             }
-        } else if (currentQuestionId === 9 && currentStep === 3 && ingestType === "Hybrid" && hasQ33 && deployType != "On cloud") {
+        } else if (currentQuestionId === 9 && currentStep === 3 && ingestType === "Hybrid" && hasQ33 && deployType === "On-premises") {
             if (analysisType === "Real-time analysis") {
                 if (questionAnswer === "Yes") {
                     return 33
@@ -147,11 +147,23 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
                     return 19
                 }
             }
-        } else if (currentQuestionId === 9 && currentStep === 1 && deployType === "On cloud"){
+        } else if (currentQuestionId === 9 && currentStep === 1 && deployType === "On cloud" && ingestType != "Hybrid") {
             if (questionAnswer === "Yes") {
                 return 6
             } else {
                 return 28
+            }
+        } else if (currentQuestionId === 9 && currentStep === 1 && deployType === "On cloud" && ingestType === "Hybrid" && !hasQ27) {
+            if (questionAnswer === "Yes") {
+                return 26
+            } else {
+                return 27
+            }
+        } else if (currentQuestionId === 9 && currentStep === 1 && deployType === "On cloud" && ingestType === "Hybrid" && hasQ27) {
+            if (questionAnswer === "Yes") {
+                return 27
+            } else {
+                return 19
             }
         }
 
@@ -159,6 +171,8 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
 
         if (currentQuestionId === 10 && (ingestType === "Streaming" && analysisType === "Real-time analysis")) {
             return 20
+        } else if (currentQuestionId === 10 && ingestType === "Hybrid" && deployType === "On cloud") {
+            return 34
         } else if (currentQuestionId === 10) {
             return 7
         }
@@ -224,6 +238,8 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             return 20
         } else if (currentQuestionId === 19 && ingestType === "Streaming" && analysisType === "Offline analysis") {
             return 10
+        } else if (currentQuestionId === 19 && currentStep === 1 && deployType === "On cloud" && ingestType === "Hybrid" && hasQ27) {
+            return 35
         }
 
     } else {
@@ -273,7 +289,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
 
         // ID = 26
         if (currentQuestionId === 26 && currentStep === 1 && deployType === "On cloud") {
-            return 27
+            return 34
         }
 
         // ID = 27
@@ -321,8 +337,19 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         }
 
         // ID = 34
-        if (currentQuestionId === 34) {
+        if (currentQuestionId === 34 && hasQ35) {
+            if (targetListHasValue === false) {
+                return 28
+            } else {
+                return 10
+            }
+        } else if (currentQuestionId === 34 && !hasQ35){
             return 9
+        }
+
+        // ID = 35
+        if (currentQuestionId === 35) {
+            return 10
         }
     }
 }
@@ -409,7 +436,6 @@ const getNextSkipQuestion = (currentQuestionId) => {
 }
 
 
-
 export const getNextQuestion = (req, res) => {
 
     // Get the questionId from URL
@@ -423,6 +449,8 @@ export const getNextQuestion = (req, res) => {
     const userSelections = allQuestionsData[allQuestionsData.length - 1].userSelections;
     const targetListHasValue = allQuestionsData[allQuestionsData.length - 1].targetListHasValue
     const hasQ33 = allQuestionsData.some(q => q.questionId === 33)
+    const hasQ27 = allQuestionsData.some(q => q.questionId === 27)
+    const hasQ35 = allQuestionsData.some(q => q.questionId === 35)
 
     // A flag to show which branch we are
     let deployType;
@@ -449,7 +477,7 @@ export const getNextQuestion = (req, res) => {
     //console.log("boolean get" + req.body.targetListHasValue)
     //console.log(deployType, ingestType, analysisType)
 
-    let nextQuestionId = getNextQuestionId(currentQuestionId, userSelections[0], currentStep, ingestType, analysisType, deployType, targetListHasValue, hasQ33)
+    let nextQuestionId = getNextQuestionId(currentQuestionId, userSelections[0], currentStep, ingestType, analysisType, deployType, targetListHasValue, hasQ33, hasQ27, hasQ35)
     const protentialRank = getProtentialRank(currentQuestionId, userSelections)
 
     if (currentQuestionId === 9 && nextQuestionId === 19) {
@@ -501,17 +529,17 @@ export const getNextQuestion = (req, res) => {
 
         if (!result && ingestType === "Streaming") {
             nextQuestionId = 20
-        } else if (!result && ingestType === "Hybrid" && analysisType === "") {
+        } else if (!result && ingestType === "Hybrid" && analysisType === "" && deployType === "On-premises") {
             nextQuestionId = 16
-        } else if (!result && ingestType === "Hybrid" && analysisType === "Offline analysis") {
+        } else if (!result && ingestType === "Hybrid" && analysisType === "Offline analysis" && deployType === "On-premises") {
             nextQuestionId = 10
-        } else if (!result && ingestType === "Hybrid" && analysisType === "Real-time analysis" && !hasQ33) {
+        } else if (!result && ingestType === "Hybrid" && analysisType === "Real-time analysis" && !hasQ33 && deployType === "On-premises") {
             nextQuestionId = 8
-        } else if (!result && ingestType === "Hybrid" && analysisType === "Real-time analysis" && hasQ33) {
+        } else if (!result && ingestType === "Hybrid" && analysisType === "Real-time analysis" && hasQ33 && deployType === "On-premises") {
             nextQuestionId = 20
+        } else if (!result && ingestType === "Hybrid" && deployType === "On cloud") {
+            nextQuestionId = 35
         }
-
-
     }
 
     const query = `select id, content, type, choices, is_required, help_text
@@ -603,7 +631,7 @@ export const calculResultEachStep = (req, res) => {
 
     // get the current step from the URL
     const currentStep = parseInt(req.params.step, 10)
-    console.log(currentStep)
+    //console.log(currentStep)
 
     const { allQuestionsData, sourceAndTargetStep1 } = req.body;
 
@@ -619,7 +647,6 @@ export const calculResultEachStep = (req, res) => {
     const answer16 = getAnswerById(16); // real-time / offline
 
     const hasQ33 = allQuestionsData.some(q => q.questionId === 33)
-
 
     // Change format for query
     // Deploy mode ?
@@ -663,8 +690,6 @@ export const calculResultEachStep = (req, res) => {
         pre_processed = 1;
     } else if (answersFor8 === "No") {
         pre_processed = 0;
-    } else {
-        console.log("Error answer8")
     }
 
     const sourceTargetPairs =
@@ -675,8 +700,7 @@ export const calculResultEachStep = (req, res) => {
                 target: pair.target
             }));
 
-    console.log("sourceTargetPairs for this step", sourceTargetPairs)
-
+    //console.log("sourceTargetPairs for this step", sourceTargetPairs)
 
     const answer30 = getAnswerById(30);
 
@@ -684,42 +708,82 @@ export const calculResultEachStep = (req, res) => {
     if (currentStep === 1 && deploy_mode === "Cloud") {
 
         if (procs_mode === "B") {
-            // if (answer30 === "Google Cloud Services"){
-            //     `[
-            //         { Id_t: '24', name_t: 'Apache Spark', count: 1 },
-            //         { Id_t: '25', name_t: 'Apache Flink', count: 1 },
-            //     ]`
-            //     res.json([{}])
-            // }
-
             const q = `select Id_t, name_t
                         from tools
                         where category_t like '%Ingestion%'
                         and procs_mode = 'B'
                         and dplymt_mode_t = 'Cloud'
                         order by name_t`
-            
+
             db.query(q, (err, data) => {
                 if (err) return res.status(500).json("query error !")
-                
+
                 console.log(data)
-                res.status(200).json(data)
+                return res.status(200).json(data)
             })
 
         } else if (procs_mode === "S") {
+            const q = `select Id_t, name_t
+                        from tools
+                        where category_t like '%Ingestion%'
+                        and procs_mode = 'S'
+                        and dplymt_mode_t = 'Cloud'
+                        order by name_t`
+
+            db.query(q, (err, data) => {
+                if (err) return res.status(500).json("query error !")
+
+                console.log(data)
+                return res.status(200).json(data)
+            })
+
 
         } else if (procs_mode === "B/S") {
 
+            const toolList = [
+                { Id_t: '16 + 21', name_t: 'AWS Glue + Amazon Kinesis' },
+                { Id_t: '18 + 22', name_t: 'Microsoft Azure Data Factory + Microsoft Azure Event Hubs' },
+                { Id_t: '23', name_t: 'Google Cloud Dataflow' },
+            ]
+
+            return res.status(200).json(toolList)
         }
     } else if (currentStep === 2 && deploy_mode === "Cloud") {
+        if (allQuestionsData[allQuestionsData.length - 1].questionId === 35) {
+            const q = `select Id_t, name_t
+                        from tools
+                        where category_t like '%Preparation%'
+                        and dplymt_mode_t = 'Cloud'
+                        order by name_t`
 
+            db.query(q, (err, data) => {
+                if (err) return res.status(500).json("query error !")
+
+                return res.status(200).json(data)
+            })
+        } else if (allQuestionsData[allQuestionsData.length - 1].questionId === 28) {
+            const q = `select Id_t, name_t
+                        from tools
+                        where category_t like '%Preparation%'
+                        and dplymt_mode_t = 'Cloud'
+                        and complex_data_processing = 1
+                        order by name_t`
+
+            db.query(q, (err, data) => {
+                if (err) return res.status(500).json("query error !")
+
+                console.log(data)
+                return res.status(200).json(data)
+            })
+
+        }
     } else if (currentStep === 3 && deploy_mode === "Cloud") {
 
     }
 
 
     // On-p Zone
-    if (currentStep === 1 && deploy_mode != "Cloud") {
+    if (currentStep === 1 && deploy_mode === "On-p") {
         if (answer5 === "Batch") {
             // a Object to store the rank of tools
             let toolScores = {};
@@ -905,14 +969,14 @@ export const calculResultEachStep = (req, res) => {
 
                         if (filteredTools.length > 0) {
                             console.log(filteredTools);
-                            res.json(filteredTools);
+                            return res.json(filteredTools);
                         } else {
-                            res.status(404).json({ message: 'No tools found that meet all criteria.' });
+                            return res.status(404).json({ message: 'No tools found that meet all criteria.' });
                         }
                     })
                     .catch(error => {
                         console.error('Error executing queries:', error);
-                        res.status(500).json({ message: 'Database query failed' });
+                        return res.status(500).json({ message: 'Database query failed' });
                     });
 
             } else if (answer16 === "Offline analysis") {
@@ -1014,14 +1078,14 @@ export const calculResultEachStep = (req, res) => {
 
                         if (rankedTools.length > 0) {
                             console.log(rankedTools);
-                            res.json(rankedTools);
+                            return res.json(rankedTools);
                         } else {
-                            res.status(404).json({ message: 'No results found for any pair' });
+                            return res.status(404).json({ message: 'No results found for any pair' });
                         }
                     })
                     .catch(error => {
                         console.error('Error executing queries:', error);
-                        res.status(500).json({ message: 'Database query failed' });
+                        return res.status(500).json({ message: 'Database query failed' });
                     });
 
 
@@ -1126,18 +1190,18 @@ export const calculResultEachStep = (req, res) => {
 
                     if (rankedTools.length > 0) {
                         console.log(rankedTools);
-                        res.json(rankedTools);
+                        return res.json(rankedTools);
                     } else {
-                        res.status(404).json({ message: 'No results found for any pair' });
+                        return res.status(404).json({ message: 'No results found for any pair' });
                     }
                 })
                 .catch(error => {
                     console.error('Error executing queries:', error);
-                    res.status(500).json({ message: 'Database query failed' });
+                    return res.status(500).json({ message: 'Database query failed' });
                 });
         }
 
-    } else if (currentStep === 2) {
+    } else if (currentStep === 2 && deploy_mode === "On-p") {
 
         if (answer5 === "Hybrid" && answer16 === "Real-time analysis" && hasQ33) {
 
@@ -1246,14 +1310,14 @@ export const calculResultEachStep = (req, res) => {
 
                     if (filteredTools.length > 0) {
                         console.log(filteredTools);
-                        res.json(filteredTools);
+                        return res.json(filteredTools);
                     } else {
-                        res.status(404).json({ message: 'No tools found that meet all criteria.' });
+                        return res.status(404).json({ message: 'No tools found that meet all criteria.' });
                     }
                 })
                 .catch(error => {
                     console.error('Error executing queries:', error);
-                    res.status(500).json({ message: 'Database query failed' });
+                    return res.status(500).json({ message: 'Database query failed' });
                 });
 
 
@@ -1380,20 +1444,20 @@ export const calculResultEachStep = (req, res) => {
 
                     if (filteredTools.length > 0) {
                         console.log(filteredTools);
-                        res.json(filteredTools);
+                        return res.json(filteredTools);
                     } else {
-                        res.status(404).json({ message: 'No tools found that meet all criteria.' });
+                        return res.status(404).json({ message: 'No tools found that meet all criteria.' });
                     }
                 })
                 .catch(error => {
                     console.error('Error executing queries:', error);
-                    res.status(500).json({ message: 'Database query failed' });
+                    return res.status(500).json({ message: 'Database query failed' });
                 });
         }
 
 
 
-    } else if (currentStep === 3) {
+    } else if (currentStep === 3 && deploy_mode === "On-p") {
         const queries = sourceTargetPairs.map(pair => {
 
             const sourceConditions = Array.isArray(pair.source)
@@ -1492,14 +1556,14 @@ export const calculResultEachStep = (req, res) => {
 
                 if (filteredTools.length > 0) {
                     console.log(filteredTools);
-                    res.json(filteredTools);
+                    return res.json(filteredTools);
                 } else {
-                    res.status(404).json({ message: 'No tools found that meet all criteria.' });
+                    return res.status(404).json({ message: 'No tools found that meet all criteria.' });
                 }
             })
             .catch(error => {
                 console.error('Error executing queries:', error);
-                res.status(500).json({ message: 'Database query failed' });
+                return res.status(500).json({ message: 'Database query failed' });
             });
 
     }
@@ -1520,6 +1584,31 @@ export const saveQuestionData = (req, res) => {
     console.log(req.body.sourceAndTargetStep1)
     console.log("--------------------------------------")
     console.log(req.body.UserID)
+
+    // IF req is null, return err
+    if (req.body.allQuestionsData.length === 0) {
+        return res.status(500).json("You need to answer at least 1 question !")
+    }
+
+    // Check User
+    const q_checkUser = "SELECT * FROM users WHERE UserID = ?"
+
+    db.query(q_checkUser, [req.body.UserID], (err, data) => {
+        if (err) return res.status(500).json("There are some problem, Please try later !")
+
+        if (data.length === 0) {
+            return res.status(404).json("User not found !")
+        }
+    })
+
+    // Insert data
+    const q_InsertDatalake = "INSERT INTO datalake VALUES ('DATA LAKE')"
+
+    db.query(q_InsertDatalake, (err, data) => {
+        if (err) return res.status(500).json("Create datalake failed, please try again !")
+
+    })
+
 
 
 

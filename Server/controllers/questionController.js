@@ -343,7 +343,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             } else {
                 return 10
             }
-        } else if (currentQuestionId === 34 && !hasQ35){
+        } else if (currentQuestionId === 34 && !hasQ35) {
             return 9
         }
 
@@ -1571,45 +1571,92 @@ export const calculResultEachStep = (req, res) => {
 }
 
 
-export const saveQuestionData = (req, res) => {
+export const saveQuestionData = async (req, res) => {
+    try {
+        const { allQuestionsData, currentQuestionId, sourceAndTargetStep1, resultStore, UserID } = req.body;
 
-    console.log("in function")
-    // // Get the data from request body
-    console.log(req.body.allQuestionsData)
-    console.log("--------------------------------------")
-    console.log(req.body.currentQuestionId)
-    console.log("--------------------------------------")
-    console.log(req.body.resultStore)
-    console.log("--------------------------------------")
-    console.log(req.body.sourceAndTargetStep1)
-    console.log("--------------------------------------")
-    console.log(req.body.UserID)
+        if (allQuestionsData.length === 0) {
+            return res.status(500).json("You need to answer at least 1 question !");
+        }
 
-    // IF req is null, return err
-    if (req.body.allQuestionsData.length === 0) {
-        return res.status(500).json("You need to answer at least 1 question !")
+        // Step 1: Check if user exists
+        const userCheckQuery = "SELECT * FROM users WHERE UserID = ?";
+        const [userData] = await db.promise().query(userCheckQuery, [UserID]);
+
+        if (userData.length === 0) {
+            return res.status(404).json("User not found !");
+        }
+
+        // Step 2: Check if there's already a saved build for this user
+        const buildCheckQuery = "SELECT * FROM build WHERE UserID = ? AND Status = 'saved'";
+        const [buildData] = await db.promise().query(buildCheckQuery, [UserID]);
+
+        // Ensure calendar entry exists
+        const insertCalendarQuery = `INSERT IGNORE INTO calendar (Date_created) VALUES (CURRENT_TIMESTAMP())`;
+        await db.promise().query(insertCalendarQuery);
+
+        const buildUpdateData = [
+            allQuestionsData && allQuestionsData.length > 0 ? JSON.stringify(allQuestionsData) : JSON.stringify([]),
+            currentQuestionId,
+            resultStore && Object.keys(resultStore) > 0 ? JSON.stringify(resultStore) : JSON.stringify([]),
+            sourceAndTargetStep1 && sourceAndTargetStep1.length > 0 ? JSON.stringify(sourceAndTargetStep1) : JSON.stringify([]),
+            UserID
+        ];
+
+        if (buildData.length > 0) {
+            // Step 3: Update existing build
+            const updateBuildQuery = `UPDATE build 
+                                      SET AllQuestionData = ?, CurrentId = ?, ResultStore = ?, SourceAndTargetList = ?, Date_created = CURRENT_TIMESTAMP() 
+                                      WHERE UserID = ? AND Status = 'saved'`;
+            await db.promise().query(updateBuildQuery, buildUpdateData);
+            return res.status(200).json("Build data updated successfully");
+        } else {
+            // Step 4: Insert new data into datalake
+            const datalakeInsertQuery = `INSERT INTO datalake (name_dl, Id_R) VALUES (?, ?)`;
+            const [datalakeResult] = await db.promise().query(datalakeInsertQuery, ['Your Data Lake', null]);
+            const datalakeId = datalakeResult.insertId;
+
+            // Step 5: Insert new build data
+            const insertBuildQuery = `INSERT INTO build (AllQuestionData, CurrentId, ResultStore, SourceAndTargetList, UserID, Id_R, Date_created, Status)
+                                      VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), 'saved')`;
+            buildUpdateData.push(datalakeId);
+            await db.promise().query(insertBuildQuery, buildUpdateData);
+            return res.status(200).json("Build data saved successfully");
+        }
+    } catch (err) {
+        console.error("Error during build process:", err);
+        return res.status(500).json({ message: "Failed to save build data", error: err });
+    }
+};
+
+export const getOverwriteData = async (req, res) => {
+
+    const UserID = req.query.userId;
+
+    // Step 1: Check if user exists
+    const userCheckQuery = "SELECT * FROM users WHERE UserID = ?";
+    const [userData] = await db.promise().query(userCheckQuery, [UserID]);
+
+    if (userData.length === 0) {
+        return res.status(404).json("User not found !");
     }
 
-    // Check User
-    const q_checkUser = "SELECT * FROM users WHERE UserID = ?"
+    // Step 2 : Get the data back to front-end
+    const query = `SELECT AllQuestionData, CurrentId, ResultStore, SourceAndTargetList 
+                 FROM build 
+                 WHERE UserID = ? AND Status = 'saved'`;
 
-    db.query(q_checkUser, [req.body.UserID], (err, data) => {
-        if (err) return res.status(500).json("There are some problem, Please try later !")
-
-        if (data.length === 0) {
-            return res.status(404).json("User not found !")
+    db.query(query, [UserID], (err, results) => {
+        if (err) {
+            console.error("Error fetching data:", err);
+            return res.status(500).json({ message: "Failed to fetch data", error: err });
         }
-    })
 
-    // Insert data
-    const q_InsertDatalake = "INSERT INTO datalake VALUES ('DATA LAKE')"
-
-    db.query(q_InsertDatalake, (err, data) => {
-        if (err) return res.status(500).json("Create datalake failed, please try again !")
-
-    })
-
-
-
+        if (results.length > 0) {
+            return res.status(200).json(results[0]);
+        } else {
+            return res.status(404).json({ message: "No saved data found" });
+        }
+    });
 
 }

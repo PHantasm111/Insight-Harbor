@@ -353,8 +353,8 @@ const QuestionMiddleDownContent = () => {
 
 
   return (
-    <div className='mb-4 h-full'>
-      <Card className='bg-white/50 h-full'>
+    <div className='mb-4 h-full pt-2'>
+      <Card className='bg-white/50 h-full overflow-auto'>
         <Typography variant='h2' className='pt-4 px-4' color='black'>
           Sources & Targets :
         </Typography>

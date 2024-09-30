@@ -69,7 +69,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             return 8
         } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false && deployType != "On cloud") {
             return 11
-        } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === false && !hasQ33) {
+        } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === false ) {
             return 13
         } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === true) {
             return 12
@@ -77,8 +77,6 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             return 9
         } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === true) {
             return 10
-        } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === false && hasQ33) {
-            return 9
         }
 
         // ID = 8
@@ -478,6 +476,12 @@ export const getNextQuestion = (req, res) => {
     //console.log(deployType, ingestType, analysisType)
 
     let nextQuestionId = getNextQuestionId(currentQuestionId, userSelections[0], currentStep, ingestType, analysisType, deployType, targetListHasValue, hasQ33, hasQ27, hasQ35)
+
+    // if the lase question
+    if (nextQuestionId === "BYE"){
+        return res.status(200).json("Finished");
+    }
+
     const protentialRank = getProtentialRank(currentQuestionId, userSelections)
 
     if (currentQuestionId === 9 && nextQuestionId === 19) {
@@ -1598,7 +1602,7 @@ export const saveQuestionData = async (req, res) => {
         const buildUpdateData = [
             allQuestionsData && allQuestionsData.length > 0 ? JSON.stringify(allQuestionsData) : JSON.stringify([]),
             currentQuestionId,
-            resultStore && Object.keys(resultStore) > 0 ? JSON.stringify(resultStore) : JSON.stringify([]),
+            resultStore && Object.keys(resultStore).length > 0 ? JSON.stringify(resultStore) : JSON.stringify([]),
             sourceAndTargetStep1 && sourceAndTargetStep1.length > 0 ? JSON.stringify(sourceAndTargetStep1) : JSON.stringify([]),
             UserID
         ];

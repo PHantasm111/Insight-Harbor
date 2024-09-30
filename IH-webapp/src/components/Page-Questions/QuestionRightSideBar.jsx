@@ -3,9 +3,15 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ResultTempTable } from './ResultTempTable'
 import { QuestionContext } from '../../context/questionContext'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
+import { AuthContext } from '../../context/authContext'
 
 
 const QuestionRightSideBar = () => {
+
+  const { currentUser } = useContext(AuthContext);
+
+  const navigate = useNavigate()
 
   // Use QuestionContext
   const {
@@ -15,7 +21,42 @@ const QuestionRightSideBar = () => {
     forceUseFunction, setForceUseFunction,
     protentialRank,
     calculRealTimeStreaming,
-    resultStore, setResultStore } = useContext(QuestionContext);  // Use useContext to get state and update function
+    resultStore, setResultStore,
+    setIsTimerRunning,
+    timer } = useContext(QuestionContext);  // Use useContext to get state and update function
+
+  useEffect(() => {
+    // When go back to step = 0 actually step1 do not call function
+    if (step != 0) {
+      calculResultEachStep(step);
+    }
+
+    if (forceUseFunction) {
+      calculResultEachStep(3);
+      setForceUseFunction(false)
+    }
+
+    if (calculRealTimeStreaming) {
+      calculResultEachStep(2)
+    }
+  }, [step, forceUseFunction, calculRealTimeStreaming])
+
+  useEffect(() => {
+    console.log("resultstore", resultStore)
+  }, [resultStore])
+
+  useEffect(() => {
+    if (protentialRank.length > 0) {
+      const filteredAndSortedTools = protentialRank
+        .filter(tool => resultStore[step + 1].some(item => item.name_t === tool))
+        .map(tool => resultStore[step + 1].find(item => item.name_t === tool));
+
+      setResultStore(prevStore => ({
+        ...prevStore,
+        [step + 1]: filteredAndSortedTools
+      }))
+    }
+  }, [protentialRank])
 
   // Function to get the result of recommadation
   const calculResultEachStep = async (step) => {
@@ -100,38 +141,31 @@ const QuestionRightSideBar = () => {
     }
   }
 
-  useEffect(() => {
-    // When go back to step = 0 actually step1 do not call function
-    if (step != 0) {
-      calculResultEachStep(step);
+  const handleFinalReport = async () => {
+
+    setIsTimerRunning(false);
+    // Step 1: save the data into db first
+    // if (currentUser) {
+    //   const response = await axios.post(`http://localhost:3000/question/save`, {
+    //     allQuestionsData,
+    //     sourceAndTargetStep1,
+    //     currentQuestionId,
+    //     resultStore,
+    //     UserID: currentUser.UserID
+    //   })
+
+    //   console.log("save from button generate", response.data)
+    // }
+    // Step 2: go to page /finalRes with data
+
+    const dataToPass = {
+      allQuestionsData,
+      sourceAndTargetStep1,
+      resultStore,
+      timer,
     }
-
-    if (forceUseFunction) {
-      calculResultEachStep(3);
-      setForceUseFunction(false)
-    }
-
-    if (calculRealTimeStreaming) {
-      calculResultEachStep(2)
-    }
-  }, [step, forceUseFunction, calculRealTimeStreaming])
-
-  useEffect(() => {
-    console.log("resultstore", resultStore)
-  }, [resultStore])
-
-  useEffect(() => {
-    if (protentialRank.length > 0) {
-      const filteredAndSortedTools = protentialRank
-        .filter(tool => resultStore[step + 1].some(item => item.name_t === tool))
-        .map(tool => resultStore[step + 1].find(item => item.name_t === tool));
-
-      setResultStore(prevStore => ({
-        ...prevStore,
-        [step + 1]: filteredAndSortedTools
-      }))
-    }
-  }, [protentialRank])
+    navigate("/finalres", { state: { dataToPass } })
+  }
 
 
   return (
@@ -169,7 +203,7 @@ const QuestionRightSideBar = () => {
         </div>
 
         <div className='flex items-center justify-center p-4'>
-          <Button variant="gradient" value="123" className='text-lg '>Generate Final Report</Button>
+          <Button variant="gradient" size="lg" className='text-lg w-full' onClick={() => handleFinalReport()}>Generate Final Report</Button>
         </div>
       </Card>
     </div>

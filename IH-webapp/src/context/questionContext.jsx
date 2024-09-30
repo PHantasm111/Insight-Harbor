@@ -44,6 +44,10 @@ export const QuestionProvider = ({ children }) => {
 
     const [reComputeSourceAndTarget, setReComputeSourceAndTarget] = useState(0);
 
+    // Timer state
+    const [timer, setTimer] = useState(0);
+    const [isTimerRunning, setIsTimerRunning] = useState(false);
+
     // Update allQuestionsData
     const addQuestionData = (questionData, selections, targetListHasValue) => {
         setAllQuestionsData(prevData => [
@@ -74,7 +78,9 @@ export const QuestionProvider = ({ children }) => {
             computeSourceAndTarget, setComputeSourceAndTarget,
             reComputeSourceAndTarget, setReComputeSourceAndTarget,
             calculRealTimeStreaming, setCalculRealTimeStreaming,
-            resultStore, setResultStore
+            resultStore, setResultStore,
+            timer, setTimer,
+            isTimerRunning, setIsTimerRunning,
         }}>
             {children}
         </QuestionContext.Provider>

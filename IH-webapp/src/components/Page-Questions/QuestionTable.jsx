@@ -37,11 +37,9 @@ export function QuestionTable() {
   const TABLE_HEAD = ["QId", "Answer"];
   const TABLE_HEAD1 = ["Id", "QId", "Question", "Answer"];
 
-
   const handleConfirmDialogOpen = () => {
     setConfirmDialogOpen(!confirmDialogOpen);
   };
-
 
   const handleSelectedQuestion = (questionElement, index) => {
     // Store selected question
@@ -88,19 +86,16 @@ export function QuestionTable() {
 
   return (
     <section className="w-full h-full">
-      <div className="flex items-center justify-between h-1/6">
+      <div className="flex items-center justify-between">
         <Typography
           variant="h2"
-          color="blue-gray"
+          color="black"
           className="pt-2 pb-4"
         >
           Answer list
         </Typography>
-        <div className="">
-          <Button onClick={handleOpen} size="md" variant="gradient">Modify</Button>
-        </div>
       </div>
-      <Card className="w-full overflow-scroll border border-gray-300 px-4 h-2/3 bg-white/50">
+      <Card className="w-full overflow-scroll border border-gray-300 px-4 h-2/3 bg-white/50 scrollbar-hide">
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
@@ -205,6 +200,9 @@ export function QuestionTable() {
           </tbody>
         </table>
       </Card>
+      <div className="py-4 my-2">
+        <Button onClick={handleOpen} size="lg" variant="gradient" className="text-lg w-full">Modify</Button>
+      </div>
 
       {/* Dialog - Answer List */}
       <>
@@ -386,7 +384,6 @@ export function QuestionTable() {
           </DialogFooter>
         </Dialog>
       </>
-
     </section>
   );
 }

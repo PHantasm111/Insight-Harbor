@@ -135,6 +135,11 @@ const QuestionMiddleUpContent = () => {
             }
           );
 
+          // If no next question(finished)
+          if (response.data === "Finished"){
+            return setQuestionFinish(true)
+          }
+
           // Update content with response
           setQuestionData(response.data);
           setCurrentQuestionId(response.data.id);
@@ -298,7 +303,6 @@ const QuestionMiddleUpContent = () => {
     }
 
   }, [currentQuestionId])
-
 
   useEffect(() => {
     console.log("changing targetList", targetList)
@@ -750,16 +754,10 @@ const QuestionMiddleUpContent = () => {
         const { AllQuestionData, CurrentId, SourceAndTargetList, ResultStore } = response.data;
 
 
-        console.log(AllQuestionData);
-        console.log(CurrentId);
-        console.log(SourceAndTargetList);
-        console.log(ResultStore);
-
-
-        // setAllQuestionsData(data.AllQuestionsData)
-        // setCurrentQuestionId(data.CurrentQuestionId)
-        // setSourceAndTargetStep1(data.SourceAndTargetStep1)
-        // setResultStore(data.ResultStore)
+        // console.log(AllQuestionData);
+        // console.log(CurrentId);
+        // console.log(SourceAndTargetList);
+        // console.log(ResultStore);
 
         overwritePage(AllQuestionData, CurrentId, SourceAndTargetList, ResultStore);
 
@@ -796,6 +794,33 @@ const QuestionMiddleUpContent = () => {
     }
   }
 
+  const handleFinalReport = async () => {
+
+    setIsTimerRunning(false);
+    // Step 1: save the data into db first
+    // if (currentUser) {
+    //   const response = await axios.post(`http://localhost:3000/question/save`, {
+    //     allQuestionsData,
+    //     sourceAndTargetStep1,
+    //     currentQuestionId,
+    //     resultStore,
+    //     UserID: currentUser.UserID
+    //   })
+
+    //   console.log("save from button generate", response.data)
+    // }
+    
+    // Step 2: go to page /finalRes with data
+
+    const dataToPass = {
+      allQuestionsData,
+      sourceAndTargetStep1,
+      resultStore,
+      timer,
+    }
+    navigate("/finalres", { state: { dataToPass } })
+  }
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -812,6 +837,9 @@ const QuestionMiddleUpContent = () => {
           <Typography variant='h2' className='p-4' color='black'>
             Question :
           </Typography>
+          <div className="bg-gray-400/30 rounded-lg p-2">
+            <span className='text-red-400'>message !</span>
+          </div>
           <div className='flex gap-2 pr-8'>
             <div className="">
               <Button className="bg-blue-gray-200 text-gray-800 h-10 w-10 flex items-center justify-center" onClick={() => { handleOverWrite() }}>
@@ -840,12 +868,12 @@ const QuestionMiddleUpContent = () => {
         {/* if question finish -> show other content */}
         {
           questionFinish &&
-          <div className='p-4 ml-4'>
+          <div className='p-4'>
             <Typography variant='h3' color='blue-gray'>
               Congratulations! you have completed all the questions and now you can:
             </Typography>
             <form className='flex items-center justify-center mt-16'>
-              <Button variant="gradient" value="123" className='text-lg '>Generate Final Report</Button>
+              <Button variant="gradient" value="123" className='text-lg' size='lg' onClick={() => handleFinalReport()}>Generate Final Report</Button>
             </form>
           </div>
         }

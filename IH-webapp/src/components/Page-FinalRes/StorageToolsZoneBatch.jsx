@@ -1,48 +1,59 @@
 import { Card, Chip, List, ListItem, ListItemSuffix, Typography } from '@material-tailwind/react'
 import React from 'react'
 
-const StorageToolsZoneBatch = () => {
+const StorageToolsZoneBatch = ({ nameZone, storageZone, rankZone }) => {
   return (
     <div className="w-full h-full p-2">
       <Card className="bg-yellow-50 h-full w-full p-4">
         {/* Functional Zone Header */}
-        <div className="flex justify-center h-auto mb-4">
+        <div className="flex justify-center h-auto mn-4">
           <Typography variant="h5" color="black" className="p-2">
-            Fonctional Zone
+            {nameZone ? nameZone : "Functional zone"}
           </Typography>
         </div>
 
+        {/* Tools Section */}
+        {rankZone &&
+          <>
+            <div className='my-4'>
+              <Typography variant="lead" color="black" className="mb-2">
+                Tools
+              </Typography>
+              <div className="h-40 overflow-auto">
+                <List className="bg-green-50 p-1">
+                  {/* List items for tools */}
+                  {rankZone?.map((toolData, index) => (
+                    <ListItem key={toolData.Id_t} className="py-1 px-2">
+                      {toolData.name_t}
+                      <ListItemSuffix>
+                        <Chip value={index + 1} variant="ghost" size="lg" />
+                      </ListItemSuffix>
+                    </ListItem>
+                  ))}
+                </List>
+              </div>
+            </div>
+
+            <div className='h-10 flex flex-col justify-between items-center gap-1'>
+              <i className="fa-solid fa-sort-down fa-2xl"></i>
+              <i className="fa-solid fa-sort-down fa-2xl"></i>
+              <i className="fa-solid fa-sort-down fa-2xl"></i>
+            </div>
+          </>
+        }
+
+
         {/* Storage Section */}
-        <div className="mb-4">
+        <div className="my-4">
           <Typography variant="lead" color="black" className="mb-2">
             Storage
           </Typography>
           <div className="max-h-40 overflow-auto">
             <List className="bg-green-50 p-1">
               {/* List items for storage */}
-              {Array.from({ length: 10 }).map((_, index) => (
+              {storageZone?.map((storage, index) => (
                 <ListItem key={index} className="py-1 px-2">
-                  Storage Item {index + 1}
-                </ListItem>
-              ))}
-            </List>
-          </div>
-        </div>
-
-        {/* Tools Section */}
-        <div>
-          <Typography variant="lead" color="black" className="mb-2">
-            Tools
-          </Typography>
-          <div className="max-h-40 overflow-auto">
-            <List className="bg-green-50 p-1">
-              {/* List items for tools */}
-              {Array.from({ length: 10 }).map((_, index) => (
-                <ListItem key={index} className="py-1 px-2">
-                  Tool {index + 1}
-                  <ListItemSuffix>
-                    <Chip value={index + 1} variant="ghost" size="md" />
-                  </ListItemSuffix>
+                  {storage}
                 </ListItem>
               ))}
             </List>
@@ -50,8 +61,6 @@ const StorageToolsZoneBatch = () => {
         </div>
       </Card>
     </div>
-
-
   )
 }
 

@@ -5,6 +5,7 @@ import { QuestionContext } from '../../context/questionContext'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../context/authContext'
+import _, { set } from "lodash"
 
 
 const QuestionRightSideBar = () => {
@@ -23,6 +24,7 @@ const QuestionRightSideBar = () => {
     calculRealTimeStreaming,
     resultStore, setResultStore,
     setIsTimerRunning,
+    setGlobalMsg,
     timer } = useContext(QuestionContext);  // Use useContext to get state and update function
 
   useEffect(() => {
@@ -141,7 +143,11 @@ const QuestionRightSideBar = () => {
     }
   }
 
-  const handleFinalReport = async () => {
+  const handleFinalReport = _.throttle(async () => {
+
+    if (Object.keys(resultStore).length === 0){
+      return setGlobalMsg("You need to complete at least the step 1 to generate a report !")
+    }
 
     setIsTimerRunning(false);
     // Step 1: save the data into db first
@@ -165,7 +171,7 @@ const QuestionRightSideBar = () => {
       timer,
     }
     navigate("/finalres", { state: { dataToPass } })
-  }
+  },3000)
 
 
   return (

@@ -38,6 +38,9 @@ export const QuestionProvider = ({ children }) => {
     // Store result of each step
     const [resultStore, setResultStore] = useState([]);
 
+    // Set the message that could show in the middleUpContent
+    const [globalMsg, setGlobalMsg] = useState("");
+
     const [protentialRank, setProtentialRank] = useState([])
 
     const [computeSourceAndTarget, setComputeSourceAndTarget] = useState(0);
@@ -81,6 +84,7 @@ export const QuestionProvider = ({ children }) => {
             resultStore, setResultStore,
             timer, setTimer,
             isTimerRunning, setIsTimerRunning,
+            globalMsg, setGlobalMsg
         }}>
             {children}
         </QuestionContext.Provider>

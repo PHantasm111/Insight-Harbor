@@ -75,7 +75,7 @@ const FinalRes = () => {
       model = 2;
       sourceZoneModel = "Batch and Streaming"
     } else {
-      model = 3;
+      model = 1;
       sourceZoneModel = "Streaming"
     }
   }
@@ -102,7 +102,7 @@ const FinalRes = () => {
             <div className="flex flex-col items-center w-7/12 h-full">
               {/* Streaming Tools */}
               <div className="h-1/4 w-full">
-                <StorageToolsZoneStreaming />
+                <StorageToolsZoneStreaming rankZone={rankZone2}/>
               </div>
 
               {/* Batch Storage Tools */}

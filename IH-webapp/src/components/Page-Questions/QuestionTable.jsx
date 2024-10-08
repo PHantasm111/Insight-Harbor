@@ -42,7 +42,7 @@ export function QuestionTable() {
   };
 
   const handleSelectedQuestion = (questionElement, index) => {
-    // Store selected question
+    // Store selected question (index & question content)
     setSelectedQuestion([
       index,
       questionElement
@@ -66,13 +66,10 @@ export function QuestionTable() {
       setQuestionData(response.data);
       setCurrentQuestionId(response.data.id)
       setUserSelections([]);
+      setReComputeSourceAndTarget((prev) => prev + 1)
     } catch (error) {
       console.error("Error fetching question data:", error);
-    } finally {
-      setReComputeSourceAndTarget((prev) => prev + 1)
-    }
-
-
+    } 
   }
 
   useEffect(() => {
@@ -200,7 +197,7 @@ export function QuestionTable() {
           </tbody>
         </table>
       </Card>
-      <div className="py-4 my-2">
+      <div className="py-4">
         <Button onClick={handleOpen} size="lg" variant="gradient" className="text-lg w-full">Modify</Button>
       </div>
 
@@ -374,7 +371,7 @@ export function QuestionTable() {
               Cancel
             </Button>
             <Button variant="gradient" color="green" onClick={() => {
-              console.log("修改问题: ", selectedQuestion);
+              console.log("change question: ", selectedQuestion);
               handleConfirmDialogOpen();
               setOpen(false);
               handleModifyQuestion();

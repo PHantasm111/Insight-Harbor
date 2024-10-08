@@ -183,6 +183,8 @@ const QuestionMiddleDownContent = () => {
   }
 
   const reComputeAddMatchedPairs = () => {
+
+    console.log("recomputing....")
     const newPairs = [];
 
     for (let i = allQuestionsData.length - 1; i >= 0; i--) {
@@ -324,13 +326,13 @@ const QuestionMiddleDownContent = () => {
         })
       }
 
+      const revNewPairs = newPairs.reverse()
+
       // Update matchedPairs
       setSourceAndTargetStep1(() => [
-        ...newPairs
+        ...revNewPairs
       ]);
     }
-
-
   }
 
 
@@ -347,7 +349,7 @@ const QuestionMiddleDownContent = () => {
 
   useEffect(() => {
     reComputeAddMatchedPairs();
-    computeDeleteMatchedPairs();
+    //computeDeleteMatchedPairs();
   }, [reComputeSourceAndTarget]);
 
 
@@ -408,7 +410,7 @@ const QuestionMiddleDownContent = () => {
                         color="blue-gray"
                         className="font-normal"
                       >
-                        No data available
+                        No available data 
                       </Typography>
                     </td>
                   </tr>

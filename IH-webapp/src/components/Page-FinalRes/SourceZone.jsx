@@ -7,14 +7,14 @@ const SourceZone = ({ sourceBatch, model }) => {
     // List for Batch source
     const renderSourceBatch = () => {
         return sourceBatch.map((ele, index) => (
-            <span key={index}>{ele}</span>
+            <span key={index}>{ele}<br/></span>
         ));
     };
 
 
     return (
         <div className='h-full w-full p-2'>
-            <Card className='h-full w-full bg-red-50'>
+            <Card className='h-full w-full bg-gray-100'>
                 <div className='flex justify-center'>
                     <Typography variant='h5' color='black' className='p-2'>
                         Source
@@ -46,7 +46,7 @@ const SourceZone = ({ sourceBatch, model }) => {
 
                     {model === "Batch" && <Card className='m-2 h-full'>
                         <Typography className='p-2'>
-                            Batch data source
+                            Batch data source <br></br>
                             {renderSourceBatch()}
                         </Typography>
                     </Card>}

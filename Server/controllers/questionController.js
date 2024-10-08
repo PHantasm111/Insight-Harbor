@@ -65,23 +65,21 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         }
 
         // ID = 7
-        if (currentQuestionId === 7 && currentStep === 1 && ingestType === "Batch" && deployType != "On cloud") {
-            return 8
+        if (currentQuestionId === 7 && currentStep === 1 && deployType === "On-premises") {
+            return 9
         } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false && deployType != "On cloud") {
             return 11
-        } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === false ) {
+        } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === false) {
             return 13
         } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === true) {
             return 12
-        } else if (currentQuestionId === 7 && currentStep === 1 && (ingestType === "Streaming" || ingestType === "Hybrid")) {
-            return 9
         } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === true) {
             return 10
         }
 
         // ID = 8
         if (currentQuestionId === 8 && currentStep === 1 && ingestType === "Batch") {
-            return 9
+            return 18
         } else if (currentQuestionId === 8 && currentStep === 1 && ingestType === "Streaming" && analysisType === "Offline analysis") {
             return 18
 
@@ -94,7 +92,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             if (questionAnswer === "Yes") {
                 return 6
             } else {
-                return 10
+                return 8
             }
         } else if (currentQuestionId === 9 && currentStep === 1 && (ingestType === "Streaming" && analysisType === "Offline analysis") && deployType === "On-premises") {
             if (questionAnswer === "Yes") {
@@ -113,14 +111,14 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
                 if (questionAnswer === "Yes") {
                     return 32
                 } else {
-                    return 19
+                    return 18
                 }
-            }
-
-            if (questionAnswer === "Yes") {
-                return 32
-            } else {
-                return 33
+            } else if (analysisType === "Offline analysis"){
+                if (questionAnswer === "Yes") {
+                    return 32
+                } else {
+                    return 33
+                } 
             }
 
         } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Hybrid" && hasQ33 && deployType === "On-premises") {
@@ -128,14 +126,14 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
                 if (questionAnswer === "Yes") {
                     return 33
                 } else {
-                    return 19
+                    return 18
                 }
-            }
-
-            if (questionAnswer === "Yes") {
-                return 33
-            } else {
-                return 19
+            } else if (analysisType === "Offline analysis"){
+                if (questionAnswer === "Yes") {
+                    return 33
+                } else {
+                    return 18
+                } 
             }
         } else if (currentQuestionId === 9 && currentStep === 3 && ingestType === "Hybrid" && hasQ33 && deployType === "On-premises") {
             if (analysisType === "Real-time analysis") {
@@ -223,22 +221,42 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             } else if (questionAnswer === "No") {
                 return 10
             }
+        } else if (currentQuestionId === 18 && currentStep === 1 && ingestType === "Batch" && deployType === "On-premises") {
+            if (questionAnswer === "Yes") {
+                return 19
+            } else if (questionAnswer === "No") {
+                return 10
+            }
+        } else if (currentQuestionId === 18 && currentStep === 1 && ingestType === "Streaming" && analysisType === "Real-time analysis" && deployType === "On-premises") {
+            if (questionAnswer === "Yes") {
+                return 19
+            } else if (questionAnswer === "No") {
+                return 20
+            }
+        } else if (currentQuestionId === 18 && currentStep === 1 && ingestType === "Hybrid" && analysisType === "Offline analysis" && deployType === "On-premises") {
+            if (questionAnswer === "Yes") {
+                return 19
+            } else if (questionAnswer === "No") {
+                return 10
+            }
         }
 
         // ID = 19
-        if (currentQuestionId === 19 && ingestType === "Streaming" && analysisType === "Real-time analysis") {
+        if (currentQuestionId === 19 && ingestType === "Batch") {
+            return 10
+        } else if (currentQuestionId === 19 && ingestType === "Streaming" && analysisType === "Real-time analysis") {
             return 20
+        } else if (currentQuestionId === 19 && ingestType === "Streaming" && analysisType === "Offline analysis") {
+            return 10
         } else if (currentQuestionId === 19 && ingestType === "Hybrid" && analysisType === "Offline analysis") {
             return 10
         } else if (currentQuestionId === 19 && ingestType === "Hybrid" && analysisType === "Real-time analysis") {
             return 8
         } else if (currentQuestionId === 19 && ingestType === "Hybrid" && analysisType === "Real-time analysis") {
             return 20
-        } else if (currentQuestionId === 19 && ingestType === "Streaming" && analysisType === "Offline analysis") {
-            return 10
         } else if (currentQuestionId === 19 && currentStep === 1 && deployType === "On cloud" && ingestType === "Hybrid" && hasQ27) {
             return 35
-        }
+        } 
 
     } else {
         // ID = 20
@@ -433,24 +451,96 @@ const getNextSkipQuestion = (currentQuestionId) => {
     }
 }
 
+// Function that verify if the target it can be integrated
+const handleIntegrateTarget = (nextQuestionId, sourceAndTargetStep1, deployType, ingestType, analysisType, hasQ33) => {
+    let obj;
+
+    // IF deployType === "On-premises" && ingestType === "Hybrid" && analysisType === "Real-time analysis" && hasQ33
+    // This situation, we need to choose another way to calculate -> we calculate just streaming source
+    if (deployType === "On-premises" && ingestType === "Hybrid" && analysisType === "Real-time analysis" && hasQ33) {
+        obj = sourceAndTargetStep1.reduce((acc, curr) => {
+
+            // current object
+            const { source, target, ingestType } = curr;
+
+            if (ingestType === "Streaming") {
+
+                if (!acc[target]) {
+                    acc[target] = new Set();
+                }
+
+                if (Array.isArray(source)) {
+                    source.forEach(src => acc[target].add(src));
+                } else {
+                    acc[target].add(source);
+                }
+            }
+
+            return acc;
+        }, {})
+    } else {
+        obj = sourceAndTargetStep1.reduce((acc, curr) => {
+            // current attributes of this object
+            const { source, target } = curr;
+
+            // put the target into a accumlate set (if there not have then create one)
+            if (!acc[target]) {
+                acc[target] = new Set();
+            }
+
+            // if source is a array then forEach put into acc
+            if (Array.isArray(source)) {
+                source.forEach(src => acc[target].add(src));
+            } else {
+                acc[target].add(source);
+            }
+            return acc;
+        }, {})
+    }
+
+    // if this array have a key that it has a value which set size > 1, means this two can be integrated
+    const haveTargetCanBeIntegrated = Object.keys(obj).some(t => obj[t].size > 1);
+
+    // We consider the situation that there is no target can be integrated
+    if (!haveTargetCanBeIntegrated) {
+        if (deployType === "On-premises" && ingestType === "Batch") {
+            return 10
+        } else if (deployType === "On-premises" && ingestType === "Streaming" && analysisType === "Offline analysis") {
+            return 10
+        } else if (deployType === "On-premises" && ingestType === "Streaming" && analysisType === "Real-time analysis") {
+            return 20
+        } else if (deployType === "On-premises" && ingestType === "Hybrid" && analysisType === "Offline analysis") {
+            return 10
+        } else if (deployType === "On-premises" && ingestType === "Hybrid" && analysisType === "Real-time analysis" && !hasQ33) {
+            return 10
+        } else if (deployType === "On-premises" && ingestType === "Hybrid" && analysisType === "Real-time analysis" && hasQ33) {
+            return 20
+        }
+    } else {
+        return nextQuestionId
+    }
+}
 
 export const getNextQuestion = (req, res) => {
 
     // Get the questionId from URL
-    //console.log(req.body)
-
     const currentQuestionId = parseInt(req.params.id, 10) // Decimal numbers
     //console.log("currentQuestionId : " + currentQuestionId)
 
+    // Get the data from req.body
     const currentStep = req.body.step + 1;
     const allQuestionsData = req.body.allQuestionsData;
+    const sourceAndTargetStep1 = req.body.sourceAndTargetStep1;
+
+    // Calculate the data that we need
     const userSelections = allQuestionsData[allQuestionsData.length - 1].userSelections;
     const targetListHasValue = allQuestionsData[allQuestionsData.length - 1].targetListHasValue
+
     const hasQ33 = allQuestionsData.some(q => q.questionId === 33)
     const hasQ27 = allQuestionsData.some(q => q.questionId === 27)
     const hasQ35 = allQuestionsData.some(q => q.questionId === 35)
 
-    // A flag to show which branch we are
+    // A flag to show which branch are we
     let deployType;
     let ingestType;
     let analysisType = "";
@@ -471,81 +561,88 @@ export const getNextQuestion = (req, res) => {
         }
     })
 
-
     //console.log("boolean get" + req.body.targetListHasValue)
     //console.log(deployType, ingestType, analysisType)
 
     let nextQuestionId = getNextQuestionId(currentQuestionId, userSelections[0], currentStep, ingestType, analysisType, deployType, targetListHasValue, hasQ33, hasQ27, hasQ35)
 
-    // if the lase question
-    if (nextQuestionId === "BYE"){
+    // if the last question, return
+    if (nextQuestionId === "BYE") {
         return res.status(200).json("Finished");
     }
 
-    const protentialRank = getProtentialRank(currentQuestionId, userSelections)
-
-    if (currentQuestionId === 9 && nextQuestionId === 19) {
-
-        let obj;
-
-        if (hasQ33 && ingestType === "Hybrid" && analysisType === "Real-time analysis") {
-            obj = req.body.sourceAndTargetStep1.reduce((acc, curr) => {
-
-                // current object
-                const { source, target, ingestType } = curr;
-
-                if (ingestType === "Streaming") {
-
-                    if (!acc[target]) {
-                        acc[target] = new Set();
-                    }
-
-                    if (Array.isArray(source)) {
-                        source.forEach(src => acc[target].add(src));
-                    } else {
-                        acc[target].add(source);
-                    }
-                }
-
-                return acc;
-            }, {})
-
-        } else {
-            obj = req.body.sourceAndTargetStep1.reduce((acc, curr) => {
-                // current object
-                const { source, target } = curr;
-
-                if (!acc[target]) {
-                    acc[target] = new Set();
-                }
-
-                if (Array.isArray(source)) {
-                    source.forEach(src => acc[target].add(src));
-                } else {
-                    acc[target].add(source);
-                }
-                return acc;
-            }, {})
-
-        }
-
-        const result = Object.keys(obj).some(t => obj[t].size > 1);
-
-        if (!result && ingestType === "Streaming") {
-            nextQuestionId = 20
-        } else if (!result && ingestType === "Hybrid" && analysisType === "" && deployType === "On-premises") {
-            nextQuestionId = 16
-        } else if (!result && ingestType === "Hybrid" && analysisType === "Offline analysis" && deployType === "On-premises") {
-            nextQuestionId = 10
-        } else if (!result && ingestType === "Hybrid" && analysisType === "Real-time analysis" && !hasQ33 && deployType === "On-premises") {
-            nextQuestionId = 8
-        } else if (!result && ingestType === "Hybrid" && analysisType === "Real-time analysis" && hasQ33 && deployType === "On-premises") {
-            nextQuestionId = 20
-        } else if (!result && ingestType === "Hybrid" && deployType === "On cloud") {
-            nextQuestionId = 35
-        }
+    // Before Q18 : Needed to make sure that it have the target which can be integrated, if not => pass Q18 & Q19
+    if (nextQuestionId === 18) {
+        // Verify if the target can be integrated
+        nextQuestionId = handleIntegrateTarget(nextQuestionId, sourceAndTargetStep1, deployType, ingestType, analysisType, hasQ33)
     }
 
+    // if (currentQuestionId === 9 && nextQuestionId === 19) {
+
+    //     let obj;
+
+    //     if (hasQ33 && ingestType === "Hybrid" && analysisType === "Real-time analysis") {
+    //         obj = req.body.sourceAndTargetStep1.reduce((acc, curr) => {
+
+    //             // current object
+    //             const { source, target, ingestType } = curr;
+
+    //             if (ingestType === "Streaming") {
+
+    //                 if (!acc[target]) {
+    //                     acc[target] = new Set();
+    //                 }
+
+    //                 if (Array.isArray(source)) {
+    //                     source.forEach(src => acc[target].add(src));
+    //                 } else {
+    //                     acc[target].add(source);
+    //                 }
+    //             }
+
+    //             return acc;
+    //         }, {})
+
+    //     } else {
+    //         obj = req.body.sourceAndTargetStep1.reduce((acc, curr) => {
+    //             // current object
+    //             const { source, target } = curr;
+
+    //             if (!acc[target]) {
+    //                 acc[target] = new Set();
+    //             }
+
+    //             if (Array.isArray(source)) {
+    //                 source.forEach(src => acc[target].add(src));
+    //             } else {
+    //                 acc[target].add(source);
+    //             }
+    //             return acc;
+    //         }, {})
+
+    //     }
+
+    //     const result = Object.keys(obj).some(t => obj[t].size > 1);
+
+    //     if (!result && ingestType === "Streaming") {
+    //         nextQuestionId = 20
+    //     } else if (!result && ingestType === "Hybrid" && analysisType === "" && deployType === "On-premises") {
+    //         nextQuestionId = 16
+    //     } else if (!result && ingestType === "Hybrid" && analysisType === "Offline analysis" && deployType === "On-premises") {
+    //         nextQuestionId = 10
+    //     } else if (!result && ingestType === "Hybrid" && analysisType === "Real-time analysis" && !hasQ33 && deployType === "On-premises") {
+    //         nextQuestionId = 8
+    //     } else if (!result && ingestType === "Hybrid" && analysisType === "Real-time analysis" && hasQ33 && deployType === "On-premises") {
+    //         nextQuestionId = 20
+    //     } else if (!result && ingestType === "Hybrid" && deployType === "On cloud") {
+    //         nextQuestionId = 35
+    //     }
+    // }
+
+    // Function that calculate the protetial rank
+    const protentialRank = getProtentialRank(currentQuestionId, userSelections)
+
+    // Query next question data from db
     const query = `select id, content, type, choices, is_required, help_text
                    from questions_table
                    where id = ?`
@@ -1458,9 +1555,6 @@ export const calculResultEachStep = (req, res) => {
                     return res.status(500).json({ message: 'Database query failed' });
                 });
         }
-
-
-
     } else if (currentStep === 3 && deploy_mode === "On-p") {
         const queries = sourceTargetPairs.map(pair => {
 

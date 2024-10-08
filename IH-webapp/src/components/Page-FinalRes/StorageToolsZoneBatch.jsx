@@ -2,9 +2,13 @@ import { Card, Chip, List, ListItem, ListItemSuffix, Typography } from '@materia
 import React from 'react'
 
 const StorageToolsZoneBatch = ({ nameZone, storageZone, rankZone }) => {
+
+  // IF there is no data, hide this component
+  const showContent = storageZone && rankZone
+  
   return (
     <div className="w-full h-full p-2">
-      <Card className="bg-yellow-50 h-full w-full p-4">
+      {showContent && <Card className="bg-yellow-50 h-full w-full p-4">
         {/* Functional Zone Header */}
         <div className="flex justify-center h-auto mn-4">
           <Typography variant="h5" color="black" className="p-2">
@@ -13,33 +17,33 @@ const StorageToolsZoneBatch = ({ nameZone, storageZone, rankZone }) => {
         </div>
 
         {/* Tools Section */}
-        {rankZone &&
-          <>
-            <div className='my-4'>
-              <Typography variant="lead" color="black" className="mb-2">
-                Tools
-              </Typography>
-              <div className="h-40 overflow-auto">
-                <List className="bg-green-50 p-1">
-                  {/* List items for tools */}
-                  {rankZone?.map((toolData, index) => (
-                    <ListItem key={toolData.Id_t} className="py-1 px-2">
-                      {toolData.name_t}
-                      <ListItemSuffix>
-                        <Chip value={index + 1} variant="ghost" size="lg" />
-                      </ListItemSuffix>
-                    </ListItem>
-                  ))}
-                </List>
-              </div>
+        {rankZone && 
+        <>
+          <div className='my-4'>
+            <Typography variant="lead" color="black" className="mb-2">
+              Tools
+            </Typography>
+            <div className="h-40 overflow-auto">
+              <List className="bg-green-50 p-1">
+                {/* List items for tools */}
+                {rankZone?.map((toolData, index) => (
+                  <ListItem key={toolData.Id_t} className="py-1 px-2">
+                    {toolData.name_t}
+                    <ListItemSuffix>
+                      <Chip value={index + 1} variant="ghost" size="lg" />
+                    </ListItemSuffix>
+                  </ListItem>
+                ))}
+              </List>
             </div>
+          </div>
 
-            <div className='h-10 flex flex-col justify-between items-center gap-1'>
-              <i className="fa-solid fa-sort-down fa-2xl"></i>
-              <i className="fa-solid fa-sort-down fa-2xl"></i>
-              <i className="fa-solid fa-sort-down fa-2xl"></i>
-            </div>
-          </>
+          <div className='h-10 flex flex-col justify-between items-center gap-1'>
+            <i className="fa-solid fa-sort-down fa-2xl"></i>
+            <i className="fa-solid fa-sort-down fa-2xl"></i>
+            <i className="fa-solid fa-sort-down fa-2xl"></i>
+          </div>
+        </>
         }
 
 
@@ -59,7 +63,7 @@ const StorageToolsZoneBatch = ({ nameZone, storageZone, rankZone }) => {
             </List>
           </div>
         </div>
-      </Card>
+      </Card>}
     </div>
   )
 }

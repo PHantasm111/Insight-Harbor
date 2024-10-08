@@ -17,34 +17,10 @@ import leftArrow from "/leftArrow.svg"
 import rightArrow from "/rightArrow.svg"
 import { QuestionContext } from '../../context/questionContext'
 import { AuthContext } from '../../context/authContext'
-import _ from "lodash"
+import _, { set } from "lodash"
+import { useNavigate } from 'react-router-dom'
 
 const QuestionMiddleUpContent = () => {
-  // NoSelectAlert
-  const [noSelectAlert, setNoSelectAlert] = useState(false);
-
-  // Store 
-  const [targetList, setTargetList] = useState([])
-
-  const [nextQuestionButtonState, setNextQuestionButtonState] = useState(true)
-
-  // If loading
-  const [loading, setLoading] = useState(false);
-
-  // Store state  => show the question content or not
-  const [questionFinish, setQuestionFinish] = useState(false)
-
-
-  // disableWhenStreaming block some source option when user choose Streaming branch
-  const [disableWhenStreaming, setDisableWhenStreaming] = useState(false)
-
-  const { currentUser } = useContext(AuthContext);
-
-  const [alert, setAlert] = useState(false)
-
-  const [errSave, SetErrSave] = useState(null)
-
-  const [sucessSave, setSucessSave] = useState(null)
 
   // Use QuestionContext
   const {
@@ -59,13 +35,45 @@ const QuestionMiddleUpContent = () => {
     setComputeSourceAndTarget,
     setReComputeSourceAndTarget,
     setCalculRealTimeStreaming,
-    resultStore, setResultStore
+    resultStore, setResultStore,
+    globalMsg, setGlobalMsg
   } = useContext(QuestionContext);  // Use useContext to get state and update function
 
+  // Navigate function
+  const navigate = useNavigate()
+
+  // NoSelectAlert
+  const [noSelectAlert, setNoSelectAlert] = useState(false);
+
+  // Store 
+  const [targetList, setTargetList] = useState([])
+
+  const [nextQuestionButtonState, setNextQuestionButtonState] = useState(true)
+
+  // If loading
+  const [loading, setLoading] = useState(false);
+
+  // Store state  => show the question content or not
+  const [questionFinish, setQuestionFinish] = useState(false)
+
+  // disableWhenStreaming block some source option when user choose Streaming branch
+  const [disableWhenStreaming, setDisableWhenStreaming] = useState(false)
+
+  const { currentUser } = useContext(AuthContext);
+
+  const [alert, setAlert] = useState(false)
+
+  const [errSave, SetErrSave] = useState(null)
+
+  const [sucessSave, setSucessSave] = useState(null)
+
+  // state to shwo globalMsg
+  const [showGlobalMsg, setShowGlobalMsg] = useState(false)
+
   // For id = 7 => Handle second/third/fourth select to show the content
-  const [showSecond, setShowSecond] = React.useState("");
-  const [showThird, setShowThird] = React.useState("");
-  const [showFourth, setShowFourth] = React.useState("");
+  const [showSecond, setShowSecond] = React.useState();
+  const [showThird, setShowThird] = React.useState();
+  const [showFourth, setShowFourth] = React.useState();
 
   // Define state variables to store select values
   const [firstSelectValue, setFirstSelectValue] = useState("");
@@ -79,7 +87,14 @@ const QuestionMiddleUpContent = () => {
     setFourthSelectValue("");
     setFirstSelectValue(val);
     setUserSelections([{ firstSelectValue: val, }]);
-    setShowSecond(val);
+
+    const valList = ["Database", "Filesystem", "NoSQL Database"]
+
+    if (valList.includes(val)) {
+      setShowSecond(val);
+    } else {
+      setShowSecond(null);
+    }
   }
 
   const handleSecondSelectChange = (val) => {
@@ -90,7 +105,11 @@ const QuestionMiddleUpContent = () => {
       firstSelectValue: firstSelectValue,
       secondSelectValue: val,
     }])
-    setShowThird(val);
+
+    const valList = ["Centralized_db", "Distributed_db", "Centralized_fs", "Distributed_fs"]
+    if (valList.includes(val)) {
+      setShowThird(val);
+    }
   }
 
   const handleThirdSelectChange = (val) => {
@@ -101,7 +120,11 @@ const QuestionMiddleUpContent = () => {
       secondSelectValue: secondSelectValue,
       thirdSelectValue: val,
     }])
-    setShowFourth(val);
+
+    const valList = ["Relational", "Nosql", "Dis_Relational", "Dis_Nosql"]
+    if (valList.includes(val)) {
+      setShowFourth(val);
+    }
   }
 
   const handleFourthSelectChange = (val) => {
@@ -115,8 +138,8 @@ const QuestionMiddleUpContent = () => {
   }
 
   useEffect(() => {
-    console.log("allquestion", allQuestionsData)
-    console.log("sourceAndTargetStep1 change :  ", sourceAndTargetStep1)
+    //console.log("allquestion", allQuestionsData)
+    //console.log("sourceAndTargetStep1 change :  ", sourceAndTargetStep1)
   }, [sourceAndTargetStep1])
 
   useEffect(() => {
@@ -136,7 +159,7 @@ const QuestionMiddleUpContent = () => {
           );
 
           // If no next question(finished)
-          if (response.data === "Finished"){
+          if (response.data === "Finished") {
             return setQuestionFinish(true)
           }
 
@@ -185,11 +208,28 @@ const QuestionMiddleUpContent = () => {
   // Supervise the currentQuestionId and when it change, handle the active step and make true that Q10 and Q12 will have the question content
   useEffect(() => {
 
+    const updateResultStore = (keyToDelete, resultstore) => {
+
+      const newResultStore = { ...resultstore };
+
+      if (Array.isArray(keyToDelete)){
+        keyToDelete.forEach(key => {
+          delete newResultStore[key]
+        })
+      } else {
+        delete newResultStore[keyToDelete];
+      }
+      
+      console.log("new", newResultStore)
+      setResultStore(newResultStore);
+    }
+
     const has33 = allQuestionsData.some(question => question.questionId === 33);
 
     if (currentQuestionId === 10) {
       // Update Step -> step = 0 => step = 1
       setStep(1);
+      setGlobalMsg("You are in step 2 now !")
 
       // Update TargetList -> give the source and target in step 1 Exemple: [{target: source},{"HDFS:Files"},{"HDFS":"IoT"}]
       if (allQuestionsData.every(q => q.questionId != 10)) {
@@ -202,6 +242,7 @@ const QuestionMiddleUpContent = () => {
 
     } else if (currentQuestionId === 12) {
       setStep(2);
+      setGlobalMsg("You are in step 3 now !")
 
       if (allQuestionsData.every(q => q.questionId != 12)) {
         const step2Targets = sourceAndTargetStep1
@@ -229,11 +270,20 @@ const QuestionMiddleUpContent = () => {
       const has35 = allQuestionsData.some(question => question.questionId === 35);
 
       if (has12) {
-        setStep(2);
+        setStep(2);      
+
+        const keyToDelete = 3
+        updateResultStore(keyToDelete, resultStore)
       } else if (has10 || has20 || has35) {
         setStep(1);
+
+        const keyToDelete = [2,3]
+        updateResultStore(keyToDelete, resultStore)
       } else {
         setStep(0);
+        
+        const keyToDelete = [1,2,3]
+        updateResultStore(keyToDelete, resultStore)
       }
     }
 
@@ -318,6 +368,21 @@ const QuestionMiddleUpContent = () => {
       return () => clearTimeout(timer);
     }
   }, [alert]);
+
+  // Automatic Timer to close globalMsg
+  useEffect(() => {
+
+    if (globalMsg) {
+      setShowGlobalMsg(true)
+
+      const timer = setTimeout(() => {
+        setShowGlobalMsg(false);
+        setGlobalMsg("");
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [globalMsg]);
 
   // Combine the same target to one line data
   const processQuestion19 = (currentQuestionId, userSelections, sourceAndTargetStep1, setSourceAndTargetStep1) => {
@@ -429,7 +494,7 @@ const QuestionMiddleUpContent = () => {
           });
         });
 
-        console.log("Matchedl", matchedPairs)
+        //console.log("Matchedl", matchedPairs)
 
         setSourceAndTargetStep1(prevState => {
           // Filter out elements from previous state that are not in matchedPairs
@@ -511,10 +576,29 @@ const QuestionMiddleUpContent = () => {
 
     setLoading(true);
 
+    // Prevent users from clicking the next question button without selecting an answer
     if (userSelections.length <= 0) {
       setNoSelectAlert(true)
       setLoading(false);  // Stop loading if there are no selections
       return;
+    }
+
+    // Check if all "select" question has been selected
+    if (showFourth) {
+      if (!Object.hasOwn(userSelections[0], 'fourthSelectValue')) {
+        setLoading(false)
+        return setNoSelectAlert(true)
+      }
+    } else if (showThird) {
+      if (!Object.hasOwn(userSelections[0], 'thirdSelectValue')) {
+        setLoading(false)
+        return setNoSelectAlert(true)
+      }
+    } else if (showSecond) {
+      if (!Object.hasOwn(userSelections[0], 'secondSelectValue')) {
+        setLoading(false)
+        return setNoSelectAlert(true)
+      }
     }
 
     // loop for Q10 and Q12 (if we need to have loop for Q10) -> if all target has been selected then no, else yes
@@ -725,7 +809,7 @@ const QuestionMiddleUpContent = () => {
           UserID: currentUser.UserID
         })
 
-        console.log("data give back: ", response.data)
+        setGlobalMsg(response.data)
         if (response.data) {
           setSucessSave(response.data)
           setAlert(true)
@@ -748,16 +832,10 @@ const QuestionMiddleUpContent = () => {
 
         const response = await axios.get(`http://localhost:3000/question/overwrite`, { params: { userId } });
 
-        console.log("back data", response.data)
+        //console.log("back data", response.data)
         // Overwrite page by these return data
 
         const { AllQuestionData, CurrentId, SourceAndTargetList, ResultStore } = response.data;
-
-
-        // console.log(AllQuestionData);
-        // console.log(CurrentId);
-        // console.log(SourceAndTargetList);
-        // console.log(ResultStore);
 
         overwritePage(AllQuestionData, CurrentId, SourceAndTargetList, ResultStore);
 
@@ -792,6 +870,8 @@ const QuestionMiddleUpContent = () => {
     if (Object.keys(ResultStore).length > 0) {
       setResultStore(ResultStore);
     }
+
+    setGlobalMsg("Restore sucessfully !")
   }
 
   const handleFinalReport = async () => {
@@ -809,7 +889,7 @@ const QuestionMiddleUpContent = () => {
 
     //   console.log("save from button generate", response.data)
     // }
-    
+
     // Step 2: go to page /finalRes with data
 
     const dataToPass = {
@@ -837,9 +917,9 @@ const QuestionMiddleUpContent = () => {
           <Typography variant='h2' className='p-4' color='black'>
             Question :
           </Typography>
-          <div className="bg-gray-400/30 rounded-lg p-2">
-            <span className='text-red-400'>message !</span>
-          </div>
+          {showGlobalMsg && <div className="bg-gray-400/30 rounded-lg p-2">
+            <span className='text-red-400'>{globalMsg}</span>
+          </div>}
           <div className='flex gap-2 pr-8'>
             <div className="">
               <Button className="bg-blue-gray-200 text-gray-800 h-10 w-10 flex items-center justify-center" onClick={() => { handleOverWrite() }}>
@@ -870,7 +950,7 @@ const QuestionMiddleUpContent = () => {
           questionFinish &&
           <div className='p-4'>
             <Typography variant='h3' color='blue-gray'>
-              Congratulations! you have completed all the questions and now you can:
+              <span className='text-light-blue-600'>Congratulations!</span> <br />You have completed all the questions and now you can:
             </Typography>
             <form className='flex items-center justify-center mt-16'>
               <Button variant="gradient" value="123" className='text-lg' size='lg' onClick={() => handleFinalReport()}>Generate Final Report</Button>
@@ -879,8 +959,7 @@ const QuestionMiddleUpContent = () => {
         }
 
         {/* if still has question */}
-        {
-          !questionFinish &&
+        {!questionFinish &&
           <form className='flex flex-col justify-between h-full'>
             <div className=''>
               <Typography key={questionData.id} variant='h5' className='px-4 ml-4' color='black'>
@@ -1144,7 +1223,7 @@ const QuestionMiddleUpContent = () => {
               </Typography>
             </div>
 
-            {noSelectAlert && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>You need to choose an option*</span>}
+            {noSelectAlert && <span className='flex flex-row-reverse pr-10 py-1 mt-32 text-red-500 text-lg'>You need to choose an option*</span>}
             {!nextQuestionButtonState && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>Please check your selections*</span>}
             <div className='flex justify-between mx-8 mb-4 mt-2 gap-8'>
               <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' disabled={currentQuestionId === 1} onClick={handleLastQuestion}>

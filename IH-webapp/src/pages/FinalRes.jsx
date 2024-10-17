@@ -30,7 +30,7 @@ const FinalRes = () => {
   const sourceBatch = sourceAndTargetStep1.filter(pair => pair.step === 1).map(pair => pair.source)
   console.log(sourceBatch)
 
-
+  const sourceStreaming = sourceAndTargetStep1.filter(pair => pair.step === 1).map(pair => pair.source)
 
   // Calculate 1st Zone => <Ingestion zone>
   // NEED 2 things => 1. target step 1 from sourceAndTargetStep1
@@ -76,7 +76,7 @@ const FinalRes = () => {
       sourceZoneModel = "Batch and Streaming"
     } else {
       model = 1;
-      sourceZoneModel = "Streaming"
+      sourceZoneModel = "Batch and Streaming"
     }
   }
 
@@ -177,7 +177,7 @@ const FinalRes = () => {
 
             {/* Right-Side Batch Tools */}
             <div className="w-3/12 h-full">
-              <StorageToolsZoneBatch nameZone={"Analyse Zone"} storageZone={storageZone1}/>
+              <StorageToolsZoneBatch nameZone={"Analyse Zone"} storageZone={storageZone3}/>
             </div>
           </div>
         </>)

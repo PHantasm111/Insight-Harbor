@@ -4,19 +4,37 @@ import { QuestionContext } from '../../context/questionContext';
 
 const QuestionMiddleDownContent = () => {
 
-  const { allQuestionsData, step, sourceAndTargetStep1, setSourceAndTargetStep1, computeSourceAndTarget, reComputeSourceAndTarget } = useContext(QuestionContext);
+  const { allQuestionsData, step, sourceAndTargetStep1, setSourceAndTargetStep1, computeSourceAndTarget, reComputeSourceAndTarget, setGlobalMsg } = useContext(QuestionContext);
 
-  const TABLE_HEAD = ["Step", "Source", "Target", ""];
+  const TABLE_HEAD = ["Step", "Source", "Target"];
+
+
+  // Create a function to get the seletion from allQuestionData
+  const getAnswerById = (qId) => {
+    const question = allQuestionsData.find(q => q.questionId === qId);
+    return question ? Object.values(question.userSelections[0])[0] : null;
+  }
 
   const computeAddMatchedPairs = () => {
 
     const newPairs = [];
+
+    // Q5 and Q16 decide the direction of the following question
+    // Q5: batch, streaming , hybrid
+    // Q16 : offline, online
+    const AnswerQ5 = getAnswerById(5);
+    const AnswerQ16 = getAnswerById(16);
+
+    // ID for source to show this source is in Straming data zone at the final report
+    const sourceStreaming = ((AnswerQ5 === "Streaming" || AnswerQ5 === "Hybrid") && AnswerQ16 === "Real-time analysis") ? 1 : 0
 
     const question7 = allQuestionsData[allQuestionsData.length - 1];
 
     const previousQuestion = allQuestionsData[allQuestionsData.length - 2];
 
     if (question7) {
+      let newPair;
+
       if (previousQuestion && previousQuestion.questionId === 12) {
         // get the selection from id=12
         const sourceValue = previousQuestion.userSelections.map(s => Object.keys(s))
@@ -27,13 +45,14 @@ const QuestionMiddleDownContent = () => {
           question7.userSelections[0].secondSelectValue ||
           question7.userSelections[0].firstSelectValue;
 
-        newPairs.push({
+        newPair = {
           step: 3,
           source: sourceValue,
           sourceIndex: allQuestionsData.length - 2,
           target: targetValue,
           targetIndex: allQuestionsData.length - 1,
-        })
+        }
+
       } else if (previousQuestion && previousQuestion.questionId === 10) {
         // get the selection from id=10
         const sourceValue = previousQuestion.userSelections.map(selection => {
@@ -46,13 +65,14 @@ const QuestionMiddleDownContent = () => {
           question7.userSelections[0].secondSelectValue ||
           question7.userSelections[0].firstSelectValue;
 
-        newPairs.push({
+        newPair = {
           step: 2,
           source: sourceValue,
           sourceIndex: allQuestionsData.length - 2,
           target: targetValue,
           targetIndex: allQuestionsData.length - 1,
-        })
+        }
+
       } else if (previousQuestion && previousQuestion.questionId === 6) {
         // get the selection from id=6
         const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
@@ -69,13 +89,15 @@ const QuestionMiddleDownContent = () => {
         }
 
 
-        newPairs.push({
+        newPair = {
           step: 1,
           source: sourceValue,
           sourceIndex: allQuestionsData.length - 2,
           target: targetValue,
           targetIndex: allQuestionsData.length - 1,
-        })
+          sourceStreaming: sourceStreaming
+        }
+
       } else if (previousQuestion && previousQuestion.questionId === 32) {
         // get the selection from id=32
         const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
@@ -86,14 +108,14 @@ const QuestionMiddleDownContent = () => {
           question7.userSelections[0].secondSelectValue ||
           question7.userSelections[0].firstSelectValue;
 
-        newPairs.push({
+        newPair = {
           step: 1,
           source: sourceValue,
           sourceIndex: allQuestionsData.length - 2,
           target: targetValue,
           targetIndex: allQuestionsData.length - 1,
           ingestType: "Batch",
-        })
+        }
       } else if (previousQuestion && previousQuestion.questionId === 33) {
         // get the selection from id=33
         const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
@@ -104,14 +126,15 @@ const QuestionMiddleDownContent = () => {
           question7.userSelections[0].secondSelectValue ||
           question7.userSelections[0].firstSelectValue;
 
-        newPairs.push({
+        newPair = {
           step: 1,
           source: sourceValue,
           sourceIndex: allQuestionsData.length - 2,
           target: targetValue,
           targetIndex: allQuestionsData.length - 1,
           ingestType: "Streaming",
-        })
+          sourceStreaming: sourceStreaming
+        }
       } else if (question7.questionId === 34 && previousQuestion && previousQuestion.questionId === 26) {
 
         // get the selection from id = 34
@@ -124,14 +147,14 @@ const QuestionMiddleDownContent = () => {
           question7.userSelections[0].firstSelectValue;
 
 
-        newPairs.push({
+        newPair = {
           step: 1,
           source: sourceValue,
           sourceIndex: allQuestionsData.length - 2,
           target: targetValue,
           targetIndex: allQuestionsData.length - 1,
           ingestType: "Batch",
-        })
+        }
       } else if (question7.questionId === 34 && previousQuestion && previousQuestion.questionId === 27) {
         // get the selection from id = 34
         const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
@@ -142,17 +165,21 @@ const QuestionMiddleDownContent = () => {
           question7.userSelections[0].secondSelectValue ||
           question7.userSelections[0].firstSelectValue;
 
-        newPairs.push({
+        newPair = {
           step: 1,
           source: sourceValue,
           sourceIndex: allQuestionsData.length - 2,
           target: targetValue,
           targetIndex: allQuestionsData.length - 1,
           ingestType: "Streaming",
-        })
+        }
+      }
+
+
+      if (newPair) {
+        newPairs.push(newPair);
       }
     }
-
 
     // Update matchedPairs
     setSourceAndTargetStep1((prev) => [
@@ -184,8 +211,17 @@ const QuestionMiddleDownContent = () => {
 
   const reComputeAddMatchedPairs = () => {
 
-    console.log("recomputing....")
+    //console.log("recomputing....")
     const newPairs = [];
+
+    // Q5 and Q16 decide the direction of the following question
+    // Q5: batch, streaming , hybrid
+    // Q16 : offline, online
+    const AnswerQ5 = getAnswerById(5);
+    const AnswerQ16 = getAnswerById(16);
+
+    // ID for source to show this source is in Straming data zone at the final report
+    const sourceStreaming = ((AnswerQ5 === "Streaming" || AnswerQ5 === "Hybrid") && AnswerQ16 === "Real-time analysis") ? 1 : 0
 
     for (let i = allQuestionsData.length - 1; i >= 0; i--) {
       const question7 = allQuestionsData[i];
@@ -249,6 +285,7 @@ const QuestionMiddleDownContent = () => {
           sourceIndex: i - 1,
           target: targetValue,
           targetIndex: i,
+          sourceStreaming : sourceStreaming
         })
       } else if (previousQuestion && previousQuestion.questionId === 32) {
         // get the selection from id=32
@@ -268,6 +305,7 @@ const QuestionMiddleDownContent = () => {
           targetIndex: i,
           ingestType: "Batch",
         })
+
       } else if (previousQuestion && previousQuestion.questionId === 33) {
         // get the selection from id=33
         const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
@@ -285,6 +323,7 @@ const QuestionMiddleDownContent = () => {
           target: targetValue,
           targetIndex: i,
           ingestType: "Streaming",
+          sourceStreaming : sourceStreaming
         })
       } else if (question7.questionId === 34 && previousQuestion && previousQuestion.questionId === 26) {
 
@@ -306,6 +345,7 @@ const QuestionMiddleDownContent = () => {
           targetIndex: allQuestionsData.length - 1,
           ingestType: "Batch",
         })
+
       } else if (question7.questionId === 34 && previousQuestion && previousQuestion.questionId === 27) {
         // get the selection from id = 34
         const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
@@ -396,11 +436,11 @@ const QuestionMiddleDownContent = () => {
                         {pair.target}
                       </Typography>
                     </td>
-                    <td className="p-4">
+                    {/* <td className="p-4">
                       <Typography as="a" href="#" variant="small" color="blue-gray" className="font-medium">
                         Edit
                       </Typography>
-                    </td>
+                    </td> */}
                   </tr>
                 ))) : (
                   <tr className="even:bg-blue-gray-50/50">
@@ -410,7 +450,7 @@ const QuestionMiddleDownContent = () => {
                         color="blue-gray"
                         className="font-normal"
                       >
-                        No available data 
+                        No available data
                       </Typography>
                     </td>
                   </tr>

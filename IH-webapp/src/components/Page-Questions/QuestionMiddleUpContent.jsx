@@ -138,7 +138,7 @@ const QuestionMiddleUpContent = () => {
   }
 
   useEffect(() => {
-    //console.log("allquestion", allQuestionsData)
+    console.log("allquestion", allQuestionsData)
     //console.log("sourceAndTargetStep1 change :  ", sourceAndTargetStep1)
   }, [sourceAndTargetStep1])
 
@@ -212,14 +212,14 @@ const QuestionMiddleUpContent = () => {
 
       const newResultStore = { ...resultstore };
 
-      if (Array.isArray(keyToDelete)){
+      if (Array.isArray(keyToDelete)) {
         keyToDelete.forEach(key => {
           delete newResultStore[key]
         })
       } else {
         delete newResultStore[keyToDelete];
       }
-      
+
       console.log("new", newResultStore)
       setResultStore(newResultStore);
     }
@@ -270,19 +270,19 @@ const QuestionMiddleUpContent = () => {
       const has35 = allQuestionsData.some(question => question.questionId === 35);
 
       if (has12) {
-        setStep(2);      
+        setStep(2);
 
         const keyToDelete = 3
         updateResultStore(keyToDelete, resultStore)
       } else if (has10 || has20 || has35) {
         setStep(1);
 
-        const keyToDelete = [2,3]
+        const keyToDelete = [2, 3]
         updateResultStore(keyToDelete, resultStore)
       } else {
         setStep(0);
-        
-        const keyToDelete = [1,2,3]
+
+        const keyToDelete = [1, 2, 3]
         updateResultStore(keyToDelete, resultStore)
       }
     }
@@ -571,6 +571,137 @@ const QuestionMiddleUpContent = () => {
     }
   }
 
+  // Check : double element in sourceAndTargetStep1
+  const doubleEleCheck = (userSelections) => {
+
+    // Current Question id = 7 normally
+    const question7selected = userSelections[0].fourthSelectValue ||
+                              userSelections[0].thirdSelectValue ||
+                              userSelections[0].secondSelectValue ||
+                              userSelections[0].firstSelectValue;
+
+    const previousQuestion = allQuestionsData[allQuestionsData.length - 1];
+
+    if (question7selected) {
+      let newPair;
+
+      if (previousQuestion && previousQuestion.questionId === 12) {
+        // get the selection from id=12
+        const sourceValue = previousQuestion.userSelections.map(s => Object.keys(s))
+
+        // get the selection from id=7
+        const targetValue = question7selected
+
+        newPair = {
+          step: 3,
+          source: sourceValue,
+          target: targetValue,
+        }
+
+      } else if (previousQuestion && previousQuestion.questionId === 10) {
+        // get the selection from id=10
+        const sourceValue = previousQuestion.userSelections.map(selection => {
+          return Object.keys(selection)[0]
+        })
+
+        // get the selection from id=7
+        const targetValue = question7selected
+
+        newPair = {
+          step: 2,
+          source: sourceValue,
+          target: targetValue,
+        }
+      } else if (previousQuestion && previousQuestion.questionId === 6) {
+        // get the selection from id=6
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=7
+        const targetValue = question7selected
+
+        newPair = {
+          step: 1,
+          source: sourceValue,
+          target: targetValue,
+        }
+
+      } else if (previousQuestion && previousQuestion.questionId === 32) {
+        // get the selection from id=32
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=7
+        const targetValue = question7selected
+
+        newPair = {
+          step: 1,
+          source: sourceValue,
+          target: targetValue,
+          ingestType: "Batch",
+        }
+
+      } else if (previousQuestion && previousQuestion.questionId === 33) {
+        // get the selection from id=33
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=7
+        const targetValue = question7selected
+
+        newPair = {
+          step: 1,
+          source: sourceValue,
+          target: targetValue,
+          ingestType: "Streaming",
+        }
+
+      } else if (previousQuestion && previousQuestion.questionId === 26) {
+
+        // get the selection from id = 34
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=26
+        const targetValue = question7selected
+
+
+        newPair = {
+          step: 1,
+          source: sourceValue,
+          target: targetValue,
+          ingestType: "Batch",
+        }
+      } else if (previousQuestion && previousQuestion.questionId === 27) {
+        // get the selection from id = 34
+        const sourceValue = previousQuestion.userSelections[0].secondSelectValue || previousQuestion.userSelections[0].firstSelectValue;
+
+        // get the selection from id=27
+        const targetValue = question7selected
+
+        newPair = {
+          step: 1,
+          source: sourceValue,
+          target: targetValue,
+          ingestType: "Streaming",
+        }
+      }
+
+
+      if (newPair) {
+
+        // verify if there is same pair in sourceAndTargetStep1
+        const hasDouble = sourceAndTargetStep1.some(pair => {
+          const hasDouble = pair.source === newPair.source && pair.target === newPair.target && pair.step === newPair.step
+          return hasDouble
+        })
+
+        if (hasDouble) {
+          setGlobalMsg("You cannot select duplicate combinations")
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+  }
+
   // Give the currentQuestionId and answer to get the next question
   const handleNextQuestion = async () => {
 
@@ -599,6 +730,13 @@ const QuestionMiddleUpContent = () => {
         setLoading(false)
         return setNoSelectAlert(true)
       }
+    }
+
+    // Check if there are same pair in the sourceAndTargetStep1
+    const hasDouble = doubleEleCheck(userSelections);
+    if (hasDouble) {
+      setLoading(false)
+      return;
     }
 
     // loop for Q10 and Q12 (if we need to have loop for Q10) -> if all target has been selected then no, else yes

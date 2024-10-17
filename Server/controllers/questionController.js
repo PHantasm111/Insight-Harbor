@@ -104,7 +104,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             if (questionAnswer === "Yes") {
                 return 6
             } else {
-                return 19
+                return 18
             }
         } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Hybrid" && !hasQ33 && deployType === "On-premises") {
             if (analysisType === "Real-time analysis") {

@@ -8,7 +8,7 @@ const StorageToolsZoneBatch = ({ nameZone, storageZone, rankZone }) => {
   
   return (
     <div className="w-full h-full p-2">
-      {showContent && <Card className="bg-yellow-50 h-full w-full p-4">
+      {storageZone && <Card className="bg-yellow-50 h-full w-full p-4">
         {/* Functional Zone Header */}
         <div className="flex justify-center h-auto mn-4">
           <Typography variant="h5" color="black" className="p-2">

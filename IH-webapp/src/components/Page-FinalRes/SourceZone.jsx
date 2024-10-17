@@ -25,14 +25,21 @@ const SourceZone = ({ sourceBatch, model }) => {
 
                     {model === "Batch and Streaming" && <>
                         <Card className='m-2 h-1/2'>
-                            <Typography className='p-2'>
+                            <Typography variant='h5' color='black' className='p-2'>
                                 Streaming data source
+                            </Typography>
+
+                            <Typography className='p-2'>
+                                <br />IoT
                             </Typography>
                         </Card>
 
                         <Card className='m-2 h-1/2'>
-                            <Typography className='p-2'>
+                            <Typography variant='h5' color='black' className='p-2'>
                                 Batch data source
+                            </Typography>
+
+                            <Typography className='p-2'>
                                 {renderSourceBatch()}
                             </Typography>
                         </Card>
@@ -45,8 +52,10 @@ const SourceZone = ({ sourceBatch, model }) => {
                     </Card>}
 
                     {model === "Batch" && <Card className='m-2 h-full'>
+                        <Typography variant='h5' color='black' className='p-2'>
+                            Batch data source <br />
+                        </Typography>
                         <Typography className='p-2'>
-                            Batch data source <br></br>
                             {renderSourceBatch()}
                         </Typography>
                     </Card>}

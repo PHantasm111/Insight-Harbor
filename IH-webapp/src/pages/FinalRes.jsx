@@ -27,10 +27,18 @@ const FinalRes = () => {
 
   // Calculate the data for <SourceZone>
   // sourceBatch is a LIST !!!
-  const sourceBatch = sourceAndTargetStep1.filter(pair => pair.step === 1).map(pair => pair.source)
-  console.log(sourceBatch)
+  const sourceBatch = sourceAndTargetStep1.filter(pair => pair.step === 1 && !pair.hasOwnProperty('sourceStreaming')).map(pair => pair.source)
+  //console.log(sourceBatch)
 
-  const sourceStreaming = sourceAndTargetStep1.filter(pair => pair.step === 1).map(pair => pair.source)
+  const sourceRealtimeStreaming = sourceAndTargetStep1
+    .filter(pair => pair.step === 2 && pair.sourceStreaming === 1)
+    .map(pair => pair.source);
+
+  const sourceStreaming = sourceAndTargetStep1
+    .filter(pair => pair.step === 1 && pair.ingestType === "Streaming")
+    .map(pair => pair.source);
+  //console.log("123",sourceStreaming);
+
 
   // Calculate 1st Zone => <Ingestion zone>
   // NEED 2 things => 1. target step 1 from sourceAndTargetStep1
@@ -44,10 +52,12 @@ const FinalRes = () => {
   // Calculate 2nd Zone => <Preparation zone>
   const storageZone2 = sourceAndTargetStep1.filter(pair => pair.step === 2).map(pair => pair.target)
   const rankZone2 = resultStore[2]
+  console.log("storageZone2", storageZone2)
 
   // Calculate 3rd Zone => <Analyse zone>
   const storageZone3 = sourceAndTargetStep1.filter(pair => pair.step === 3).map(pair => pair.target)
   const rankZone3 = resultStore[3]
+  console.log("storageZone3", storageZone3)
 
   // Analyse the answer5 & Answer16 to determine which model 3to use  
   const Answer5 = getAnswerById(5);
@@ -63,7 +73,7 @@ const FinalRes = () => {
     model = 2;
     sourceZoneModel = "Batch"
   } else if (Answer5 === "Streaming") {
-    if (Answer16 === "Offline analysis"){
+    if (Answer16 === "Offline analysis") {
       model = 2;
       sourceZoneModel = "Batch"
     } else {
@@ -71,7 +81,7 @@ const FinalRes = () => {
       sourceZoneModel = "Streaming"
     }
   } else if (Answer5 === "Hybrid") {
-    if (Answer16 === "Offline analysis"){
+    if (Answer16 === "Offline analysis") {
       model = 2;
       sourceZoneModel = "Batch and Streaming"
     } else {
@@ -102,7 +112,7 @@ const FinalRes = () => {
             <div className="flex flex-col items-center w-7/12 h-full">
               {/* Streaming Tools */}
               <div className="h-1/4 w-full">
-                <StorageToolsZoneStreaming rankZone={rankZone2}/>
+                <StorageToolsZoneStreaming rankZone={rankZone2} />
               </div>
 
               {/* Batch Storage Tools */}
@@ -135,7 +145,7 @@ const FinalRes = () => {
           <div className="flex flex-row bg-white mx-4 mb-4 p-2 flex-1 rounded-xl">
             {/* Source Zone */}
             <div className="w-2/12 h-full">
-              <SourceZone sourceBatch={sourceBatch} model={sourceZoneModel} />
+              <SourceZone sourceBatch={sourceBatch} model={sourceZoneModel} sourceStreaming={sourceStreaming} />
             </div>
             {/* Storage & Tools Zone */}
             <div className='flex w-full'>
@@ -164,20 +174,20 @@ const FinalRes = () => {
           <div className="flex flex-row bg-white mx-4 mb-4 p-2 flex-1 rounded-xl">
             {/* Source Zone */}
             <div className="w-2/12 h-full">
-              <SourceZone sourceBatch={sourceBatch} model={sourceZoneModel} />
+              <SourceZone sourceBatch={sourceBatch} model={sourceZoneModel} sourceStreaming={sourceRealtimeStreaming} />
             </div>
 
             {/* Storage Tools Zone */}
             <div className="flex flex-col items-center justify-center w-7/12 h-full">
               {/* Streaming Tools */}
               <div className="h-1/2 w-full">
-                <StorageToolsZoneStreaming rankZone={rankZone2}/>
+                <StorageToolsZoneStreaming rankZone={rankZone2} />
               </div>
             </div>
 
             {/* Right-Side Batch Tools */}
             <div className="w-3/12 h-full">
-              <StorageToolsZoneBatch nameZone={"Analyse Zone"} storageZone={storageZone3}/>
+              <StorageToolsZoneBatch nameZone={"Analyse Zone"} storageZone={storageZone2} />
             </div>
           </div>
         </>)

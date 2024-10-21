@@ -208,21 +208,21 @@ const QuestionMiddleUpContent = () => {
   // Supervise the currentQuestionId and when it change, handle the active step and make true that Q10 and Q12 will have the question content
   useEffect(() => {
 
-    const updateResultStore = (keyToDelete, resultstore) => {
+    // const updateResultStore = (keyToDelete, resultstore) => {
 
-      const newResultStore = { ...resultstore };
+    //   const newResultStore = { ...resultstore };
 
-      if (Array.isArray(keyToDelete)) {
-        keyToDelete.forEach(key => {
-          delete newResultStore[key]
-        })
-      } else {
-        delete newResultStore[keyToDelete];
-      }
+    //   if (Array.isArray(keyToDelete)) {
+    //     keyToDelete.forEach(key => {
+    //       delete newResultStore[key]
+    //     })
+    //   } else {
+    //     delete newResultStore[keyToDelete];
+    //   }
 
-      console.log("new", newResultStore)
-      setResultStore(newResultStore);
-    }
+    //   console.log("new", newResultStore)
+    //   setResultStore(newResultStore);
+    // }
 
     const has33 = allQuestionsData.some(question => question.questionId === 33);
 
@@ -272,18 +272,18 @@ const QuestionMiddleUpContent = () => {
       if (has12) {
         setStep(2);
 
-        const keyToDelete = 3
-        updateResultStore(keyToDelete, resultStore)
+        const keyToDelete = [3]
+        //updateResultStore(keyToDelete, resultStore)
       } else if (has10 || has20 || has35) {
         setStep(1);
 
         const keyToDelete = [2, 3]
-        updateResultStore(keyToDelete, resultStore)
+        //updateResultStore(keyToDelete, resultStore)
       } else {
         setStep(0);
 
         const keyToDelete = [1, 2, 3]
-        updateResultStore(keyToDelete, resultStore)
+        //updateResultStore(keyToDelete, resultStore)
       }
     }
 
@@ -576,9 +576,9 @@ const QuestionMiddleUpContent = () => {
 
     // Current Question id = 7 normally
     const question7selected = userSelections[0].fourthSelectValue ||
-                              userSelections[0].thirdSelectValue ||
-                              userSelections[0].secondSelectValue ||
-                              userSelections[0].firstSelectValue;
+      userSelections[0].thirdSelectValue ||
+      userSelections[0].secondSelectValue ||
+      userSelections[0].firstSelectValue;
 
     const previousQuestion = allQuestionsData[allQuestionsData.length - 1];
 
@@ -713,24 +713,25 @@ const QuestionMiddleUpContent = () => {
       setLoading(false);  // Stop loading if there are no selections
       return;
     }
+    console.log(showFourth)
 
     // Check if all "select" question has been selected
-    if (showFourth) {
-      if (!Object.hasOwn(userSelections[0], 'fourthSelectValue')) {
-        setLoading(false)
-        return setNoSelectAlert(true)
-      }
-    } else if (showThird) {
-      if (!Object.hasOwn(userSelections[0], 'thirdSelectValue')) {
-        setLoading(false)
-        return setNoSelectAlert(true)
-      }
-    } else if (showSecond) {
-      if (!Object.hasOwn(userSelections[0], 'secondSelectValue')) {
-        setLoading(false)
-        return setNoSelectAlert(true)
-      }
-    }
+    // if (showFourth) {
+    //   if (!Object.hasOwn(userSelections[0], 'fourthSelectValue')) {
+    //     setLoading(false)
+    //     return setNoSelectAlert(true)
+    //   }
+    // } else if (showThird) {
+    //   if (!Object.hasOwn(userSelections[0], 'thirdSelectValue')) {
+    //     setLoading(false)
+    //     return setNoSelectAlert(true)
+    //   }
+    // } else if (showSecond) {
+    //   if (!Object.hasOwn(userSelections[0], 'secondSelectValue')) {
+    //     setLoading(false)
+    //     return setNoSelectAlert(true)
+    //   }
+    // }
 
     // Check if there are same pair in the sourceAndTargetStep1
     const hasDouble = doubleEleCheck(userSelections);
@@ -1361,7 +1362,7 @@ const QuestionMiddleUpContent = () => {
               </Typography>
             </div>
 
-            {noSelectAlert && <span className='flex flex-row-reverse pr-10 py-1 mt-32 text-red-500 text-lg'>You need to choose an option*</span>}
+            {noSelectAlert && <span className='flex flex-row-reverse pr-10 py-1 mt-28 text-red-500 text-lg'>You need to choose an option*</span>}
             {!nextQuestionButtonState && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>Please check your selections*</span>}
             <div className='flex justify-between mx-8 mb-4 mt-2 gap-8'>
               <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' disabled={currentQuestionId === 1} onClick={handleLastQuestion}>

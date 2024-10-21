@@ -1,13 +1,21 @@
 import { Card, Typography } from '@material-tailwind/react'
 import React from 'react'
 
-const SourceZone = ({ sourceBatch, model }) => {
+const SourceZone = ({ sourceBatch, model, sourceStreaming }) => {
 
 
     // List for Batch source
     const renderSourceBatch = () => {
         return sourceBatch.map((ele, index) => (
-            <span key={index}>{ele}<br/></span>
+            <span key={index}>{ele}<br /></span>
+        ));
+    };
+
+
+    // List for Streaming source
+    const renderSourceStreaming = () => {
+        return sourceStreaming?.map((ele, index) => (
+            <span key={index}>{ele}<br /></span>
         ));
     };
 
@@ -30,7 +38,7 @@ const SourceZone = ({ sourceBatch, model }) => {
                             </Typography>
 
                             <Typography className='p-2'>
-                                <br />IoT
+                                {renderSourceStreaming()}
                             </Typography>
                         </Card>
 
@@ -47,7 +55,7 @@ const SourceZone = ({ sourceBatch, model }) => {
 
                     {model === "Streaming" && <Card className='m-2 h-full'>
                         <Typography className='p-2'>
-                            {renderSourceBatch()}
+                            {renderSourceStreaming()}
                         </Typography>
                     </Card>}
 

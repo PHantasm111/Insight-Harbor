@@ -69,6 +69,8 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             return 9
         } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false && deployType != "On cloud") {
             return 11
+        } else if (currentQuestionId === 7 && currentStep === 3 && deployType === "On-premises" && ingestType === "Hybrid" && analysisType === "Real-time analysis") {
+            return 9
         } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === false) {
             return 13
         } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === true) {
@@ -113,12 +115,12 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
                 } else {
                     return 18
                 }
-            } else if (analysisType === "Offline analysis"){
+            } else if (analysisType === "Offline analysis") {
                 if (questionAnswer === "Yes") {
                     return 32
                 } else {
                     return 33
-                } 
+                }
             }
 
         } else if (currentQuestionId === 9 && currentStep === 1 && ingestType === "Hybrid" && hasQ33 && deployType === "On-premises") {
@@ -128,19 +130,19 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
                 } else {
                     return 18
                 }
-            } else if (analysisType === "Offline analysis"){
+            } else if (analysisType === "Offline analysis") {
                 if (questionAnswer === "Yes") {
                     return 33
                 } else {
                     return 18
-                } 
+                }
             }
         } else if (currentQuestionId === 9 && currentStep === 3 && ingestType === "Hybrid" && hasQ33 && deployType === "On-premises") {
             if (analysisType === "Real-time analysis") {
                 if (questionAnswer === "Yes") {
                     return 33
                 } else {
-                    return 19
+                    return 18
                 }
             }
         } else if (currentQuestionId === 9 && currentStep === 1 && deployType === "On cloud" && ingestType != "Hybrid") {
@@ -199,12 +201,13 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             return 15
         }
 
-        // ID = 15 (Last question)
+        // ID = 15 (Last question except real-time hybrid)
         if (currentQuestionId === 15 && ingestType === "Hybrid" && analysisType === "Real-time analysis") {
             return 33
         } else if (currentQuestionId === 15) {
             return "BYE"
         }
+
         // ID = 16
         if (currentQuestionId === 16 && ingestType === "Streaming") {
             return 6
@@ -256,7 +259,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             return 20
         } else if (currentQuestionId === 19 && currentStep === 1 && deployType === "On cloud" && ingestType === "Hybrid" && hasQ27) {
             return 35
-        } 
+        }
 
     } else {
         // ID = 20

@@ -49,14 +49,17 @@ const QuestionRightSideBar = () => {
 
   useEffect(() => {
     if (protentialRank.length > 0) {
+
       const filteredAndSortedTools = protentialRank
         .filter(tool => resultStore[step + 1].some(item => item.name_t === tool))
         .map(tool => resultStore[step + 1].find(item => item.name_t === tool));
 
-      setResultStore(prevStore => ({
-        ...prevStore,
-        [step + 1]: filteredAndSortedTools
-      }))
+      if (filteredAndSortedTools.length >= 1) {
+        setResultStore(prevStore => ({
+          ...prevStore,
+          [step + 1]: filteredAndSortedTools
+        }))
+      }
     }
   }, [protentialRank])
 
@@ -105,6 +108,9 @@ const QuestionRightSideBar = () => {
 
           const compareAndCombine = (waitToUpdateObj, originObj, step) => {
 
+            console.log("这里需要显示原始和组合的内容，以及step", waitToUpdateObj, originObj, step);
+
+
             const waitToUpdateList = waitToUpdateObj[step];
             const originList = originObj;
 
@@ -145,7 +151,7 @@ const QuestionRightSideBar = () => {
 
   const handleFinalReport = _.throttle(async () => {
 
-    if (Object.keys(resultStore).length === 0){
+    if (Object.keys(resultStore).length === 0) {
       return setGlobalMsg("You need to complete at least the step 1 to generate a report !")
     }
 
@@ -171,7 +177,7 @@ const QuestionRightSideBar = () => {
       timer,
     }
     navigate("/finalres", { state: { dataToPass } })
-  },3000)
+  }, 3000)
 
 
   return (

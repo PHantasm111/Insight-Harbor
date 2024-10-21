@@ -166,7 +166,9 @@ const QuestionMiddleUpContent = () => {
           // Update content with response
           setQuestionData(response.data);
           setCurrentQuestionId(response.data.id);
-          setProtentialRank(response.data.protentialRank);
+          if (response.data.protentialRank.length != 0){
+            setProtentialRank(response.data.protentialRank);
+          }
           setUserSelections([]);
         } catch (error) {
           console.error("Error fetching question data:", error);
@@ -514,7 +516,6 @@ const QuestionMiddleUpContent = () => {
           // Return the final state update: updated existing state + new elements
           return [...unmatchedPairs, ...newElements];
         });
-
       }
     }
   };
@@ -713,7 +714,6 @@ const QuestionMiddleUpContent = () => {
       setLoading(false);  // Stop loading if there are no selections
       return;
     }
-    console.log(showFourth)
 
     // Check if all "select" question has been selected
     // if (showFourth) {

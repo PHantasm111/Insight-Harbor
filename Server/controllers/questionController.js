@@ -69,7 +69,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
             return 9
         } else if (currentQuestionId === 7 && currentStep === 2 && targetListHasValue === false && deployType != "On cloud") {
             return 11
-        } else if (currentQuestionId === 7 && currentStep === 3 && deployType === "On-premises" && ingestType === "Hybrid" && analysisType === "Real-time analysis") {
+        } else if (currentQuestionId === 7 && currentStep === 3 && deployType === "On-premises" && ingestType === "Hybrid" && analysisType === "Real-time analysis" && hasQ33) {
             return 9
         } else if (currentQuestionId === 7 && currentStep === 3 && targetListHasValue === false) {
             return 13

@@ -54,6 +54,10 @@ const SourceZone = ({ sourceBatch, model, sourceStreaming }) => {
                     </>}
 
                     {model === "Streaming" && <Card className='m-2 h-full'>
+                        <Typography variant='h5' color='black' className='p-2'>
+                            Streaming data source
+                        </Typography>
+
                         <Typography className='p-2'>
                             {renderSourceStreaming()}
                         </Typography>

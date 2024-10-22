@@ -176,6 +176,9 @@ const QuestionRightSideBar = () => {
       resultStore,
       timer,
     }
+
+    console.log("传递的数据", dataToPass);
+    
     navigate("/finalres", { state: { dataToPass } })
   }, 3000)
 

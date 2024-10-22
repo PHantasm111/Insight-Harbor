@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import TopBar from '../components/Page-FinalRes/TopBar';
 import SourceZone from '../components/Page-FinalRes/SourceZone';
 import StorageToolsZoneBatch from '../components/Page-FinalRes/StorageToolsZoneBatch';
@@ -10,6 +10,8 @@ const FinalRes = () => {
 
   const location = useLocation();
   const { dataToPass } = location.state || {};
+
+  const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")) || null)
 
   // get the data passed from QuestionRightSideBar
   const { resultStore, allQuestionsData, sourceAndTargetStep1, timer } = dataToPass;
@@ -27,7 +29,7 @@ const FinalRes = () => {
 
   // Calculate the data for <SourceZone>
   // sourceBatch is a LIST !!!
-  const sourceBatch = sourceAndTargetStep1.filter(pair => pair.step === 1 && !pair.hasOwnProperty('sourceStreaming')).map(pair => pair.source)
+  const sourceBatch = sourceAndTargetStep1.filter(pair => pair.step === 1 && (pair.sourceStreaming === 0 || !pair.hasOwnProperty('sourceStreaming'))).map(pair => pair.source)
   //console.log(sourceBatch)
 
   const sourceRealtimeStreaming = sourceAndTargetStep1
@@ -39,11 +41,10 @@ const FinalRes = () => {
     .map(pair => pair.source);
   //console.log("123",sourceStreaming);
 
-
   // Calculate 1st Zone => <Ingestion zone>
   // NEED 2 things => 1. target step 1 from sourceAndTargetStep1
-  const storageZone1 = sourceAndTargetStep1.filter(pair => pair.step === 1).map(pair => pair.target)
-  //console.log("storageZone1", storageZone1)
+  const storageZone1 = sourceAndTargetStep1.filter(pair => pair.step === 1 && (pair.sourceStreaming === 0 || !pair.hasOwnProperty('sourceStreaming'))).map(pair => pair.target)
+  console.log("storageZone1", storageZone1)
 
   // 2. tools rank from resultStore & step 1
   const rankZone1 = resultStore[1]
@@ -55,9 +56,19 @@ const FinalRes = () => {
   console.log("storageZone2", storageZone2)
 
   // Calculate 3rd Zone => <Analyse zone>
-  const storageZone3 = sourceAndTargetStep1.filter(pair => pair.step === 3).map(pair => pair.target)
+  const storageZone3 = sourceAndTargetStep1
+    .filter(pair => (pair.step === 3) || (pair.step === 1 && pair.sourceStreaming === 1))
+    .map(pair => {
+      if (pair.step === 1 && pair.sourceStreaming === 1) {
+        return pair.target + " (source : " + pair.source + ")";
+      }
+      return pair.target;
+    });
+
+
   const rankZone3 = resultStore[3]
   console.log("storageZone3", storageZone3)
+
 
   // Analyse the answer5 & Answer16 to determine which model 3to use  
   const Answer5 = getAnswerById(5);
@@ -98,14 +109,14 @@ const FinalRes = () => {
           {/* ---- Hybrid Section ---- */}
           {/* TopBar section */}
           <div className="flex items-center bg-white mx-4 p-2 mt-4 h-1/6 rounded-xl">
-            <TopBar totalQ={totalQ} timer={timer} />
+            <TopBar totalQ={totalQ} timer={timer} dataToSave={dataToSave} />
           </div>
 
           {/* Main content section */}
           <div className="flex flex-row bg-white mx-4 mb-4 p-2 flex-1 rounded-xl">
             {/* Source Zone */}
             <div className="w-2/12 h-full">
-              <SourceZone sourceBatch={sourceBatch} model={sourceZoneModel} />
+              <SourceZone sourceBatch={sourceBatch} model={sourceZoneModel} sourceStreaming={sourceStreaming} />
             </div>
 
             {/* Storage Tools Zone */}
@@ -138,7 +149,7 @@ const FinalRes = () => {
           {/* ---- Batch Section ---- */}
           {/* TopBar section */}
           <div className="flex items-center bg-white mx-4 p-2 mt-4 h-1/6 rounded-xl">
-            <TopBar totalQ={totalQ} timer={timer} />
+            <TopBar totalQ={totalQ} timer={timer} dataToSave={dataToSave} />
           </div>
 
           {/* Main content section */}
@@ -167,7 +178,7 @@ const FinalRes = () => {
           {/* ---- Streaming Section ---- */}
           {/* TopBar section */}
           <div className="flex items-center bg-white mx-4 p-2 mt-4 h-1/6 rounded-xl">
-            <TopBar totalQ={totalQ} timer={timer} />
+            <TopBar totalQ={totalQ} timer={timer} dataToSave={dataToSave} />
           </div>
 
           {/* Main content section */}
@@ -195,6 +206,29 @@ const FinalRes = () => {
         break;
     }
   }
+
+  // Create a dataset to send to Topbar for saving into the database
+  const dataToSave = {
+    sourceBatch,
+    sourceStreaming,
+    sourceRealtimeStreaming,
+    storageZone1,
+    rankZone1,
+    storageZone2,
+    rankZone2,
+    storageZone3,
+    rankZone3,
+    totalQ,
+    timer,
+    currentUser,
+    model,
+    sourceZoneModel,
+    resultStore, 
+    allQuestionsData, 
+    sourceAndTargetStep1,
+  }
+
+  console.log("发给TOP的数据", dataToSave)
 
   return (
     <FinalResProvider>

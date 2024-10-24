@@ -1759,5 +1759,31 @@ export const getOverwriteData = async (req, res) => {
             return res.status(404).json({ message: "No saved data found" });
         }
     });
+}
 
+export const getArrayPreference = async (req, res) => {
+
+    const answerList = req.body;
+    console.log(answerList)
+
+    if (!answerList || answerList.length === 0) {
+        return res.status(400).json({ message: "No ecosystems provided" });
+    }
+
+    const query = `
+                    SELECT t.name_t, t.id_t
+                    FROM tools t
+                    JOIN belongto b ON t.id_t = b.id_t
+                    JOIN ecosystem e ON b.Id_eco = e.Id_eco
+                    WHERE e.name_eco IN (?);
+                `;
+    try {
+        const [results] = await db.promise().query(query, [answerList]);
+        console.log(results)
+        return res.status(200).json({ tools: results });
+
+    } catch (error) {
+        console.error("Error fetching tools:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
 }

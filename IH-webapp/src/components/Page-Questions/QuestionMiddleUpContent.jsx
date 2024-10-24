@@ -142,6 +142,8 @@ const QuestionMiddleUpContent = () => {
     //console.log("sourceAndTargetStep1 change :  ", sourceAndTargetStep1)
   }, [sourceAndTargetStep1])
 
+  let searchQ2 = true;
+
   useEffect(() => {
     // If userSelections are added to allQuestionsData, and now allQuestionsData is updated, send the request
     if (userSelections.length > 0 && allQuestionsData.length > 0) {
@@ -166,7 +168,7 @@ const QuestionMiddleUpContent = () => {
           // Update content with response
           setQuestionData(response.data);
           setCurrentQuestionId(response.data.id);
-          if (response.data.protentialRank.length != 0){
+          if (response.data.protentialRank.length != 0) {
             setProtentialRank(response.data.protentialRank);
           }
           setUserSelections([]);
@@ -176,10 +178,30 @@ const QuestionMiddleUpContent = () => {
           setLoading(false);
         }
       };
-
       sendRequest();
       setComputeSourceAndTarget((prev) => prev + 1)
     }
+
+    if (searchQ2 && allQuestionsData.some(question => question.questionId === 2)) {
+      // [{"c3": "ELK"},{"c2": "Spark ecosystem"}]
+      const answerListQ2 = allQuestionsData
+        .filter(question => question.questionId === 2)
+        .flatMap(question =>
+          question.userSelections.map(selection => Object.values(selection)[0])
+        )
+        .map(answer => answer.split(' ')[0]); //Output: ["ELK", "Spark"]
+
+      console.log(answerListQ2)
+
+      // For each ecosystem, search all the softwares of this ecosystems, and put them in array
+      // send a request to backend and it will return the array
+      const res = axios.post(`http://localhost:3000/question/getArrayPreference`, answerListQ2, { withCredentials: true })
+
+
+
+      searchQ2 = false;
+    }
+
 
     if (allQuestionsData.some(question => question.questionId === 5)) {
       const ingestType = allQuestionsData.filter(question => question.questionId === 5).map(question => Object.values(question.userSelections[0])[0])
@@ -877,7 +899,7 @@ const QuestionMiddleUpContent = () => {
         id: 1,
         content: "Where do you want to deploy your data lake ?",
         type: "single_choice",
-        choices: { "c1": "On-premises", "c2": "On cloud", "c3": "Hybrid" },
+        choices: { "c1": "On-premises" },
         is_required: 1,
         help_text: null
       });
@@ -1099,7 +1121,7 @@ const QuestionMiddleUpContent = () => {
 
         {/* if still has question */}
         {!questionFinish &&
-          <form className='flex flex-col justify-between h-full'>
+          <form className='flex flex-col justify-between h-full relative'>
             <div className=''>
               <Typography key={questionData.id} variant='h5' className='px-4 ml-4' color='black'>
                 <div>
@@ -1362,8 +1384,8 @@ const QuestionMiddleUpContent = () => {
               </Typography>
             </div>
 
-            {noSelectAlert && <span className='flex flex-row-reverse pr-10 py-1 mt-28 text-red-500 text-lg'>You need to choose an option*</span>}
-            {!nextQuestionButtonState && <span className='flex flex-row-reverse pr-10 py-1 text-red-500 text-lg'>Please check your selections*</span>}
+            {noSelectAlert && <span className='absolute top-64 right-0 pr-10 py-1 text-red-500 text-lg'>You need to choose an option*</span>}
+            {!nextQuestionButtonState && <span className='absolute top-64 right-0 pr-10 py-1 text-red-500 text-lg'>Please check your selections*</span>}
             <div className='flex justify-between mx-8 mb-4 mt-2 gap-8'>
               <Button variant="gradient" size='lg' color="blue-gray" className='flex items-center gap-4 text-black' disabled={currentQuestionId === 1} onClick={handleLastQuestion}>
                 <img src={leftArrow} width={40} height={40}></img>

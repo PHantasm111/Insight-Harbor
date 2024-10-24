@@ -8,6 +8,7 @@ import axios from "axios"
 // Import Font Awesome components
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import _, { set } from "lodash"
 
 const TopBar = ({ totalQ, timer, dataToSave }) => {
 
@@ -17,7 +18,7 @@ const TopBar = ({ totalQ, timer, dataToSave }) => {
     const [isEditing, setIsEditing] = useState(false);  // Track if editing mode
     const [title, setTitle] = useState("Data Lake");    // Store the title value
 
-    const handleSaveFinalReport = () => {
+    const handleSaveFinalReport = _.debounce(async () => {
 
         // Add title to dataToSave object
         const updatedDataToSave = {
@@ -26,7 +27,7 @@ const TopBar = ({ totalQ, timer, dataToSave }) => {
         };
 
         // API transfer the data to backend
-        axios.post(`http://localhost:3000/history/save`,
+        await axios.post(`http://localhost:3000/history/save`,
             updatedDataToSave,
             { withCredentials: true }
         )
@@ -38,7 +39,7 @@ const TopBar = ({ totalQ, timer, dataToSave }) => {
             });
 
         setAlert(true)
-    }
+    },60000)
 
     // Automatic Timer to close alert
     useEffect(() => {

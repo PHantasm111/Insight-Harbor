@@ -175,12 +175,12 @@ export function QuestionTable() {
                   <PopoverHandler>
                     <tr className="hover:bg-gray-50 cursor-pointer">
                       <td className={classes}>
-                        <Typography variant="small" color="blue-gray-600" className="font-bold">
+                        <Typography variant="small" color="blue-gray" className="font-bold">
                           {questionId}
                         </Typography>
                       </td>
                       <td className={classes}>
-                        <Typography variant="small" color="blue-gray-600" className="font-normal">
+                        <Typography variant="small" color="blue-gray" className="font-normal">
                           {questionAnswer()}
                         </Typography>
                       </td>

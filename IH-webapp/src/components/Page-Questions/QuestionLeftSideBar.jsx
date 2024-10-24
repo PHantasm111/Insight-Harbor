@@ -32,10 +32,10 @@ const QuestionLeftSideBar = () => {
       {/* Show Timer */}
       <div className="flex flex-col justify-between gap-4 mb-4">
         <Typography variant="h2" color="black">
-          Time Spent
+          Time spent
         </Typography>
-        <Typography variant="h4" color="black/80">
-          {Math.floor(timer / 60)} min {timer % 60} sec
+        <Typography variant="h4" color="black">
+          {Math.floor(timer / 60)} min {timer % 60} s
         </Typography>
       </div>
       <div className="h-full">

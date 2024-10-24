@@ -14,8 +14,8 @@ const router = express.Router();
 
 // state
 router.post("/save", saveQuestionData);
-router.get("/overwrite", getOverwriteData)
 router.post("/getArrayPreference", getArrayPreference)
+router.get("/overwrite", getOverwriteData)
 
 // dynamique
 router.get("/skip/:id", getSkipQuestion);

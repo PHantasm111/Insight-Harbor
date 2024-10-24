@@ -38,14 +38,56 @@ const Register = () => {
         });
     };
 
+    // Email validation regex
+    const isValidEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    // Password validation (8 characters, 1 uppercase, 1 lowercase, 1 number)
+    const isValidPassword = (password) => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+        return passwordRegex.test(password);
+    };
+
+    // Check if form is valid and set error messages
+    const validateForm = () => {
+        if (!formData.username) {
+            return "Username is required.";
+        }
+
+        if (!isValidEmail(formData.email)) {
+            return "Please enter a valid email address.";
+        }
+
+        if (!isValidPassword(formData.password)) {
+            return "Password must be at least 8 characters, include at least one uppercase letter, one lowercase letter, and one number.";
+        }
+
+        if (!formData.identity) {
+            return "Please select whether you are a data lake practitioner.";
+        }
+
+        return null;
+    };
+
+
     // Where to submit (use axios)
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validate the form and set error if any
+        const errorMessage = validateForm();
+        if (errorMessage) {
+            setError(errorMessage);
+            return;
+        }
+
         try {
             // Transfer data to api
             await axios.post('http://localhost:3000/auth/register', formData, {
                 withCredentials: true,
-              })
+            })
             // if sucess -> To page login
             navigate("/login");
         } catch (err) {
@@ -154,7 +196,7 @@ const Register = () => {
                             {err}
                         </Typography>}
 
-                        <Button type="submit" className="mt-6" fullWidth>
+                        <Button type="submit" className="mt-4" fullWidth>
                             sign up
                         </Button>
                         <Typography color="gray" className="mt-4 text-center font-normal">

@@ -11,6 +11,8 @@ const FinalRes = () => {
   const location = useLocation();
   const { dataToPass } = location.state || {};
 
+  console.log(dataToPass)
+
   const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")) || null)
 
   // get the data passed from QuestionRightSideBar

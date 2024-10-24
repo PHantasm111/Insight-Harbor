@@ -39,7 +39,7 @@ const TopBar = ({ totalQ, timer, dataToSave }) => {
             });
 
         setAlert(true)
-    },60000)
+    },6000)
 
     // Automatic Timer to close alert
     useEffect(() => {

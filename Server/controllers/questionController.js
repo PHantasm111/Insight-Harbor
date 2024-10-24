@@ -1707,7 +1707,7 @@ export const saveQuestionData = async (req, res) => {
         if (buildData.length > 0) {
             // Step 3: Update existing build
             const updateBuildQuery = `UPDATE build 
-                                      SET AllQuestionData = ?, CurrentId = ?, ResultStore = ?, SourceAndTargetList = ?, Date_created = CURRENT_TIMESTAMP() 
+                                      SET AllQuestionsData = ?, CurrentId = ?, ResultStore = ?, SourceAndTargetList = ?, Date_created = CURRENT_TIMESTAMP() 
                                       WHERE UserID = ? AND Status = 'saved'`;
             await db.promise().query(updateBuildQuery, buildUpdateData);
             return res.status(200).json("Build data updated successfully");
@@ -1718,7 +1718,7 @@ export const saveQuestionData = async (req, res) => {
             const datalakeId = datalakeResult.insertId;
 
             // Step 5: Insert new build data
-            const insertBuildQuery = `INSERT INTO build (AllQuestionData, CurrentId, ResultStore, SourceAndTargetList, UserID, Id_R, Date_created, Status)
+            const insertBuildQuery = `INSERT INTO build (AllQuestionsData, CurrentId, ResultStore, SourceAndTargetList, UserID, Id_R, Date_created, Status)
                                       VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), 'saved')`;
             buildUpdateData.push(datalakeId);
             await db.promise().query(insertBuildQuery, buildUpdateData);
@@ -1743,7 +1743,7 @@ export const getOverwriteData = async (req, res) => {
     }
 
     // Step 2 : Get the data back to front-end
-    const query = `SELECT AllQuestionData, CurrentId, ResultStore, SourceAndTargetList 
+    const query = `SELECT AllQuestionsData, CurrentId, ResultStore, SourceAndTargetList 
                  FROM build 
                  WHERE UserID = ? AND Status = 'saved'`;
 

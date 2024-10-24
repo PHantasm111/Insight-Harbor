@@ -141,7 +141,7 @@ export const saveFinalResult = async (req, res) => {
     }
 
     let datalakeId;
-    const insertDatalakeAndBuild = async (userID, datalakeName, allQuestionData, currentId, resultStore, sourceAndTargetList) => {
+    const insertDatalakeAndBuild = async (userID, datalakeName, allQuestionsData, currentId, resultStore, sourceAndTargetList) => {
         const connection = db.promise();
 
         try {
@@ -157,17 +157,18 @@ export const saveFinalResult = async (req, res) => {
             await connection.query(insertCalendarQuery);
 
             const insertBuildQuery = `
-                INSERT INTO build (UserID, Id_R, Date_created, Status, AllQuestionData, CurrentId, ResultStore, SourceAndTargetList)
-                VALUES (?, ?, CURRENT_TIMESTAMP(), 'finished', ?, ?, ?, ?)
+                INSERT INTO build (UserID, Id_R, Date_created, Status, AllQuestionsData, CurrentId, ResultStore, SourceAndTargetList,timer)
+                VALUES (?, ?, CURRENT_TIMESTAMP(), 'finished', ?, ?, ?, ?,?)
             `;
 
             const [buildResult] = await connection.query(insertBuildQuery, [
                 userID,
                 datalakeId,
-                JSON.stringify(allQuestionData),
+                JSON.stringify(allQuestionsData),
                 null,
                 JSON.stringify(resultStore),
-                JSON.stringify(sourceAndTargetList)
+                JSON.stringify(sourceAndTargetList),
+                timer,
             ]);
 
             console.log("Data successfully inserted into build table", buildResult);
@@ -268,5 +269,25 @@ export const deleteHistoryById = async (req, res) => {
 
 
     return res.status(200).json({ message: "Record deleted successfully" });
+
+}
+
+
+export const getRecordById = async (req, res) => {
+    const idDL = req.params.id;
+
+    console.log(idDL);
+
+    try {
+        const q = `SELECT * FROM build WHERE Id_R = ? AND Status ='finished'`
+        const r = await db.promise().query(q, [idDL])
+
+        console.log(r);
+
+        return res.status(200).json(r[0][0])
+        
+    } catch (error) {
+        return res.status(404).json("Record not found !")
+    }
 
 }

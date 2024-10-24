@@ -8,6 +8,7 @@ import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faUndo } from '@fortawesome/free-solid-svg-icons';
 import _, { set } from "lodash"
+import { useNavigate } from 'react-router-dom';
 
 const History = () => {
 
@@ -15,6 +16,8 @@ const History = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
 
   const TABLE_HEAD = ["ID", "Name", "Zones", "Created at", "Status", "Operation"];
 
@@ -40,8 +43,18 @@ const History = () => {
     }
   };
 
-  const handleRestore = (id) => {
+  const handleRestore = async (id) => {
+
+    const res = await axios.get(`http://localhost:3000/history/record/${id}`)
+
+    const dataToPass = res.data;
+
+    console.log("datatopass",dataToPass);
+    
+    navigate('/finalres',{ state: { dataToPass } })
+
     console.log(`Restore action triggered for ID: ${id}`);
+
   };
 
   useEffect(() => {

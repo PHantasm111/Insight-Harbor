@@ -196,9 +196,6 @@ const QuestionMiddleUpContent = () => {
       // For each ecosystem, search all the softwares of this ecosystems, and put them in array
       // send a request to backend and it will return the array
       const res = axios.post(`http://localhost:3000/question/getArrayPreference`, answerListQ2, { withCredentials: true })
-
-
-
       searchQ2 = false;
     }
 

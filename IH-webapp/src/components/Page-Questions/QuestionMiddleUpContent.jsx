@@ -993,9 +993,9 @@ const QuestionMiddleUpContent = () => {
         //console.log("back data", response.data)
         // Overwrite page by these return data
 
-        const { AllQuestionData, CurrentId, SourceAndTargetList, ResultStore } = response.data;
+        const { AllQuestionsData, CurrentId, SourceAndTargetList, ResultStore } = response.data;
 
-        overwritePage(AllQuestionData, CurrentId, SourceAndTargetList, ResultStore);
+        overwritePage(AllQuestionsData, CurrentId, SourceAndTargetList, ResultStore);
 
       } catch (error) {
         SetErrSave(error.response?.data?.message || "Failed to overwrite data");
@@ -1004,9 +1004,9 @@ const QuestionMiddleUpContent = () => {
     }
   }, 2000)
 
-  const overwritePage = async (AllQuestionData, CurrentId, SourceAndTargetList, ResultStore) => {
-    if (AllQuestionData.length > 0) {
-      setAllQuestionsData(AllQuestionData);
+  const overwritePage = async (AllQuestionsData, CurrentId, SourceAndTargetList, ResultStore) => {
+    if (AllQuestionsData.length > 0) {
+      setAllQuestionsData(AllQuestionsData);
     }
 
     if (CurrentId) {

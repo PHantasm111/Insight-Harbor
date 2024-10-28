@@ -65,7 +65,7 @@ const getUserHistoryFromId = async (uid) => {
                                 JOIN datalake d ON d.Id_R = build.Id_R
                                 JOIN contain c ON d.Id_R = c.Id_R
                                 WHERE UserID = ?
-                                AND Status = 'finished'
+                                AND Status = 'finished' or Status = 'valid'
                                 GROUP BY UserID, build.Id_R, Date_created, Status;`;
 
     const [res] = await connection.query(queryUserHistory, [uid]);
@@ -238,7 +238,7 @@ export const saveFinalResult = async (req, res) => {
     } else if (model === 3 && sourceZoneModel === "Streaming") {
 
     }
-    return res.status(200).json("get it")
+    return res.status(200).json("Report saved !")
 }
 
 
@@ -266,8 +266,6 @@ export const deleteHistoryById = async (req, res) => {
         return res.status(404).json({ message: "Record not found or already deleted" });
     }
 
-
-
     return res.status(200).json({ message: "Record deleted successfully" });
 
 }
@@ -276,18 +274,29 @@ export const deleteHistoryById = async (req, res) => {
 export const getRecordById = async (req, res) => {
     const idDL = req.params.id;
 
-    console.log(idDL);
-
     try {
-        const q = `SELECT * FROM build WHERE Id_R = ? AND Status ='finished'`
+        const q = `SELECT AllQuestionsData as allQuestionsData, ResultStore as resultStore, SourceAndTargetList as sourceAndTargetStep1, timer FROM build WHERE Id_R = ? AND Status IN ('finished','valid')`
         const r = await db.promise().query(q, [idDL])
 
-        console.log(r);
-
+        console.log("record",r[0][0]);
         return res.status(200).json(r[0][0])
         
     } catch (error) {
         return res.status(404).json("Record not found !")
     }
 
+}
+
+export const updateStatuts = async (req, res) => {
+    const {id} = req.params;
+
+    const {status} = req.body;
+
+    try {
+        await db.promise().query(`UPDATE build SET Status = ? WHERE Id_R = ?`, [status, id])
+
+        res.status(200).json({ message: "Record updated successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Error updating record" });
+    }
 }

@@ -53,7 +53,7 @@ const Home = () => {
             src={imgLake}
             alt="nature image"
           />
-          <Card className="absolute bg-white/40 w-3/5 h-48">
+          <Card className="absolute bg-white/40 w-3/5 lg:h-48 md:h-72 sm:h-96">
             <Typography variant="h1" color="blue-gray" className="px-10 pt-5">
               Insight Harbor
             </Typography>
@@ -63,7 +63,7 @@ const Home = () => {
 
             <div className="flex flex-row-reverse pr-10">
               <button
-                className="flex items-center gap-2 mt-3 px-6 py-3 font-sans text-lg font-bold text-center text-blue-700 uppercase align-middle transition-all rounded-lg select-none hover:bg-blue-700/20 hover:text-blue-900"
+                className="flex items-center gap-2 mt-3 px-6 py-3 font-sans text-xl font-bold text-center text-blue-700 uppercase align-middle transition-all rounded-lg select-none hover:bg-blue-700/20 hover:text-blue-900"
                 type="button" onClick={goToQuestions}>
                 Check it
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"

@@ -7,16 +7,33 @@ import {
     Button,
 } from "@material-tailwind/react";
 import ToolsSideBar from "../components/Page-Tools/ToolsSideBar"
+import axios from 'axios';
 
 const Tools = () => {
 
+    const [initializtionData, SetInitializtionData] = useState();
+
+    // Initialize this page 
+    useEffect(() => {
+
+        const initializtion = async () => {
+            const res = await axios.get(`http://localhost:3000/tool/initializtion`);
+
+        }
+
+        initializtion();
+
+
+    }, [])
 
     // Return the page
     return (
-        <div className="flex bg-gray-100 pt-8 w-full">
-            <ToolsSideBar />
+        <div className="flex bg-gray-100 pt-8 w-full min-h-screen">
+            <div className='w-1/6'>
+                <ToolsSideBar />
+            </div>
 
-            <Card className="min-h-screen w-full p-4 border-1 mx-2 mb-2">
+            <Card className="min-h-screen w-5/6 p-4 border-1 mx-2 mb-2">
                 <div className=''>
                     <Typography variant='h1' color='blue-gray' className='text-2xl mb-4'>
                         DATA LAKE TOOLS
@@ -24,7 +41,7 @@ const Tools = () => {
                     {/* Ingestion tools */}
                     <div className=''>
                         <Typography variant='h2' color='blue-gray' className='text-xl my-4'>
-                            Ingestion tools <hr className=''/>
+                            Ingestion tools
                         </Typography>
                     </div>
                     <div className='overflow-scroll scrollbar-hide'>

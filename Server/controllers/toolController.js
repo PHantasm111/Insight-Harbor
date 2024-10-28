@@ -1,4 +1,6 @@
 import db from "../src/db_connection.js";
+import _ from 'lodash';
+const { random } = _;
 
 export const getTools = (req, res) => {
     // query to get tools
@@ -69,4 +71,46 @@ export const searchTool = (req, res) => {
     const id = req.params.id;
     const test = "123"
     res.json({id : id, test: test})
+}
+
+export const getInitialData = async (req, res) => {
+
+    console.log("111")
+    try {
+        const [toolsByCategory] = await db.promise().query(`
+          SELECT category_t, Id_t
+          FROM tools
+          ORDER BY category_t
+        `);
+    
+        const categoryToolIds = toolsByCategory.reduce((acc, tool) => {
+          if (!acc[tool.category_t]) acc[tool.category_t] = [];
+          acc[tool.category_t].push(tool.Id_t);
+          return acc;
+        }, {});
+    
+        const selectedToolIds = Object.entries(categoryToolIds).reduce((acc, [category, ids]) => {
+       
+          const randomIds = random(ids, 5);
+          acc[category] = randomIds;
+          return acc;
+        }, {});
+    
+        const toolDetailsPromises = Object.values(selectedToolIds).flat().map(id =>
+          db.promise().query(`SELECT * FROM tools WHERE Id_t = ?`, [id])
+        );
+        const toolDetails = await Promise.all(toolDetailsPromises);
+    
+        const result = Object.keys(selectedToolIds).reduce((acc, category, index) => {
+          acc[category] = toolDetails[index];
+          return acc;
+        }, {});
+    
+        console.log("res", result.Ingestion);
+        res.json(result);
+    
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+        res.status(500).json({ message: "Failed to fetch initial data" });
+      }
 }

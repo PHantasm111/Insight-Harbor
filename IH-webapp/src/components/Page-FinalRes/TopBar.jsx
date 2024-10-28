@@ -9,8 +9,9 @@ import axios from "axios"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import _, { set } from "lodash"
+import { useNavigate } from "react-router-dom";
 
-const TopBar = ({ totalQ, timer, dataToSave }) => {
+const TopBar = ({ totalQ, timer, dataToSave, fromH }) => {
 
     const [alert, setAlert] = useState(false)
     const [msg, setMsg] = useState("Data saved !")
@@ -18,7 +19,9 @@ const TopBar = ({ totalQ, timer, dataToSave }) => {
     const [isEditing, setIsEditing] = useState(false);  // Track if editing mode
     const [title, setTitle] = useState("Data Lake");    // Store the title value
 
-    const handleSaveFinalReport = _.debounce(async () => {
+    const navigate = useNavigate();
+
+    const handleSaveFinalReport = _.throttle(async () => {
 
         // Add title to dataToSave object
         const updatedDataToSave = {
@@ -39,7 +42,11 @@ const TopBar = ({ totalQ, timer, dataToSave }) => {
             });
 
         setAlert(true)
-    },6000)
+    }, 6000)
+
+    const handleReturnToHistory = () => {
+        navigate("/history")
+    }
 
     // Automatic Timer to close alert
     useEffect(() => {
@@ -105,7 +112,9 @@ const TopBar = ({ totalQ, timer, dataToSave }) => {
             </div>
             <div className='flex items-center justify-center w-[15%]'>
                 <form className='p-8'>
-                    <Button size="lg" className="h-18 text-lg uppercase" onClick={() => { handleSaveFinalReport() }}>Save final report</Button>
+                    { !fromH ? (<Button size="lg" className="h-18 text-lg uppercase" onClick={() => { handleSaveFinalReport() }}>Save final report</Button>)
+                        : (<Button size="lg" className="h-18 text-lg uppercase" onClick={() => { handleReturnToHistory() }}>Return to history</Button>)
+                    }
                 </form>
                 {alert && (
                     <div className='absolute top-16 right-16 z-50'>

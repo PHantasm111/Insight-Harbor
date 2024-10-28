@@ -11,12 +11,21 @@ const FinalRes = () => {
   const location = useLocation();
   const { dataToPass } = location.state || {};
 
-  console.log(dataToPass)
+  // Variable that show where the data from, normally from page question so false,
+  // some time data will come from page history
+  let fromPageHistory = false;
+
+  console.log("接受到的数据", dataToPass)
 
   const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")) || null)
 
   // get the data passed from QuestionRightSideBar
   const { resultStore, allQuestionsData, sourceAndTargetStep1, timer } = dataToPass;
+
+  const { fromH = false } = dataToPass || {};
+
+  console.log("fromH", fromH)
+  console.log("timer",timer)
 
   // Calculate the total number of questions
   const totalQ = parseInt(allQuestionsData.length);
@@ -111,7 +120,7 @@ const FinalRes = () => {
           {/* ---- Hybrid Section ---- */}
           {/* TopBar section */}
           <div className="flex items-center bg-white mx-4 p-2 mt-4 h-1/6 rounded-xl">
-            <TopBar totalQ={totalQ} timer={timer} dataToSave={dataToSave} />
+            <TopBar totalQ={totalQ} timer={timer} dataToSave={dataToSave} fromH={fromH}/>
           </div>
 
           {/* Main content section */}
@@ -151,7 +160,7 @@ const FinalRes = () => {
           {/* ---- Batch Section ---- */}
           {/* TopBar section */}
           <div className="flex items-center bg-white mx-4 p-2 mt-4 h-1/6 rounded-xl">
-            <TopBar totalQ={totalQ} timer={timer} dataToSave={dataToSave} />
+            <TopBar totalQ={totalQ} timer={timer} dataToSave={dataToSave} fromH={fromH}/>
           </div>
 
           {/* Main content section */}
@@ -180,7 +189,7 @@ const FinalRes = () => {
           {/* ---- Streaming Section ---- */}
           {/* TopBar section */}
           <div className="flex items-center bg-white mx-4 p-2 mt-4 h-1/6 rounded-xl">
-            <TopBar totalQ={totalQ} timer={timer} dataToSave={dataToSave} />
+            <TopBar totalQ={totalQ} timer={timer} dataToSave={dataToSave} fromH={fromH}/>
           </div>
 
           {/* Main content section */}
@@ -225,8 +234,8 @@ const FinalRes = () => {
     currentUser,
     model,
     sourceZoneModel,
-    resultStore, 
-    allQuestionsData, 
+    resultStore,
+    allQuestionsData,
     sourceAndTargetStep1,
   }
 

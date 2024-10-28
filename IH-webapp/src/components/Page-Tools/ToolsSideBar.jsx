@@ -51,7 +51,7 @@ const ToolsSideBar = () => {
         } catch (err) {
             console.error("Err fetching :", err);
         }
-        }
+    }
 
     // Utlize useEffect() to get the list of tools when the page is ready from rendering
     useEffect(() => {
@@ -210,7 +210,7 @@ const ToolsSideBar = () => {
                                         </svg>
                                     </ListItemPrefix>
                                     <Typography color="blue-gray" className="mr-auto font-normal">
-                                        Storage
+                                        Data Lake storages
                                     </Typography>
                                 </AccordionHeader>
                             </ListItem>

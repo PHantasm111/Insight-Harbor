@@ -7,6 +7,7 @@ import {
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faUndo } from '@fortawesome/free-solid-svg-icons';
+import { faSquareCheck } from '@fortawesome/free-regular-svg-icons';
 import _, { set } from "lodash"
 import { useNavigate } from 'react-router-dom';
 
@@ -20,6 +21,25 @@ const History = () => {
   const navigate = useNavigate();
 
   const TABLE_HEAD = ["ID", "Name", "Zones", "Created at", "Status", "Operation"];
+
+  const fetchHistory = async () => {
+    try {
+      const userId = currentUser.UserID;
+      const response = await axios.get(`http://localhost:3000/history/${userId}`, {
+        withCredentials: true,
+      });
+
+      const dataToPass = response.data;
+
+
+      setHistory(dataToPass);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching history:', err);
+      setError('Failed to load history.');
+      setLoading(false);
+    }
+  };
 
   const formatDate = (dateString) => {
     const date = moment(dateString);
@@ -37,7 +57,6 @@ const History = () => {
       });
 
       setHistory((prevHistory) => prevHistory.filter((item) => item.Id_R !== id));
-      console.log(res.data.message)
     } catch (err) {
       console.error("Error deleting history:", err);
     }
@@ -49,37 +68,35 @@ const History = () => {
 
     const dataToPass = res.data;
 
-    console.log("datatopass",dataToPass);
-    
-    navigate('/finalres',{ state: { dataToPass } })
+    // means this data from history page
+    dataToPass.fromH = true;
 
-    console.log(`Restore action triggered for ID: ${id}`);
+    console.log("datatopass", dataToPass);
 
+    navigate('/finalres', { state: { dataToPass } })
   };
 
+  const handleValid = async (id) => {
+    try {
+      const res = await axios.patch(`http://localhost:3000/history/record/${id}`, { status: "valid" })
+      fetchHistory();
+
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+
+    console.log(res.data)
+
+  }
+
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const userId = currentUser.UserID;
-        const response = await axios.get(`http://localhost:3000/history/${userId}`, {
-          withCredentials: true,
-        });
-
-        setHistory(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching history:', err);
-        setError('Failed to load history.');
-        setLoading(false);
-      }
-    };
-
     fetchHistory();
+
   }, [currentUser]);
 
   useEffect(() => {
     if (history.length > 0) {
-      console.log("Fetched history:", history);
+      //console.log("Fetched history:", history);
     }
   }, [history]);
 
@@ -89,10 +106,10 @@ const History = () => {
 
   return (
     <div className="flex items-center justify-center bg-gray-100 py-4 w-full">
-      <Card className="min-h-screen w-3/5 p-4 border-1 mx-2 mb-2">
+      <Card className="min-h-screen w-3/5 p-4 border-1 mx-2 mb-2 sm:w-5/6">
         <div className='flex justify-center'>
           <Typography variant="h2" color="black" className="mb-4">
-            User History
+            History
           </Typography>
         </div>
 
@@ -175,9 +192,13 @@ const History = () => {
                         <FontAwesomeIcon icon={faUndo} className="text-blue-500" />
                       </button>
 
-                      <button onClick={() => handleDelete(h.Id_R)}>
+                      <button onClick={() => handleDelete(h.Id_R)} className='mr-4'>
                         <FontAwesomeIcon icon={faTrash} className="text-red-500" />
                       </button>
+
+                      {h.Status !== 'valid' && <button onClick={() => handleValid(h.Id_R)}>
+                        <FontAwesomeIcon icon={faSquareCheck} className='text-green-500 text-lg' />
+                      </button>}
                     </td>
                   </tr>
                 );

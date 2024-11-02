@@ -57,7 +57,7 @@ export const getTools = (req, res) => {
                 storage_IBS: listIBS,
                 storage_RDB: listRDB,
                 storageNosql: listNosql,
-                storageFS : listFS,
+                storageFS: listFS,
                 storageOS: listOS,
             });
         })
@@ -67,50 +67,66 @@ export const getTools = (req, res) => {
 
 }
 
-export const searchTool = (req, res) => {
+export const searchTool = async (req, res) => {
     const id = req.params.id;
-    const test = "123"
-    res.json({id : id, test: test})
+
+    const [toolData] = await db.promise().query(`SELECT * FROM tools WHERE Id_t = ?`, [id])
+    console.log(toolData)
+    return res.status(200).json(toolData);
+}
+
+
+function randomSample(array, n) {
+    const shuffled = array.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, n);
 }
 
 export const getInitialData = async (req, res) => {
-
-    console.log("111")
     try {
         const [toolsByCategory] = await db.promise().query(`
           SELECT category_t, Id_t
           FROM tools
           ORDER BY category_t
         `);
-    
+
         const categoryToolIds = toolsByCategory.reduce((acc, tool) => {
-          if (!acc[tool.category_t]) acc[tool.category_t] = [];
-          acc[tool.category_t].push(tool.Id_t);
-          return acc;
+            if (!acc[tool.category_t]) acc[tool.category_t] = [];
+            acc[tool.category_t].push(tool.Id_t);
+            return acc;
         }, {});
-    
+
+        //console.log("111", categoryToolIds)
+
+        // 从每个类别中随机挑选 5 个 ID
         const selectedToolIds = Object.entries(categoryToolIds).reduce((acc, [category, ids]) => {
-       
-          const randomIds = random(ids, 5);
-          acc[category] = randomIds;
-          return acc;
+            // 使用自定义函数 `randomSample` 选择 5 个随机 ID
+            const randomIds = randomSample(ids, 5);
+            acc[category] = randomIds;
+            return acc;
         }, {});
-    
-        const toolDetailsPromises = Object.values(selectedToolIds).flat().map(id =>
-          db.promise().query(`SELECT * FROM tools WHERE Id_t = ?`, [id])
-        );
-        const toolDetails = await Promise.all(toolDetailsPromises);
-    
+
+        //console.log("ddd", selectedToolIds)
+
+        // 查询每个工具 ID 的详细信息
+        const toolDetailsPromises = Object.values(selectedToolIds)
+            .flat()
+            .map(id => db.promise().query(`SELECT * FROM tools WHERE Id_t = ?`, [id]));
+        const toolDetailsRaw = await Promise.all(toolDetailsPromises);
+
+        // 过滤掉表结构信息
+        const toolDetails = toolDetailsRaw.map(([data]) => data[0]);
+
+        // 组织最终结果
         const result = Object.keys(selectedToolIds).reduce((acc, category, index) => {
-          acc[category] = toolDetails[index];
-          return acc;
+            acc[category] = toolDetails.slice(index * 5, index * 5 + 5);
+            return acc;
         }, {});
-    
-        console.log("res", result.Ingestion);
+
+        //console.log("res", result.Ingestion);
         res.json(result);
-    
-      } catch (error) {
+
+    } catch (error) {
         console.error("Error fetching initial data:", error);
         res.status(500).json({ message: "Failed to fetch initial data" });
-      }
+    }
 }

@@ -16,7 +16,7 @@ import {
 import { ChevronRightIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import axios from 'axios';
 
-const ToolsSideBar = () => {
+const ToolsSideBar = ({setSelectedTool, toolContentHandler}) => {
     // Status of each Accordion - Level 1
     const [open, setOpen] = React.useState(0);
 
@@ -86,8 +86,8 @@ const ToolsSideBar = () => {
         setter(prev => !prev);
     };
     return (
-        <div className="flex bg-gray-100 ml-1">
-            <div className="sidebar">
+        <div className="h-full flex bg-gray-100 ml-1">
+            <div className="sidebar h-full">
                 <Card className="h-auto w-full max-w-[20rem] mb-2 pr-2">
                     <div className="mb-2 p-4">
                         <Typography variant="h5" color="blue-gray" className="uppercase">
@@ -138,7 +138,7 @@ const ToolsSideBar = () => {
                                         <AccordionBody className="py-1">
                                             <List className="p-0 pl-4">
                                                 {ingestionTools.map((tool) => (
-                                                    <ListItem key={tool.id_t} onClick={() => getInfoTool(tool.id_t)}>{tool.name_t}</ListItem>
+                                                    <ListItem key={tool.id_t} onClick={() => toolContentHandler(tool.id_t)}>{tool.name_t}</ListItem>
                                                 ))}
                                             </List>
                                         </AccordionBody>
@@ -161,7 +161,7 @@ const ToolsSideBar = () => {
                                         <AccordionBody className="py-1">
                                             <List className="p-0 pl-4">
                                                 {preparationTools.map(tool => (
-                                                    <ListItem key={tool.id_t}>{tool.name_t}</ListItem>
+                                                    <ListItem key={tool.id_t} onClick={() => toolContentHandler(tool.id_t)}>{tool.name_t}</ListItem>
                                                 ))}
                                             </List>
                                         </AccordionBody>
@@ -184,7 +184,7 @@ const ToolsSideBar = () => {
                                         <AccordionBody className="py-1">
                                             <List className="p-0 pl-4">
                                                 {analysisTools.map(tool => (
-                                                    <ListItem key={tool.id_t}>{tool.name_t}</ListItem>
+                                                    <ListItem key={tool.id_t} onClick={() => toolContentHandler(tool.id_t)}>{tool.name_t}</ListItem>
                                                 ))}
                                             </List>
                                         </AccordionBody>
@@ -366,12 +366,6 @@ const ToolsSideBar = () => {
                                 <InboxIcon className="h-5 w-5" />
                             </ListItemPrefix>
                             Frameworks
-                        </ListItem>
-                        <ListItem key="xxx">
-                            <ListItemPrefix>
-                                <UserCircleIcon className="h-5 w-5" />
-                            </ListItemPrefix>
-                            xxx
                         </ListItem>
                     </List>
                 </Card>

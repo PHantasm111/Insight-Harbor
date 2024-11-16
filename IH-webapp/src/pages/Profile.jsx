@@ -1,8 +1,8 @@
-import { Button, Card, CardBody, CardFooter, CardHeader, Checkbox, Input, Typography } from '@material-tailwind/react'
+import { Card } from '@material-tailwind/react'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import moment from 'moment'
-import { set } from 'lodash';
+import { useNavigate } from 'react-router-dom';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -14,15 +14,18 @@ const Profile = () => {
   const [passwordInput, setPasswordInput] = useState(false);
   const [updateData, setUpdateData] = useState();
 
+  const navigate = useNavigate();
+
   const currentUser = JSON.parse(localStorage.getItem('user'))
 
   const [userData, setUserData] = useState({
     name_U: currentUser.name_U,
     email_U: currentUser.email_U,
-    identity: currentUser.identity_U,
+    identity_U: currentUser.identity_U,
     registrationTime: currentUser.registration_time
   });
 
+  const [selectedValue, setselectedValue] = useState(currentUser.identity_U);
   // Calculate the number of days of registration users
   const now = moment();
   const dayDiff = now.diff(moment(userData.registrationTime), 'days');
@@ -273,13 +276,23 @@ const Profile = () => {
               {identityInput
                 ? (
                   <div class="relative w-1/3">
-                    <input type="password" class="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-3 pr-16 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" placeholder={userData.username} />
+                    <select
+                      className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                      value={selectedValue}
+                      onChange={(e) => setselectedValue(e.target.value)}
+                    >
+                      <option value="Pro">Professional Member</option>
+                      <option value="No">Member</option>
+                    </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" className="h-5 w-5 ml-1 absolute top-2.5 right-16 text-slate-700">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                    </svg>
                     <button
                       className="absolute right-1 top-1 rounded bg-black py-1 px-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                       type="button"
-                      onClick={(e) => {
-                        setUpdateData({ identity_U: e.target.previousSibling.value });
-                        setPasswordInput(false)
+                      onClick={() => {
+                        setUpdateData({ identity_U: selectedValue });
+                        setIdentityInput(false)
                       }}
                     >
                       Save
@@ -296,6 +309,7 @@ const Profile = () => {
                       text-black hover:text-white hover:bg-blue-gray-100 active:bg-blue-gray-400
                         hover:border-slate-800"
                       type="button"
+                      onClick={() => setIdentityInput(true)}
                     >
                       Modify
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-1.5">
@@ -316,6 +330,10 @@ const Profile = () => {
                 text-black hover:text-white hover:bg-blue-gray-100 active:bg-blue-gray-400
                   hover:border-slate-800"
             type="button"
+            onClick={() => {
+              navigate("/")
+              window.scrollTo(0, 0); 
+            }}
           >
             Homepage
 
@@ -324,7 +342,6 @@ const Profile = () => {
             </svg>
           </button>
         </div>
-
       </Card >
     </div >
   )

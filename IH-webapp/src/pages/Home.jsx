@@ -39,7 +39,7 @@ const Home = () => {
   }
 
   return (
-    <div className='bg-gray-100'>
+    <div className='bg-gray-100' id='home'>
       <div className='relative min-h-screen'>
         <div
           className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity ease-in-out ${visible ? 'opacity-100' : 'opacity-0'}`}

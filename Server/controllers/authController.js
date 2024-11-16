@@ -58,7 +58,7 @@ export const login = (req, res) => {
         if (err) return res.json(err);
         if (data.length === 0) return res.status(404).json("User not found!");
 
-        //console.log("User found:", data[0]);
+        console.log("User found:", data[0]);
 
         // normal -> check pwd
         const isPasswordCorrect = bcrypt.compareSync(req.body.password, data[0].Pwd_U);
@@ -70,12 +70,11 @@ export const login = (req, res) => {
         const token = jwt.sign({ id: data[0].id }, "jwtkeys");
         const { password, ...other } = data[0];
 
-        res.cookie("access_token", token, {
+        console.log("other", other)
+
+        return res.cookie("access_token", token, {
             httpOnly: true,
         }).status(200).json(other);
-
-        //console.log("Cookie sent:", token);
-
 
     });
 

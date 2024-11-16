@@ -16,6 +16,8 @@ import {
 import { ChevronRightIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import axios from 'axios';
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const ToolsSideBar = ({setSelectedTool, toolContentHandler}) => {
     // Status of each Accordion - Level 1
     const [open, setOpen] = React.useState(0);
@@ -46,7 +48,7 @@ const ToolsSideBar = ({setSelectedTool, toolContentHandler}) => {
     const getInfoTool = async (idTool) => {
         try {
             console.log('Fetching info for tool ID:', idTool);
-            const infoTool = await axios.get("http://localhost:3000/tool/" + idTool)
+            const infoTool = await axios.get(`${apiUrl}/tool/` + idTool)
             console.log(infoTool);
         } catch (err) {
             console.error("Err fetching :", err);
@@ -57,7 +59,7 @@ const ToolsSideBar = ({setSelectedTool, toolContentHandler}) => {
     useEffect(() => {
         const fetchTools = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/tool/getTools');
+                const response = await axios.get(`${apiUrl}/tool/getTools`);
                 const tools = response.data;
 
                 setIngestionTools(tools.ingestionTools);

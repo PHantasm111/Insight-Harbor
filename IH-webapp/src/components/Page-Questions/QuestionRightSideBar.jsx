@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../context/authContext'
 import _, { set } from "lodash"
 
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const QuestionRightSideBar = () => {
 
@@ -68,7 +69,7 @@ const QuestionRightSideBar = () => {
     try {
 
       // Step = 0, 1, 2 => 0 -> 1 => send step = 1 => 1 -> 2 => send step = 2 => manuel send step = 3
-      const response = await axios.post(`http://localhost:3000/question/result/${step}`, {
+      const response = await axios.post(`${apiUrl}/question/result/${step}`, {
         allQuestionsData,
         sourceAndTargetStep1,
       })

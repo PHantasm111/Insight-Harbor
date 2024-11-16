@@ -20,6 +20,8 @@ import { AuthContext } from '../../context/authContext'
 import _, { set } from "lodash"
 import { useNavigate } from 'react-router-dom'
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const QuestionMiddleUpContent = () => {
 
   // Use QuestionContext
@@ -151,7 +153,7 @@ const QuestionMiddleUpContent = () => {
         try {
           const targetListHasValue = allQuestionsData[allQuestionsData.length - 1].targetListHasValue
           const response = await axios.post(
-            `http://localhost:3000/question/${currentQuestionId}`,
+            `${apiUrl}/question/${currentQuestionId}`,
             {
               allQuestionsData,
               step,
@@ -195,7 +197,7 @@ const QuestionMiddleUpContent = () => {
 
       // For each ecosystem, search all the softwares of this ecosystems, and put them in array
       // send a request to backend and it will return the array
-      const res = axios.post(`http://localhost:3000/question/getArrayPreference`, answerListQ2, { withCredentials: true })
+      const res = axios.post(`${apiUrl}/question/getArrayPreference`, answerListQ2, { withCredentials: true })
       searchQ2 = false;
     }
 
@@ -918,7 +920,7 @@ const QuestionMiddleUpContent = () => {
 
       try {
         // Send request to get last question data
-        const response = await axios.get(`http://localhost:3000/question/${searchId}`);
+        const response = await axios.get(`${apiUrl}/question/${searchId}`);
 
         setQuestionData(response.data);
         setCurrentQuestionId(response.data.id)
@@ -939,7 +941,7 @@ const QuestionMiddleUpContent = () => {
 
       setLoading(true);
       // Send req 
-      const response = await axios.get(`http://localhost:3000/question/skip/${currentQuestionId}`);
+      const response = await axios.get(`${apiUrl}/question/skip/${currentQuestionId}`);
 
       setQuestionData(response.data);
       setCurrentQuestionId(response.data.id)
@@ -959,7 +961,7 @@ const QuestionMiddleUpContent = () => {
     } else {
 
       try {
-        const response = await axios.post(`http://localhost:3000/question/save`, {
+        const response = await axios.post(`${apiUrl}/question/save`, {
           allQuestionsData,
           sourceAndTargetStep1,
           currentQuestionId,
@@ -988,7 +990,7 @@ const QuestionMiddleUpContent = () => {
       try {
         const userId = currentUser.UserID;
 
-        const response = await axios.get(`http://localhost:3000/question/overwrite`, { params: { userId } });
+        const response = await axios.get(`${apiUrl}/question/overwrite`, { params: { userId } });
 
         //console.log("back data", response.data)
         // Overwrite page by these return data
@@ -1012,7 +1014,7 @@ const QuestionMiddleUpContent = () => {
     if (CurrentId) {
       setCurrentQuestionId(CurrentId);
       try {
-        const response = await axios.get(`http://localhost:3000/question/${CurrentId}`)
+        const response = await axios.get(`${apiUrl}/question/${CurrentId}`)
 
         setQuestionData(response.data);
         setUserSelections([]);
@@ -1037,7 +1039,7 @@ const QuestionMiddleUpContent = () => {
     setIsTimerRunning(false);
     // Step 1: save the data into db first
     // if (currentUser) {
-    //   const response = await axios.post(`http://localhost:3000/question/save`, {
+    //   const response = await axios.post(`${apiUrl}/question/save`, {
     //     allQuestionsData,
     //     sourceAndTargetStep1,
     //     currentQuestionId,

@@ -8,7 +8,7 @@ import {
 } from "@material-tailwind/react";
 import ToolsSideBar from "../components/Page-Tools/ToolsSideBar"
 import axios from 'axios';
-import API_BASE_URL from '../config.js'
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const Tools = () => {
 
@@ -36,7 +36,7 @@ const Tools = () => {
     useEffect(() => {
 
         const initializtion = async () => {
-            const res = await axios.get(`${API_BASE_URL}/tool/initializtion`);
+            const res = await axios.get(`${apiUrl}/tool/initializtion`);
 
             SetInitializtionData(res.data)
         }
@@ -50,7 +50,7 @@ const Tools = () => {
 
     // Change Content
     const toolContentHandler = async (idt) => {
-        const response = await axios.get(`${API_BASE_URL}/tool/${idt}`)
+        const response = await axios.get(`${apiUrl}/tool/${idt}`)
 
         setSelectedTool(response.data[0])
     }

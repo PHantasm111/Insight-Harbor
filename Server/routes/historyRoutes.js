@@ -7,8 +7,8 @@ const router = express.Router();
 router.post("/save", saveFinalResult)
 router.patch("/record/:id", updateStatuts)
 
-router.get("/record/:id", getRecordById)
 router.get("/:uid", initialHistory)
+router.get("/record/:id", getRecordById)
 router.delete("/:idR", deleteHistoryById)
 
 export default router;

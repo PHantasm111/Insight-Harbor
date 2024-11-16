@@ -1,15 +1,16 @@
 // db_connection.js
 import mysql from 'mysql2';
-import config from './db_config.js';
+import db_config from './db_config.js';
 
-const db = mysql.createConnection(config);
+const db = mysql.createPool(db_config);
 
-db.connect((err) => {
-    if (err) {
-      console.error('Error connecting to the database:', err.stack);
-      return;
-    }
-    console.log('Connected to the database as id', db.threadId);
-  });
+db.getConnection((err, conn) => {
+  if (err) {
+    console.error('Database connection failed:', err.message);
+  } else {
+    console.log('Database connected successfully!');
+    conn.release();
+  }
+});
 
 export default db;

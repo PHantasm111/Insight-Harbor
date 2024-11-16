@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import {
   Card,
@@ -8,12 +8,15 @@ import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faUndo } from '@fortawesome/free-solid-svg-icons';
 import { faSquareCheck } from '@fortawesome/free-regular-svg-icons';
-import _, { set } from "lodash"
+import _ from "lodash"
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from "../context/authContext.jsx"
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const History = () => {
 
-  const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
+  const { currentUser } = useContext(AuthContext);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,24 +25,29 @@ const History = () => {
 
   const TABLE_HEAD = ["ID", "Name", "Zones", "Created at", "Status", "Operation"];
 
+
+
   const fetchHistory = async () => {
     try {
-      const userId = currentUser.UserID;
-      const response = await axios.get(`http://localhost:3000/history/${userId}`, {
+      const userId = currentUser.UserID ? currentUser.UserID : null;
+
+      const response = await axios.get(`${apiUrl}/history/${userId}`, {
         withCredentials: true,
       });
-
       const dataToPass = response.data;
-
-
       setHistory(dataToPass);
       setLoading(false);
+
     } catch (err) {
       console.error('Error fetching history:', err);
       setError('Failed to load history.');
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
 
   const formatDate = (dateString) => {
     const date = moment(dateString);
@@ -52,7 +60,7 @@ const History = () => {
 
   const handleDelete = async (id) => {
     try {
-      const res = await axios.delete(`http://localhost:3000/history/${id}`, {
+      const res = await axios.delete(`${apiUrl}/history/${id}`, {
         withCredentials: true,
       });
 
@@ -64,7 +72,7 @@ const History = () => {
 
   const handleRestore = async (id) => {
 
-    const res = await axios.get(`http://localhost:3000/history/record/${id}`)
+    const res = await axios.get(`${apiUrl}/history/record/${id}`)
 
     const dataToPass = res.data;
 
@@ -78,7 +86,7 @@ const History = () => {
 
   const handleValid = async (id) => {
     try {
-      const res = await axios.patch(`http://localhost:3000/history/record/${id}`, { status: "valid" })
+      const res = await axios.patch(`${apiUrl}/history/record/${id}`, { status: "valid" })
       fetchHistory();
 
     } catch (error) {
@@ -89,16 +97,6 @@ const History = () => {
 
   }
 
-  useEffect(() => {
-    fetchHistory();
-
-  }, [currentUser]);
-
-  useEffect(() => {
-    if (history.length > 0) {
-      //console.log("Fetched history:", history);
-    }
-  }, [history]);
 
   if (loading) return <div>Loading...</div>;
 

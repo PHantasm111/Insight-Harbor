@@ -5,14 +5,15 @@ import {
 } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import axios from "axios"
-// Import Font Awesome components
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
-import _, { set } from "lodash"
+import _ from "lodash"
 import { useNavigate } from "react-router-dom";
 
-const TopBar = ({ totalQ, timer, dataToSave, fromH }) => {
+const apiUrl = import.meta.env.VITE_API_URL;
 
+const TopBar = ({ totalQ, timer, dataToSave, fromH }) => {
+    
     const [alert, setAlert] = useState(false)
     const [msg, setMsg] = useState("Data saved !")
 
@@ -30,7 +31,7 @@ const TopBar = ({ totalQ, timer, dataToSave, fromH }) => {
         };
 
         // API transfer the data to backend
-        await axios.post(`http://localhost:3000/history/save`,
+        await axios.post(`${apiUrl}/history/save`,
             updatedDataToSave,
             { withCredentials: true }
         )
@@ -112,7 +113,7 @@ const TopBar = ({ totalQ, timer, dataToSave, fromH }) => {
             </div>
             <div className='flex items-center justify-center w-[15%]'>
                 <form className='p-8'>
-                    { !fromH ? (<Button size="lg" className="h-18 text-lg uppercase" onClick={() => { handleSaveFinalReport() }}>Save final report</Button>)
+                    {!fromH ? (<Button size="lg" className="h-18 text-lg uppercase" onClick={() => { handleSaveFinalReport() }}>Save final report</Button>)
                         : (<Button size="lg" className="h-18 text-lg uppercase" onClick={() => { handleReturnToHistory() }}>Return to history</Button>)
                     }
                 </form>

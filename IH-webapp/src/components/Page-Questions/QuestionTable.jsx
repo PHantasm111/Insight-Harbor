@@ -12,8 +12,7 @@ import {
 } from "@material-tailwind/react";
 import axios from "axios";
 
-
-
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export function QuestionTable() {
 
@@ -61,7 +60,7 @@ export function QuestionTable() {
     try {
       // get the selected question and set to MiddleUpContent
       const searchId = selectedQuestion[1].questionId;
-      const response = await axios.get(`http://localhost:3000/question/${searchId}`)
+      const response = await axios.get(`${apiUrl}/question/${searchId}`)
 
       setQuestionData(response.data);
       setCurrentQuestionId(response.data.id)

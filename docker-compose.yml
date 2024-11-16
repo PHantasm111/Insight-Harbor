@@ -17,11 +17,12 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_USER=root
-      - DB_PASSWORD=123456
-      - DB_NAME=web-db
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: Ph05221838.
+      DB_NAME: web-db
+      NODE_ENV: production
     depends_on:
       db:
         condition: service_healthy
@@ -30,9 +31,9 @@ services:
     container_name: db
     image: mysql:8.0.37
     ports:
-      - "3307:3306"
+      - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_ROOT_PASSWORD: Ph05221838.
       MYSQL_DATABASE: web-db
     volumes:
       - mysql_data:/var/lib/mysql             

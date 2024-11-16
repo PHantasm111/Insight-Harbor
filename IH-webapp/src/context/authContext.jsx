@@ -1,19 +1,35 @@
 import axios from "axios";
-import { Children, createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
+import { json } from "react-router-dom";
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const AuthContext = createContext();
 
-export const AuthContexProvider = ({children}) => {
+export const AuthContexProvider = ({ children }) => {
+
     const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")) || null)
 
     const login = async (inputs) => {
-        const res = await axios.post("http://localhost:3000/auth/login", inputs, { withCredentials : true });
-        setCurrentUser(res.data)
+        try {
+            const res = await axios.post(`${apiUrl}/auth/login`, inputs, { withCredentials: true });
+            if (res.data && !res.data.fatal) {
+                setCurrentUser(res.data);
+                return null;
+            } else {
+                console.error("Unexpected response:", res.data);
+                return {error: res.data};
+            }
+        } catch (error) {
+            console.error("Login failed:", error.response ? error.response.data : error.message);
+            return { error: error.response ? error.response.data : error.message };
+        }
     };
 
-    const logout = async (inputs) => {
-        await axios.post("http://localhost:3000/auth/logout", {}, { withCredentials : true });
+    const logout = async () => {
+        await axios.post(`${apiUrl}/auth/logout`, {}, { withCredentials: true });
         setCurrentUser(null)
+        
     };
 
     useEffect(() => {
@@ -21,7 +37,7 @@ export const AuthContexProvider = ({children}) => {
     }, [currentUser]);
 
     return (
-        <AuthContext.Provider value={{currentUser, login, logout}}>
+        <AuthContext.Provider value={{ currentUser, login, logout}}>
             {children}
         </AuthContext.Provider>
     )

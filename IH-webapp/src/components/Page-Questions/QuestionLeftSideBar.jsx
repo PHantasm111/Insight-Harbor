@@ -1,5 +1,4 @@
-import { Button, Card, Typography } from "@material-tailwind/react"
-import { QuestionStepper } from "./Stepper"
+import { Card, Typography } from "@material-tailwind/react"
 import { QuestionTable } from "./QuestionTable"
 import { useContext, useEffect } from "react";
 import { QuestionContext } from "../../context/questionContext";

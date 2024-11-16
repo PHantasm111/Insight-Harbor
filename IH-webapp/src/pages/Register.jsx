@@ -13,6 +13,8 @@ import {
 import { useState } from 'react';
 import axios from 'axios';
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const Register = () => {
 
     // Navigate to sign in page
@@ -85,7 +87,7 @@ const Register = () => {
 
         try {
             // Transfer data to api
-            await axios.post('http://localhost:3000/auth/register', formData, {
+            await axios.post(`${apiUrl}/auth/register`, formData, {
                 withCredentials: true,
             })
             // if sucess -> To page login

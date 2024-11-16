@@ -53,7 +53,7 @@ const Home = () => {
             src={imgLake}
             alt="nature image"
           />
-          <Card className="absolute bg-white/40 w-3/5 lg:h-48 md:h-72 sm:h-96">
+          <Card className="absolute bg-white/40 h-72 lg:h-48 mx-4">
             <Typography variant="h1" color="blue-gray" className="px-10 pt-5">
               Insight Harbor
             </Typography>
@@ -77,12 +77,12 @@ const Home = () => {
       </div>
 
 
-      <div className="relative min-h-screen mx-3">
+      <div className="relative mx-3">
         <Card className="bg-white mx-auto absoulte insert-x-0 -top-10">
           <Typography variant="h1" color="blue-gray" className="text-center py-10">
             What is Data Lake ?
           </Typography>
-          <Typography variant="paragraph" color="blue-gray" className="px-10 text-lg pb-10">
+          <Typography variant="paragraph" color="blue-gray" className="px-10 text-lg pb-10 text-justify">
             A data lake is a repository for storing large amounts of structured, semi-structured, and unstructured data.
             Unlike traditional data warehouses, data lakes can store raw data without preprocessing, transforming, or defining structures for it.
             This flexibility allows data lakes to be used for a variety of different data analysis, machine learning, and big data processing tasks.
@@ -95,9 +95,9 @@ const Home = () => {
           </Typography>
 
           <div className="flex items-center justify-center">
-            <img 
-            className="h-auto w-4/5"
-            src={archiLake}
+            <img
+              className="h-auto w-4/5"
+              src={archiLake}
             />
           </div>
         </Card>
@@ -129,7 +129,7 @@ const Home = () => {
         </Accordion>
         <Accordion open={openAcc3}>
           <AccordionHeader onClick={handleOpenAcc3}>
-          <span className="text-3xl">How to use Insight Harbor?</span>
+            <span className="text-3xl">How to use Insight Harbor?</span>
           </AccordionHeader>
           <AccordionBody>
             <Typography>

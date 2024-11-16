@@ -56,15 +56,17 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      await login(formData)
-      // if sucess -> To page login
-      navigate("/");
-
+      const res = await login(formData)
+      if (res && res.error) {
+        setError(typeof res.error === 'string' ? res.error : JSON.stringify(res.error));
+      } else {
+        // if sucess -> To page login
+        navigate("/");
+      }
     } catch (err) {
       console.error('Error:', err);
       setError(err.response?.data || 'An unexpected error occurred');
     }
-
   };
 
 

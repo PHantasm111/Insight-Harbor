@@ -37,7 +37,7 @@ const Profile = () => {
   const getUserStatisticData = async () => {
     try {
       const result = await axios.get(`${apiUrl}/user/statistics/${userId}`);
-
+      console.log("profile data", result.data);
       setUserData((prev) => ({
         ...prev,
         totalBuilds: result.data.totalBuilds,
@@ -78,13 +78,17 @@ const Profile = () => {
 
   // get the ussr statistics data
   useEffect(() => {
-    userId && getUserStatisticData();
+
+    getUserStatisticData();
+
   }, []);
 
   // Update user data
   useEffect(() => {
-    console.log("data to update", updateData);
-    updateUserData();
+    if (updateData) {
+      console.log("data to update", updateData);
+      updateUserData();
+    }
   }, [updateData]);
 
 
@@ -332,7 +336,7 @@ const Profile = () => {
             type="button"
             onClick={() => {
               navigate("/")
-              window.scrollTo(0, 0); 
+              window.scrollTo(0, 0);
             }}
           >
             Homepage

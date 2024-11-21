@@ -79,14 +79,17 @@ const Home = () => {
 
       <div className="relative mx-3">
         <Card className="bg-white mx-auto absoulte insert-x-0 -top-10">
-          <Typography variant="h1" color="blue-gray" className="text-center py-10">
-            What is Data Lake ?
-          </Typography>
-          <Typography variant="paragraph" color="blue-gray" className="px-10 text-lg pb-10 text-justify">
-            A data lake is a repository for storing large amounts of structured, semi-structured, and unstructured data.
-            Unlike traditional data warehouses, data lakes can store raw data without preprocessing, transforming, or defining structures for it.
-            This flexibility allows data lakes to be used for a variety of different data analysis, machine learning, and big data processing tasks.
-          </Typography>
+          <div className='flex flex-col mx-auto'>
+            <Typography variant="h1" color="blue-gray" className="text-center py-10 ">
+              What is Data Lake ?
+            </Typography>
+            <Typography variant="paragraph" color="blue-gray" className="px-10 text-lg pb-10 text-justify max-w-[80vw]">
+              A data lake is a repository for storing large amounts of structured, semi-structured, and unstructured data.
+              Unlike traditional data warehouses, data lakes can store raw data without preprocessing, transforming, or defining structures for it.
+              This flexibility allows data lakes to be used for a variety of different data analysis, machine learning, and big data processing tasks.
+            </Typography>
+          </div>
+
 
           <hr></hr>
 

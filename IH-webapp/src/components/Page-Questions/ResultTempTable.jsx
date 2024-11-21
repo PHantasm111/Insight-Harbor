@@ -84,10 +84,10 @@ export function ResultTempTable({ resultStore, step }) {
               <td colSpan={4} className="p-4 text-center">
                 <Typography
                   variant="small"
-                  color="blue-gray"
-                  className="font-normal"
+                  color="black"
+                  className="font-normal italic"
                 >
-                  No available result
+                 No available result
                 </Typography>
               </td>
             </tr>

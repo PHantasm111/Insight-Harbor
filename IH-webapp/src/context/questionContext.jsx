@@ -11,7 +11,7 @@ export const QuestionProvider = ({ children }) => {
         id: 1,
         content: "Where do you want to deploy your data lake ?",
         type: "single_choice",
-        choices: { "c1": "On-premises"},
+        choices: { "c1": "On-premises", "c2" : "On cloud"},
         is_required: 1,
         help_text: null
     });

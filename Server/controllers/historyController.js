@@ -65,18 +65,17 @@ const getUserHistoryFromId = async (uid) => {
                                 JOIN datalake d ON d.Id_R = build.Id_R
                                 JOIN contain c ON d.Id_R = c.Id_R
                                 WHERE UserID = ?
-                                AND Status = 'finished' or Status = 'valid'
+                                AND Status in ('finished','valid')
                                 GROUP BY UserID, build.Id_R, Date_created, Status;`;
 
     const [res] = await connection.query(queryUserHistory, [uid]);
-
-    //console.log("res: ", res);
     return res;
 }
 
 export const initialHistory = async (req, res) => {
 
     const userID = req.params.uid;
+    console.log(userID);
 
     // Step 1: Check if user exists
     const userCheckQuery = "SELECT * FROM users WHERE UserID = ?";
@@ -88,6 +87,7 @@ export const initialHistory = async (req, res) => {
 
     // Step 2: search history data
     const historydata = await getUserHistoryFromId(userID);
+    console.log(historydata)
 
     return res.status(200).json(historydata);
 }
@@ -100,16 +100,6 @@ export const saveFinalResult = async (req, res) => {
     }
 
     const {
-        sourceBatch,
-        sourceStreaming,
-        sourceRealtimeStreaming,
-        storageZone1,
-        rankZone1,
-        storageZone2,
-        rankZone2,
-        storageZone3,
-        rankZone3,
-        totalQ,
         timer,
         currentUser,
         title,
@@ -118,6 +108,8 @@ export const saveFinalResult = async (req, res) => {
         resultStore,
         allQuestionsData,
         sourceAndTargetStep1,
+        deployMode,
+        architectureCloud,
     } = req.body;
 
     const userID = currentUser.UserID;
@@ -157,8 +149,8 @@ export const saveFinalResult = async (req, res) => {
             await connection.query(insertCalendarQuery);
 
             const insertBuildQuery = `
-                INSERT INTO build (UserID, Id_R, Date_created, Status, AllQuestionsData, CurrentId, ResultStore, SourceAndTargetList,timer)
-                VALUES (?, ?, CURRENT_TIMESTAMP(), 'finished', ?, ?, ?, ?,?)
+                INSERT INTO build (UserID, Id_R, Date_created, Status, AllQuestionsData, CurrentId, ResultStore, SourceAndTargetList,timer, architectureCloud, deployMode)
+                VALUES (?, ?, CURRENT_TIMESTAMP(), 'finished', ?, ?, ?, ?,?,?,?)
             `;
 
             const [buildResult] = await connection.query(insertBuildQuery, [
@@ -169,6 +161,8 @@ export const saveFinalResult = async (req, res) => {
                 JSON.stringify(resultStore),
                 JSON.stringify(sourceAndTargetList),
                 timer,
+                JSON.stringify(architectureCloud),
+                deployMode
             ]);
 
             console.log("Data successfully inserted into build table", buildResult);
@@ -210,34 +204,7 @@ export const saveFinalResult = async (req, res) => {
     // Step 4 : insert the data into the table implementation
     // 4.1 : prepare the data to insert
     // SourceStreaming is step2 but it store in step1 with sourceStreaming:1, so we need to identify these type of source
-    const sourceAndTargetZoneIngestion = sourceAndTargetStep1
-        .filter(pair => pair.step === 1 && (!pair.hasOwnProperty('sourceStreaming') || pair.sourceStreaming === 0))
-        .map(pair => [pair.source, pair.target]);
-
-    const sourceAndTargetZonePreparation = sourceAndTargetStep1
-        .filter(pair => pair.step === 2)
-        .map(pair => [pair.source, pair.target]);
-
-    const sourceAndTargetZoneAnalysis = sourceAndTargetStep1
-        .filter(pair => pair.step === 3)
-        .map(pair => [pair.source, pair.target]);
-
-    const sourceRealTimeZonePreparation = sourceAndTargetStep1
-        .filter(pair => pair.step === 1 && pair.sourceStreaming === 1)
-        .map(pair => [pair.source, pair.target]);
-
-
-
-    if (model === 1) {
-        // 4.2 search id for each source and target
-
-    } else if (model === 2 && sourceZoneModel === "Batch") {
-
-    } else if (model === 2 && sourceZoneModel === "Batch and Streaming") {
-
-    } else if (model === 3 && sourceZoneModel === "Streaming") {
-
-    }
+ 
     return res.status(200).json("Report saved !")
 }
 
@@ -275,7 +242,7 @@ export const getRecordById = async (req, res) => {
     const idDL = req.params.id;
 
     try {
-        const q = `SELECT AllQuestionsData as allQuestionsData, ResultStore as resultStore, SourceAndTargetList as sourceAndTargetStep1, timer FROM build WHERE Id_R = ? AND Status IN ('finished','valid')`
+        const q = `SELECT AllQuestionsData as allQuestionsData, ResultStore as resultStore, SourceAndTargetList as sourceAndTargetStep1, timer, architectureCloud, deployMode FROM build WHERE Id_R = ? AND Status IN ('finished','valid')`
         const r = await db.promise().query(q, [idDL])
 
         console.log("record",r[0][0]);

@@ -3,7 +3,6 @@ import bcrypt from "bcryptjs";
 
 export const getUserStatisticData = async (req, res) => {
     try {
-
         const userId = req.params.id
 
         // Step 1: Check if user exists
@@ -15,25 +14,33 @@ export const getUserStatisticData = async (req, res) => {
         }
 
         // Step 2 : Get the data back to front-end
-        const query = `(select count(*)
-                    from build
-                    where UserID = ?
-                    and Status in ('finished', 'valid')
-                    group by UserID)
-
-                    union   
-
-                    (select count(*)
-                    from build
-                    where UserID = ?
-                    and Status = 'valid'
-                    group by UserID
-                    );`;
+        const query = 
+        `
+            with finished_valid_cte as (
+                select count(*) as count_total
+                from build
+                where UserID = 17
+                and Status in ('finished', 'valid')
+            ),
+            valid_cte as (
+                select count(*) as count_valid
+                from build
+                where UserID = 17
+                and Status = 'valid'
+            )
+            select
+                f.count_total,
+                v.count_valid
+            from
+                finished_valid_cte f,
+                valid_cte v;  
+        `
 
         const [results] = await db.promise().query(query, [userId, userId])
+
         if (results.length > 0) {
-            const totalBuilds = results[0]["count(*)"];
-            const validBuilds = results[1]["count(*)"];
+            const totalBuilds = results[0].count_total;
+            const validBuilds = results[0].count_valid;
             return res.status(200).json({ totalBuilds, validBuilds });
         } else {
             return res.status(404).json({ message: "No saved data found" });

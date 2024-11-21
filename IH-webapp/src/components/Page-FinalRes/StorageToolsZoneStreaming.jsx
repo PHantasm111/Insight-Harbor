@@ -1,7 +1,7 @@
 import { Card, Chip, List, ListItem, ListItemSuffix, Typography } from '@material-tailwind/react'
 import React from 'react'
 
-const StorageToolsZoneStreaming = ({ rankZone }) => {
+const StorageToolsZoneStreaming = ({ rankZone, deployType }) => {
     return (
         <div className='w-full h-full p-2'>
             <Card className='w-full h-full flex flex-col bg-red-50'>
@@ -20,18 +20,36 @@ const StorageToolsZoneStreaming = ({ rankZone }) => {
 
                     <div className="h-full overflow-scroll scrollbar-hide flex items-center">
                         <List className='bg-green-50 p-1'>
-                            {rankZone?.map((toolData, index) => (
-                                <ListItem className='py-1 px-2' key={toolData.Id_t}>
-                                    {toolData.name_t}
-                                    <ListItemSuffix>
-                                        <Chip
-                                            value={index + 1}
-                                            variant="ghost"
-                                            size="md"
-                                        />
-                                    </ListItemSuffix>
-                                </ListItem>
-                            ))}
+                            {deployType != "Cloud"
+                                ? (
+                                    rankZone?.map((toolData, index) => (
+                                        <ListItem className='py-1 px-2' key={toolData.Id_t}>
+                                            {toolData.name_t}
+                                            <ListItemSuffix>
+                                                <Chip
+                                                    value={index + 1}
+                                                    variant="ghost"
+                                                    size="md"
+                                                />
+                                            </ListItemSuffix>
+                                        </ListItem>
+                                    ))
+                                ) 
+                                : (
+                                    rankZone?.map((tool, index) => (
+                                        <ListItem className='py-1 px-2' key={index}>
+                                            {tool}
+                                            <ListItemSuffix>
+                                                <Chip
+                                                    value={index + 1}
+                                                    variant="ghost"
+                                                    size="md"
+                                                />
+                                            </ListItemSuffix>
+                                        </ListItem>
+                                    ))
+                                )
+                            }
                         </List>
                     </div>
                 </div>

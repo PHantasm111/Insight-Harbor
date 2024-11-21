@@ -86,12 +86,12 @@ export function QuestionTable() {
         <Typography
           variant="h2"
           color="black"
-          className="pt-2 pb-4"
+          className="pt-2"
         >
           Answer list
         </Typography>
       </div>
-      <Card className="w-full overflow-scroll border border-gray-300 px-4 h-2/3 bg-white/50 scrollbar-hide">
+      <Card className="w-full overflow-scroll border border-gray-300 px-4 h-[390px] bg-white/50 scrollbar-hide shadow-transparent">
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
@@ -196,7 +196,7 @@ export function QuestionTable() {
           </tbody>
         </table>
       </Card>
-      <div className="py-4">
+      <div className="mt-2">
         <Button onClick={handleOpen} size="lg" variant="gradient" className="text-lg w-full">Modify</Button>
       </div>
 

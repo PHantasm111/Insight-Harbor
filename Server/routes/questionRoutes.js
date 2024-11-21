@@ -6,13 +6,15 @@ import {
     getSkipQuestion,
     saveQuestionData,
     getOverwriteData,
-    getArrayPreference
+    getArrayPreference, 
+    calculCloudData
 } from "../controllers/questionController.js";
 
 
 const router = express.Router();
 
 // state
+router.post("/calculCloudData", calculCloudData);
 router.post("/save", saveQuestionData);
 router.post("/getArrayPreference", getArrayPreference)
 router.get("/overwrite", getOverwriteData)

@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom'
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const QuestionMiddleUpContent = () => {
+const QuestionMiddleUpContent = ({ onDeployModeChange }) => {
 
   // Use QuestionContext
   const {
@@ -38,7 +38,8 @@ const QuestionMiddleUpContent = () => {
     setReComputeSourceAndTarget,
     setCalculRealTimeStreaming,
     resultStore, setResultStore,
-    globalMsg, setGlobalMsg
+    globalMsg, setGlobalMsg,
+    setIsTimerRunning, timer
   } = useContext(QuestionContext);  // Use useContext to get state and update function
 
   // Navigate function
@@ -180,6 +181,11 @@ const QuestionMiddleUpContent = () => {
           setLoading(false);
         }
       };
+
+      if (allQuestionsData.some(question => question.questionId === 1)) {
+        onDeployModeChange(allQuestionsData.filter(question => question.questionId === 1).map(question => Object.values(question.userSelections[0])[0]));
+      }
+
       sendRequest();
       setComputeSourceAndTarget((prev) => prev + 1)
     }
@@ -230,30 +236,15 @@ const QuestionMiddleUpContent = () => {
 
   // Supervise the currentQuestionId and when it change, handle the active step and make true that Q10 and Q12 will have the question content
   useEffect(() => {
-
-    // const updateResultStore = (keyToDelete, resultstore) => {
-
-    //   const newResultStore = { ...resultstore };
-
-    //   if (Array.isArray(keyToDelete)) {
-    //     keyToDelete.forEach(key => {
-    //       delete newResultStore[key]
-    //     })
-    //   } else {
-    //     delete newResultStore[keyToDelete];
-    //   }
-
-    //   console.log("new", newResultStore)
-    //   setResultStore(newResultStore);
-    // }
-
     const has33 = allQuestionsData.some(question => question.questionId === 33);
+    const depoly_mode_q = allQuestionsData.find(question => question.questionId === 1);
+    const depoly_mode = depoly_mode_q ? Object.values(depoly_mode_q.userSelections[0])[0] : null;
 
     if (currentQuestionId === 10) {
       // Update Step -> step = 0 => step = 1
       setStep(1);
       setGlobalMsg("You are in step 2 now !")
-
+      d
       // Update TargetList -> give the source and target in step 1 Exemple: [{target: source},{"HDFS:Files"},{"HDFS":"IoT"}]
       if (allQuestionsData.every(q => q.questionId != 10)) {
         const step1Targets = sourceAndTargetStep1
@@ -281,23 +272,20 @@ const QuestionMiddleUpContent = () => {
         setStep(1);
       }
 
-    } else if (currentQuestionId === 35) {
-      setStep(1)
-
     } else {
 
       // Update step
       const has10 = allQuestionsData.some(question => question.questionId === 10);
       const has12 = allQuestionsData.some(question => question.questionId === 12);
       const has20 = allQuestionsData.some(question => question.questionId === 20);
-      const has35 = allQuestionsData.some(question => question.questionId === 35);
+      const has38 = allQuestionsData.some(question => question.questionId === 38);
 
       if (has12) {
         setStep(2);
 
         const keyToDelete = [3]
         //updateResultStore(keyToDelete, resultStore)
-      } else if (has10 || has20 || has35) {
+      } else if (has10 || has20) {
         setStep(1);
 
         const keyToDelete = [2, 3]
@@ -736,24 +724,6 @@ const QuestionMiddleUpContent = () => {
       return;
     }
 
-    // Check if all "select" question has been selected
-    // if (showFourth) {
-    //   if (!Object.hasOwn(userSelections[0], 'fourthSelectValue')) {
-    //     setLoading(false)
-    //     return setNoSelectAlert(true)
-    //   }
-    // } else if (showThird) {
-    //   if (!Object.hasOwn(userSelections[0], 'thirdSelectValue')) {
-    //     setLoading(false)
-    //     return setNoSelectAlert(true)
-    //   }
-    // } else if (showSecond) {
-    //   if (!Object.hasOwn(userSelections[0], 'secondSelectValue')) {
-    //     setLoading(false)
-    //     return setNoSelectAlert(true)
-    //   }
-    // }
-
     // Check if there are same pair in the sourceAndTargetStep1
     const hasDouble = doubleEleCheck(userSelections);
     if (hasDouble) {
@@ -874,7 +844,7 @@ const QuestionMiddleUpContent = () => {
 
     processQuestion19(currentQuestionId, userSelections, sourceAndTargetStep1, setSourceAndTargetStep1);
 
-    //store all questiondata and selections into context using addQuestionData()
+    //store all questiondata and selections into context using addQuestionData() => cause useEffect
     addQuestionData(questionData, userSelections, targetListHasValue);
 
     // Clear the value of the select table 
@@ -1037,28 +1007,31 @@ const QuestionMiddleUpContent = () => {
   const handleFinalReport = async () => {
 
     setIsTimerRunning(false);
-    // Step 1: save the data into db first
-    // if (currentUser) {
-    //   const response = await axios.post(`${apiUrl}/question/save`, {
-    //     allQuestionsData,
-    //     sourceAndTargetStep1,
-    //     currentQuestionId,
-    //     resultStore,
-    //     UserID: currentUser.UserID
-    //   })
+    // Step 1: API to calculate data for final report
+    try {
+      const resp = await axios.post(`${apiUrl}/question/calculCloudData`, {
+        allQuestionsData
+      });
 
-    //   console.log("save from button generate", response.data)
-    // }
+      console.log(resp.data)
 
-    // Step 2: go to page /finalRes with data
+      // Step 2: go to page /finalRes with data
 
-    const dataToPass = {
-      allQuestionsData,
-      sourceAndTargetStep1,
-      resultStore,
-      timer,
+      const dataToPass = {
+        allQuestionsData,
+        sourceAndTargetStep1,
+        resultStore,
+        timer,
+        deployMode: "Cloud",
+        platform: resp.data.platform,
+        architectureCloud: resp.data.recommendation
+      }
+      navigate("/finalres", { state: { dataToPass } })
+
+    } catch (error) {
+      console.log(error);
     }
-    navigate("/finalres", { state: { dataToPass } })
+
   }
 
 

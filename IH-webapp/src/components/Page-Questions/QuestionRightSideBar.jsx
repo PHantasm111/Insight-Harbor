@@ -42,6 +42,7 @@ const QuestionRightSideBar = () => {
     if (calculRealTimeStreaming) {
       calculResultEachStep(2)
     }
+
   }, [step, forceUseFunction, calculRealTimeStreaming])
 
   useEffect(() => {
@@ -90,13 +91,12 @@ const QuestionRightSideBar = () => {
         allQuestionsData.some(question =>
           question.questionId === 33);
 
-      const hasCloudAndHybrid =
+      const hasCloudAndBatch =
         allQuestionsData.some(question =>
           question.questionId === 1 && Object.values(question.userSelections[0]).includes("On cloud")) &&
         allQuestionsData.some(question =>
-          question.questionId === 5 && Object.values(question.userSelections[0]).includes("Hybrid")) &&
-        allQuestionsData.some(question =>
-          question.questionId === 35);
+          question.questionId === 36 && Object.values(question.userSelections[0]).includes("Database snapshots or static files (CSV/JSON/Parquet, etc.) - Batch"))
+
 
       if (response.data) {
         if (hasStreamingAndRealTime) {
@@ -129,11 +129,6 @@ const QuestionRightSideBar = () => {
 
           compareAndCombine({ [step]: response.data }, resultStore[step], step);
 
-        } else if (hasCloudAndHybrid) {
-          setResultStore(() => ({
-            [step]: response.data
-          }));
-
         } else {
           setResultStore((prev) => ({
             ...prev,
@@ -158,19 +153,8 @@ const QuestionRightSideBar = () => {
 
     setIsTimerRunning(false);
     // Step 1: save the data into db first
-    // if (currentUser) {
-    //   const response = await axios.post(`http://localhost:3000/question/save`, {
-    //     allQuestionsData,
-    //     sourceAndTargetStep1,
-    //     currentQuestionId,
-    //     resultStore,
-    //     UserID: currentUser.UserID
-    //   })
 
-    //   console.log("save from button generate", response.data)
-    // }
     // Step 2: go to page /finalRes with data
-
     const dataToPass = {
       allQuestionsData,
       sourceAndTargetStep1,
@@ -179,7 +163,7 @@ const QuestionRightSideBar = () => {
     }
 
     console.log("传递的数据", dataToPass);
-    
+
     navigate("/finalres", { state: { dataToPass } })
   }, 3000)
 
@@ -196,7 +180,7 @@ const QuestionRightSideBar = () => {
             Ingestion :
           </Typography>
           <div className='p-4'>
-            <ResultTempTable resultStore={resultStore[1]} step={1} />
+            <ResultTempTable resultStore={resultStore[1]} step={1}/>
           </div>
         </div>
 
@@ -205,7 +189,7 @@ const QuestionRightSideBar = () => {
             Preparation :
           </Typography>
           <div className='p-4'>
-            <ResultTempTable resultStore={resultStore[2]} step={2} />
+            <ResultTempTable resultStore={resultStore[2]} step={2}/>
           </div>
         </div>
 
@@ -214,7 +198,7 @@ const QuestionRightSideBar = () => {
             Analysis :
           </Typography>
           <div className='p-4'>
-            <ResultTempTable resultStore={resultStore[3]} step={3} />
+            <ResultTempTable resultStore={resultStore[3]} step={3}/>
           </div>
         </div>
 

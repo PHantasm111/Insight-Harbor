@@ -27,9 +27,9 @@ const QuestionLeftSideBar = () => {
 
   return (
 
-    <Card className="flex flex-col mx-2 px-4 pb-8 pt-4 h-full bg-white/50 justify-between"  >
+    <Card className="flex flex-col mx-2 px-4 pb-8 pt-4 h-full bg-white/50"  >
       {/* Show Timer */}
-      <div className="flex flex-col justify-between gap-4 mb-4">
+      <div className="flex flex-col justify-between gap-4">
         <Typography variant="h2" color="black">
           Time spent
         </Typography>
@@ -40,7 +40,6 @@ const QuestionLeftSideBar = () => {
       <div className="h-full">
         <QuestionTable />
       </div>
-
     </Card>
 
   )

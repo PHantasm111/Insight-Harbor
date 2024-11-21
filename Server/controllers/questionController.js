@@ -58,10 +58,10 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         }
 
         // ID = 6
-        if (currentQuestionId === 6 && currentStep === 1 && deployType != "On cloud") {
+        if (currentQuestionId === 6 && currentStep === 1 && deployType != "On cloud") { // On-p
             return 7
-        } else if (currentQuestionId === 6 && currentStep === 1 && deployType === "On cloud") {
-            return 34
+        } else if (currentQuestionId === 6 && currentStep === 1 && deployType === "On cloud") { // Could
+            return 37
         }
 
         // ID = 7
@@ -329,13 +329,10 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
         if (currentQuestionId === 29 && currentStep === 2 && deployType === "Cloud") {
             return 12
         }
-
-
         // ID = 30
         if (currentQuestionId === 30) {
-            return 5
+            return 36
         }
-
         // ID = 31
         if (currentQuestionId === 31) {
             if (questionAnswer === "Yes") {
@@ -344,32 +341,47 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
                 return 12
             }
         }
-
         // ID = 32
         if (currentQuestionId === 32) {
             return 7
         }
-
         // ID = 33
         if (currentQuestionId === 33) {
             return 7
         }
-
         // ID = 34
-        if (currentQuestionId === 34 && hasQ35) {
-            if (targetListHasValue === false) {
-                return 28
-            } else {
-                return 10
-            }
-        } else if (currentQuestionId === 34 && !hasQ35) {
-            return 9
+        if (currentQuestionId === 34) {
+            return 15
         }
-
         // ID = 35
         if (currentQuestionId === 35) {
             return 10
         }
+        // ID = 36
+        if (currentQuestionId === 36) {
+            return 38
+        }
+        // ID = 38
+        if (currentQuestionId === 38) {
+            return 40
+        }
+        // ID = 40
+        if (currentQuestionId === 40) {
+            return 41
+        }
+        // ID = 41
+        if (currentQuestionId === 41) {
+            return 42
+        }
+        // ID = 42
+        if (currentQuestionId === 42) {
+            return 43
+        }
+        // ID = 43
+        if (currentQuestionId === 43) {
+            return "BYE"
+        }
+
     }
 }
 
@@ -749,6 +761,7 @@ export const calculResultEachStep = (req, res) => {
     const answer4 = getAnswerById(4); // pay? yes/no/a little
     const answer5 = getAnswerById(5); // ingestType batch/streaming/hybrid
     const answer16 = getAnswerById(16); // real-time / offline
+    const answer36 = getAnswerById(36); // Batch/Streaming/Both
 
     const hasQ33 = allQuestionsData.some(q => q.questionId === 33)
 
@@ -809,81 +822,7 @@ export const calculResultEachStep = (req, res) => {
     const answer30 = getAnswerById(30);
 
     // Cloud Zone
-    if (currentStep === 1 && deploy_mode === "Cloud") {
 
-        if (procs_mode === "B") {
-            const q = `select Id_t, name_t
-                        from tools
-                        where category_t like '%Ingestion%'
-                        and procs_mode = 'B'
-                        and dplymt_mode_t = 'Cloud'
-                        order by name_t`
-
-            db.query(q, (err, data) => {
-                if (err) return res.status(500).json("query error !")
-
-                console.log(data)
-                return res.status(200).json(data)
-            })
-
-        } else if (procs_mode === "S") {
-            const q = `select Id_t, name_t
-                        from tools
-                        where category_t like '%Ingestion%'
-                        and procs_mode = 'S'
-                        and dplymt_mode_t = 'Cloud'
-                        order by name_t`
-
-            db.query(q, (err, data) => {
-                if (err) return res.status(500).json("query error !")
-
-                console.log(data)
-                return res.status(200).json(data)
-            })
-
-
-        } else if (procs_mode === "B/S") {
-
-            const toolList = [
-                { Id_t: '16 + 21', name_t: 'AWS Glue + Amazon Kinesis' },
-                { Id_t: '18 + 22', name_t: 'Microsoft Azure Data Factory + Microsoft Azure Event Hubs' },
-                { Id_t: '23', name_t: 'Google Cloud Dataflow' },
-            ]
-
-            return res.status(200).json(toolList)
-        }
-    } else if (currentStep === 2 && deploy_mode === "Cloud") {
-        if (allQuestionsData[allQuestionsData.length - 1].questionId === 35) {
-            const q = `select Id_t, name_t
-                        from tools
-                        where category_t like '%Preparation%'
-                        and dplymt_mode_t = 'Cloud'
-                        order by name_t`
-
-            db.query(q, (err, data) => {
-                if (err) return res.status(500).json("query error !")
-
-                return res.status(200).json(data)
-            })
-        } else if (allQuestionsData[allQuestionsData.length - 1].questionId === 28) {
-            const q = `select Id_t, name_t
-                        from tools
-                        where category_t like '%Preparation%'
-                        and dplymt_mode_t = 'Cloud'
-                        and complex_data_processing = 1
-                        order by name_t`
-
-            db.query(q, (err, data) => {
-                if (err) return res.status(500).json("query error !")
-
-                console.log(data)
-                return res.status(200).json(data)
-            })
-
-        }
-    } else if (currentStep === 3 && deploy_mode === "Cloud") {
-
-    }
 
 
     // On-p Zone
@@ -1786,4 +1725,200 @@ export const getArrayPreference = async (req, res) => {
         console.error("Error fetching tools:", error);
         return res.status(500).json({ message: "Internal Server Error" });
     }
+}
+
+export const calculCloudData = (req, res) => {
+
+    const { allQuestionsData } = req.body;
+
+    const getAnswerValueById = (qId) => {
+        const question = allQuestionsData.find(q => q.questionId === qId);
+        return question ? Object.values(question.userSelections[0])[0] : null;
+    }
+
+    const answer30 = getAnswerValueById(30); // use AWS or GCP or Azure
+
+    const getAnswerkeyById = (qId) => {
+        const question = allQuestionsData.find(q => q.questionId === qId);
+        return question ? Object.keys(question.userSelections[0])[0] : null;
+    }
+
+    const answer36 = getAnswerkeyById(36);
+    const answer38 = getAnswerkeyById(38);
+    const answer40 = getAnswerkeyById(40);
+    const answer41 = getAnswerkeyById(41);
+    const answer42 = getAnswerkeyById(42);
+    const answer43 = getAnswerkeyById(43);
+
+    console.log("answer30, answer36, answer38, answer40, answer41, answer42, answer43", answer30, answer36, answer38, answer40, answer41, answer42, answer43)
+
+    const platformServices = {
+        "AWS Services": {
+            ingestion: {
+                batch: ["AWS Glue", "AWS DataSync"],
+                streaming: ["Amazon Kinesis Data Streams", "Amazon MSK"]
+            },
+            storage: "Amazon S3",
+            processing: {
+                simple: "AWS Glue",
+                complex: "Amazon EMR",
+                realTime: "Kinesis Data Analytics or MSK + Flink"
+            },
+            query: {
+                lowFrequency: "Athena",
+                highFrequency: "Amazon Redshift"
+            },
+            description: "AWS provides robust and scalable tools for data lakes."
+        },
+        "Google Cloud Services": {
+            ingestion: {
+                batch: ["Cloud Dataflow", "Transfer Appliance"],
+                streaming: ["Pub/Sub"]
+            },
+            storage: "Cloud Storage",
+            processing: {
+                simple: "Dataflow",
+                complex: "Dataproc",
+                realTime: "Dataflow (real-time mode)"
+            },
+            query: {
+                lowFrequency: "BigQuery",
+                highFrequency: "BigQuery"
+            },
+            description: "GCP specializes in seamless integration and analytics tools like BigQuery."
+        },
+        "Microsoft Azure Services": {
+            ingestion: {
+                batch: ["Azure Data Factory", "Azure Import/Export"],
+                streaming: ["Event Hubs", "IoT Hub"]
+            },
+            storage: "Azure Data Lake Storage",
+            processing: {
+                simple: "Azure Data Factory",
+                complex: "HDInsight",
+                realTime: "Stream Analytics"
+            },
+            query: {
+                lowFrequency: "Azure Synapse Analytics (on-demand mode)",
+                highFrequency: "Azure Synapse Analytics (dedicated mode)"
+            },
+            description: "Azure offers powerful integration with enterprise data and analytics solutions."
+        }
+    };
+
+    // Select platform services based on user's platform choice
+    const platform = platformServices[answer30];
+    if (!platform) {
+        return res.status(400).json({ success: false, message: "Invalid platform selected." });
+    }
+
+
+    // Dynamic recommendation logic
+    const recommendDataLake = (answers, platform) => {
+        const architecture = {
+            source: "",
+            ingestion: [],
+            storage: platform.storage,
+            processing: [],
+            query: "",
+            description: platform.description
+        };
+
+        // Data source determines ingestion method
+        if (answers.data_source === "c1") {
+            architecture.ingestion.push(...platform.ingestion.batch);
+            architecture.source = "batch";
+        } else if (answers.data_source === "c2") {
+            architecture.ingestion.push(...platform.ingestion.streaming);
+            architecture.source = "streaming";
+        } else if (answers.data_source === "c3") {
+            architecture.ingestion.push(...platform.ingestion.batch, ...platform.ingestion.streaming);
+            architecture.source = "hybrid";
+        }
+
+        // Data volume determines processing tools
+        if (answers.data_volume === "c1") {
+            architecture.processing.push(
+                {
+                    complex: platform.processing.complex
+                }
+            );
+        } else if (answers.data_volume === "c2") {
+            architecture.processing.push(
+                {
+                    simple: platform.processing.simple
+                }
+            );
+        }
+
+        // Streaming latency determines stream processing tools
+        if (answers.streaming_latency === "c1") {
+
+
+        } else if (answers.streaming_latency === "c2") {
+            if (architecture.source != "batch") {
+                architecture.processing.push(
+                    {
+                        realTime: platform.processing.realTime
+                    }
+                );
+            }
+        }
+
+        // Processing complexity determines processing framework
+        if (answers.processing_complexity === "c1") {
+
+        } else if (answers.processing_complexity === "c2") {
+            if (architecture.processing.some(item => item.simple)) {
+                architecture.processing = architecture.processing.map(item => {
+                    if (item.simple) {
+                        return {
+                            complex: platform.processing.complex
+                        }
+                    } else {
+                        return item;
+                    }
+                });
+            }
+        } else if (answers.processing_complexity === "c3") {
+            if (!architecture.processing.some(item => item.realTime)) {
+                architecture.processing.push(
+                    {
+                        realTime: platform.processing.realTime
+                    }
+                );
+            }
+
+        }
+
+        // Query frequency determines querying tools
+        if (answers.query_frequency === "c1") {
+            architecture.query = platform.query.lowFrequency;
+        } else if (answers.query_frequency === "c2") {
+            architecture.query = platform.query.highFrequency;
+        }
+
+        return architecture;
+    };
+
+    // Map user answers into the format required by the recommendation logic
+    const userAnswers = {
+        data_source: answer36,
+        data_volume: answer38,
+        streaming_latency: answer40,
+        processing_complexity: answer41,
+        query_frequency: answer42,
+        cost_priority: answer43
+    };
+
+    // Generate recommendation
+    const recommendation = recommendDataLake(userAnswers, platform);
+
+    // Respond with the recommendation
+    res.json({
+        success: true,
+        platform: answer30,
+        recommendation
+    });
+
 }

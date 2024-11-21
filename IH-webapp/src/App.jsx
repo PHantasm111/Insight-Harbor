@@ -14,7 +14,9 @@ import Tools from "./pages/Tools";
 import History from "./pages/History";
 import FinalRes from "./pages/FinalRes";
 import Profile from "./pages/Profile";
+import Contact from "./pages/Contact";
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import About from "./pages/About";
 
 const Layout = () => {
   return (
@@ -62,6 +64,14 @@ const router = createBrowserRouter([
       {
         path:"/profile",
         element:<Profile />
+      },
+      {
+        path:"/contact",
+        element:<Contact />
+      },
+      {
+        path:"/about",
+        element:<About />
       },
     ]
   },

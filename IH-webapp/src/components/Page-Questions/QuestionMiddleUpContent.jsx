@@ -50,7 +50,6 @@ const QuestionMiddleUpContent = ({ onDeployModeChange }) => {
 
   // Store 
   const [targetList, setTargetList] = useState([])
-
   const [nextQuestionButtonState, setNextQuestionButtonState] = useState(true)
 
   // If loading
@@ -61,13 +60,9 @@ const QuestionMiddleUpContent = ({ onDeployModeChange }) => {
 
   // disableWhenStreaming block some source option when user choose Streaming branch
   const [disableWhenStreaming, setDisableWhenStreaming] = useState(false)
-
   const { currentUser } = useContext(AuthContext);
-
   const [alert, setAlert] = useState(false)
-
   const [errSave, SetErrSave] = useState(null)
-
   const [sucessSave, setSucessSave] = useState(null)
 
   // state to shwo globalMsg
@@ -207,17 +202,6 @@ const QuestionMiddleUpContent = ({ onDeployModeChange }) => {
       searchQ2 = false;
     }
 
-
-    if (allQuestionsData.some(question => question.questionId === 5)) {
-      const ingestType = allQuestionsData.filter(question => question.questionId === 5).map(question => Object.values(question.userSelections[0])[0])
-
-      if (ingestType[0] === "Streaming") {
-        setDisableWhenStreaming(true)
-      } else {
-        setDisableWhenStreaming(false)
-      }
-    }
-
   }, [allQuestionsData]); // This will trigger when allQuestionsData is updated
 
   // Test handleSelectionChange()
@@ -244,7 +228,6 @@ const QuestionMiddleUpContent = ({ onDeployModeChange }) => {
       // Update Step -> step = 0 => step = 1
       setStep(1);
       setGlobalMsg("You are in step 2 now !")
-      d
       // Update TargetList -> give the source and target in step 1 Exemple: [{target: source},{"HDFS:Files"},{"HDFS":"IoT"}]
       if (allQuestionsData.every(q => q.questionId != 10)) {
         const step1Targets = sourceAndTargetStep1
@@ -394,6 +377,10 @@ const QuestionMiddleUpContent = ({ onDeployModeChange }) => {
       return () => clearTimeout(timer);
     }
   }, [globalMsg]);
+
+  useEffect(() => {
+    console.log("ssss", disableWhenStreaming)
+  },[disableWhenStreaming])
 
   // Combine the same target to one line data
   const processQuestion19 = (currentQuestionId, userSelections, sourceAndTargetStep1, setSourceAndTargetStep1) => {

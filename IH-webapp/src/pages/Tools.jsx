@@ -55,11 +55,17 @@ const Tools = () => {
         setSelectedTool(response.data[0])
     }
 
+    const storageContentHandler = async (idt) => {
+        const response = await axios.get(`${apiUrl}/tool/storage/${idt}`)
+
+        setSelectedTool(response.data[0])
+    }
+
     // Return the page
     return (
         <div className="flex bg-gray-100 pt-6 px-2 w-full min-h-screen">
             <div className='w-1/6 max-h-screen overflow-auto scrollbar-hide rounded-2xl shadow-md'>
-                <ToolsSideBar setSelectedTool={setSelectedTool} toolContentHandler={toolContentHandler} />
+                <ToolsSideBar setSelectedTool={setSelectedTool} toolContentHandler={toolContentHandler} storageContentHandler={storageContentHandler} />
             </div>
 
             <Card className="min-h-screen w-5/6 p-4 border-1 mx-2 mb-2">
@@ -152,8 +158,6 @@ const Tools = () => {
                                 })}
                             </div>
                         </div>
-
-
                     </div>)
                     : (<div className='h-full w-full'>
                         <div><Button onClick={() => { setSelectedTool(null) }} variant="outlined" size="md" className='mb-2'>Return</Button></div>

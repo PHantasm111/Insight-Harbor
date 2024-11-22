@@ -18,7 +18,7 @@ import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const ToolsSideBar = ({setSelectedTool, toolContentHandler}) => {
+const ToolsSideBar = ({setSelectedTool, toolContentHandler, storageContentHandler}) => {
     // Status of each Accordion - Level 1
     const [open, setOpen] = React.useState(0);
 
@@ -237,7 +237,7 @@ const ToolsSideBar = ({setSelectedTool, toolContentHandler}) => {
                                         <AccordionBody className="py-1">
                                             <List className="p-0 pl-4">
                                                 {storageIBS.map(tool => (
-                                                    <ListItem key={tool.id_sto}>{tool.name_sto}</ListItem>
+                                                    <ListItem key={tool.id_sto} onClick={() => storageContentHandler(tool.id_sto)}>{tool.name_sto}</ListItem>
                                                 ))}
                                             </List>
                                         </AccordionBody>
@@ -278,7 +278,7 @@ const ToolsSideBar = ({setSelectedTool, toolContentHandler}) => {
                                                     <AccordionBody className="py-1">
                                                         <List className="p-0 pl-4">
                                                             {storage_RDB.map(tool => (
-                                                                <ListItem key={tool.id_sto}>{tool.name_sto}</ListItem>
+                                                                <ListItem key={tool.id_sto} onClick={() => storageContentHandler(tool.id_sto)}>{tool.name_sto}</ListItem>
                                                             ))}
                                                         </List>
                                                     </AccordionBody>
@@ -301,7 +301,7 @@ const ToolsSideBar = ({setSelectedTool, toolContentHandler}) => {
                                                     <AccordionBody className="py-1">
                                                         <List className="p-0 pl-4">
                                                             {storageNosql.map(tool => (
-                                                                <ListItem key={tool.id_sto}>{tool.name_sto}</ListItem>
+                                                                <ListItem key={tool.id_sto} onClick={() => storageContentHandler(tool.id_sto)}>{tool.name_sto}</ListItem>
                                                             ))}
                                                         </List>
                                                     </AccordionBody>
@@ -328,7 +328,7 @@ const ToolsSideBar = ({setSelectedTool, toolContentHandler}) => {
                                         <AccordionBody className="py-1">
                                             <List className="p-0 pl-4">
                                                 {storageFS.map(tool => (
-                                                    <ListItem key={tool.id_sto}>{tool.name_sto}</ListItem>
+                                                    <ListItem key={tool.id_sto} onClick={() => storageContentHandler(tool.id_sto)}>{tool.name_sto}</ListItem>
                                                 ))}
                                             </List>
                                         </AccordionBody>
@@ -352,7 +352,7 @@ const ToolsSideBar = ({setSelectedTool, toolContentHandler}) => {
                                         <AccordionBody className="py-1">
                                             <List className="p-0 pl-4">
                                                 {storageOS.map(tool => (
-                                                    <ListItem key={tool.id_sto}>{tool.name_sto}</ListItem>
+                                                    <ListItem key={tool.id_sto} onClick={() => storageContentHandler(tool.id_sto)}>{tool.name_sto}</ListItem>
                                                 ))}
                                             </List>
                                         </AccordionBody>
@@ -363,12 +363,12 @@ const ToolsSideBar = ({setSelectedTool, toolContentHandler}) => {
                         </Accordion>
 
                         {/* others */}
-                        <ListItem key="Frameworks">
+                        {/* <ListItem key="Frameworks">
                             <ListItemPrefix>
                                 <InboxIcon className="h-5 w-5" />
                             </ListItemPrefix>
                             Frameworks
-                        </ListItem>
+                        </ListItem> */}
                     </List>
                 </Card>
             </div>

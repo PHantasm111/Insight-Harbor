@@ -73,6 +73,7 @@ export function StickyNavbar() {
           <Typography
             as="a"
             href="/"
+            color="black"
             className="cursor-pointer font-bold"
             variant="h3"
           >

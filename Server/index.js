@@ -7,6 +7,8 @@ import toolRoutes from "./routes/toolRoutes.js";
 import questionRoutes from "./routes/questionRoutes.js"
 import historyRoutes from "./routes/historyRoutes.js";
 import userRoutes from "./routes/userRoutes.js"
+import https from "https";
+import fs from "fs";
 
 
 const app = express();
@@ -14,7 +16,12 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:5173',            // Localhost
     'http://frontend:80',              // Docker 内部网络访问（通常用于测试和容器内部请求）
-    'http://47.254.181.122:5173'       // 公共 IP，外部访问
+    'http://47.254.181.122:80',            // 公共 IP (HTTP)
+    'https://47.254.181.122',              // 公共 IP (HTTPS)
+    'http://insight-harbor.fr',            // 绑定的域名 (HTTP)
+    'https://insight-harbor.fr',
+    'http://www.insight-harbor.fr',            
+    'https://www.insight-harbor.fr',            
 ];
 
 app.use(cors({
@@ -39,7 +46,13 @@ app.use("/question",questionRoutes)
 app.use("/history", historyRoutes)
 app.use("/user", userRoutes)
 
+// 加载 SSL 证书
+const sslOptions = {
+    key: fs.readFileSync('/etc/letsencrypt/live/insight-harbor.fr/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/insight-harbor.fr/fullchain.pem'),
+};
 
-app.listen(3000, () => {
-    console.log("Server is running...")
-})
+
+https.createServer(sslOptions, app).listen(3000, () => {
+    console.log("HTTPS Server is running on port 3000...");
+});

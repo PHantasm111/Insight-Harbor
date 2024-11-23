@@ -75,6 +75,27 @@ export const searchTool = async (req, res) => {
     return res.status(200).json(toolData);
 }
 
+export const searchStorage = async (req, res) => {
+    const id = req.params.id;
+
+    const [toolData] = await db.promise().query(`SELECT * FROM storage WHERE Id_sto = ?`, [id])
+
+    console.log(toolData)
+
+    const data = [
+        {
+            Id_t : toolData[0].Id_sto,
+            name_t : toolData[0].name_sto,
+            category_t : "storage",
+            description_t : toolData[0].description_sto,
+            url : toolData[0].url_sto,
+            logo : toolData[0].logo_sto
+        }
+    ]
+
+    return res.status(200).json(data);
+}
+
 
 function randomSample(array, n) {
     const shuffled = array.sort(() => 0.5 - Math.random());

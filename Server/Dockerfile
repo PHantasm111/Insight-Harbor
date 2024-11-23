@@ -1,5 +1,5 @@
-# Using Node.js 20.15 Image
-FROM node:20.15
+# Using Node.js 20 Image
+FROM node:20-alpine
 
 # 设置容器内的工作目录
 # Set the working directory in the container

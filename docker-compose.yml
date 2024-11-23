@@ -4,8 +4,10 @@ services:
     build:
       context: ./IH-webapp
       dockerfile: Dockerfile
+    image: phantasm1/insight-harbor-frontend
     ports:
-      - "5173:80"
+      - "80:80"
+      - "443:443"
     depends_on:
       - backend
 
@@ -14,6 +16,7 @@ services:
     build:
       context: ./Server
       dockerfile: Dockerfile
+    image: phantasm1/insight-harbor-backend
     ports:
       - "3000:3000"
     environment:

@@ -33,11 +33,7 @@ function getNextQuestionId(currentQuestionId, selections, currentStep, ingestTyp
 
         // ID = 4
         if (currentQuestionId === 4 && currentStep === 1) {
-            if (questionAnswer === "No" || questionAnswer === "A little bit (medium budget)") {
-                return 5
-            } else if (questionAnswer === "Yes") {
-                return 31
-            }
+            return 5;
         }
 
         // ID = 5
@@ -592,67 +588,6 @@ export const getNextQuestion = (req, res) => {
         nextQuestionId = handleIntegrateTarget(nextQuestionId, sourceAndTargetStep1, deployType, ingestType, analysisType, hasQ33)
     }
 
-    // if (currentQuestionId === 9 && nextQuestionId === 19) {
-
-    //     let obj;
-
-    //     if (hasQ33 && ingestType === "Hybrid" && analysisType === "Real-time analysis") {
-    //         obj = req.body.sourceAndTargetStep1.reduce((acc, curr) => {
-
-    //             // current object
-    //             const { source, target, ingestType } = curr;
-
-    //             if (ingestType === "Streaming") {
-
-    //                 if (!acc[target]) {
-    //                     acc[target] = new Set();
-    //                 }
-
-    //                 if (Array.isArray(source)) {
-    //                     source.forEach(src => acc[target].add(src));
-    //                 } else {
-    //                     acc[target].add(source);
-    //                 }
-    //             }
-
-    //             return acc;
-    //         }, {})
-
-    //     } else {
-    //         obj = req.body.sourceAndTargetStep1.reduce((acc, curr) => {
-    //             // current object
-    //             const { source, target } = curr;
-
-    //             if (!acc[target]) {
-    //                 acc[target] = new Set();
-    //             }
-
-    //             if (Array.isArray(source)) {
-    //                 source.forEach(src => acc[target].add(src));
-    //             } else {
-    //                 acc[target].add(source);
-    //             }
-    //             return acc;
-    //         }, {})
-
-    //     }
-
-    //     const result = Object.keys(obj).some(t => obj[t].size > 1);
-
-    //     if (!result && ingestType === "Streaming") {
-    //         nextQuestionId = 20
-    //     } else if (!result && ingestType === "Hybrid" && analysisType === "" && deployType === "On-premises") {
-    //         nextQuestionId = 16
-    //     } else if (!result && ingestType === "Hybrid" && analysisType === "Offline analysis" && deployType === "On-premises") {
-    //         nextQuestionId = 10
-    //     } else if (!result && ingestType === "Hybrid" && analysisType === "Real-time analysis" && !hasQ33 && deployType === "On-premises") {
-    //         nextQuestionId = 8
-    //     } else if (!result && ingestType === "Hybrid" && analysisType === "Real-time analysis" && hasQ33 && deployType === "On-premises") {
-    //         nextQuestionId = 20
-    //     } else if (!result && ingestType === "Hybrid" && deployType === "On cloud") {
-    //         nextQuestionId = 35
-    //     }
-    // }
 
     // Function that calculate the protetial rank
     const protentialRank = getProtentialRank(currentQuestionId, userSelections)
@@ -780,7 +715,7 @@ export const calculResultEachStep = (req, res) => {
     // isPay ?
     let isPay = 0;
 
-    if (answer4 === "Yes" || answer4 === "A little bit (medium budget)") {
+    if (answer4 === "Yes") {
         isPay = 1;
     } else {
         isPay = 0;
@@ -820,10 +755,6 @@ export const calculResultEachStep = (req, res) => {
     //console.log("sourceTargetPairs for this step", sourceTargetPairs)
 
     const answer30 = getAnswerById(30);
-
-    // Cloud Zone
-
-
 
     // On-p Zone
     if (currentStep === 1 && deploy_mode === "On-p") {

@@ -19,13 +19,13 @@ export const getUserStatisticData = async (req, res) => {
             with finished_valid_cte as (
                 select count(*) as count_total
                 from build
-                where UserID = 17
+                where UserID = ?
                 and Status in ('finished', 'valid')
             ),
             valid_cte as (
                 select count(*) as count_valid
                 from build
-                where UserID = 17
+                where UserID = ?
                 and Status = 'valid'
             )
             select

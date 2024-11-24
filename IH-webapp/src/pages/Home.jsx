@@ -1,6 +1,5 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import imgLake from '/lake.jpg';
 import archiLake from "/Archi lake.svg";
 import {
   Card,
@@ -50,7 +49,7 @@ const Home = () => {
 
           <img
             className="h-screen w-full object-cover object-center"
-            src={imgLake}
+            src="/lake.webp"
             alt="nature image"
           />
           <Card className="absolute bg-white/40 h-72 lg:h-48 mx-4">

@@ -5,7 +5,7 @@ module.exports = withMT({
   theme: {
     extend: {
       backgroundImage: {
-        'custom-bg': "url('/bgimg.jpg')",
+        'custom-bg': "url('/bgimg.webp')",
       },
     },
   },
@@ -16,7 +16,7 @@ module.exports = withMT({
   theme: {
     extend: {
       backgroundImage: {
-        'custom-bg': "url('/bgimg.jpg')",
+        'custom-bg': "url('/bgimg.webp')",
       },
     },
   },

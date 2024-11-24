@@ -46,7 +46,7 @@ app.use("/question",questionRoutes)
 app.use("/history", historyRoutes)
 app.use("/user", userRoutes)
 
-// 加载 SSL 证书
+// Loading SSL Certificate
 const sslOptions = {
     key: fs.readFileSync('/etc/letsencrypt/live/insight-harbor.fr/privkey.pem'),
     cert: fs.readFileSync('/etc/letsencrypt/live/insight-harbor.fr/fullchain.pem'),
@@ -56,3 +56,7 @@ const sslOptions = {
 https.createServer(sslOptions, app).listen(3000, () => {
     console.log("HTTPS Server is running on port 3000...");
 });
+
+// app.listen(3000, () => {
+//     console.log("HTTP Server is running on port 3000...");
+// });

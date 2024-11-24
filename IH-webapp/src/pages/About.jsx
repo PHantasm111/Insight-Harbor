@@ -14,7 +14,7 @@ const About = () => {
                     <div class="flex flex-col bg-white shadow-sm border mt-6 border-slate-200 rounded-lg w-96 h-full">
 
                         <div class="m-2.5 overflow-hidden rounded-md h-80 flex justify-center items-center">
-                            <img class="w-full h-full object-cover" src="ph.jpg" alt="profile-picture" />
+                            <img class="w-full h-full object-cover" src="ph.webp" alt="profile-picture" />
                         </div>
 
                         <div class="px-6 text-center">
